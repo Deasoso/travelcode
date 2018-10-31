@@ -1,5 +1,5 @@
 /**
- *  @dev deaso
+ *  @dev deaso, yukiexe
  *  @copyright Andoromeda
  */
 #pragma once
@@ -25,9 +25,9 @@ class cryptojinian : public contract{
     public:
         cryptojinian(account_name self):
         contract(self),
-        global(_self, _self),
-        coins(_self, _self), // _self
-        players(_self, _self){}
+        _global(_self, _self),
+        _coins(_self, _self), // _self
+        _players(_self, _self){}
         void setcoin(const account_name owner, const uint64_t type, const uint64_t value, const uint64_t number);
 
         void onTransfer(account_name from, account_name to,
@@ -59,7 +59,7 @@ class cryptojinian : public contract{
             EOSLIB_SERIALIZE(player, (account)(name)(seed)(coins))
         };
         typedef eosio::multi_index<N(player), player> player_index;
-        player_index players;
+        player_index _players;
 
         struct coin {
             uint64_t id;
@@ -72,7 +72,7 @@ class cryptojinian : public contract{
             EOSLIB_SERIALIZE(coin, (id)(owner)(type)(value)(number))
         };
         typedef eosio::multi_index<N(coin), coin> coin_index;
-        round_index coins; 
+        round_index _coins; 
 
         struct global {
             uint64_t id = 0;
@@ -90,7 +90,7 @@ class cryptojinian : public contract{
             EOSLIB_SERIALIZE(global, (id)(hash)(coins)(usedspilt64)(usedspilt6400)) 
         };
         typedef eosio::multi_index<N(global), global> global_index;
-        global_index global;
+        global_index _global;
 };
 
 extern "C" {
