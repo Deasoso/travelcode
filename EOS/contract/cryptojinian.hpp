@@ -23,7 +23,7 @@ using eosio::action;
 
 class cryptojinian : public contract{
     public:
-        cryptojinian(account_name self):
+        cryptojinian(account_name self) :
         contract(self),
         _global(_self, _self),
         _coins(_self, _self), // _self
@@ -55,7 +55,7 @@ class cryptojinian : public contract{
             checksum256 seed;
             std::vector<uint64_t> coins; // coins, for id
 
-            uint64_t primary_key() const { return name; }
+            auto primary_key() const { return name; }
             EOSLIB_SERIALIZE(player, (account)(name)(seed)(coins))
         };
         typedef eosio::multi_index<N(player), player> player_index;
@@ -68,7 +68,7 @@ class cryptojinian : public contract{
             uint64_t value;
             uint64_t number;
 
-            uint64_t primary_key() const { return id; }
+            auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(coin, (id)(owner)(type)(value)(number))
         };
         typedef eosio::multi_index<N(coin), coin> coin_index;
@@ -86,7 +86,7 @@ class cryptojinian : public contract{
             //remainspilt16: [3,3]
             uint64_t remainamount; // return remain coin amounts
 
-            uint64_t primary_key() const { return id; }
+            auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(global, (id)(hash)(coins)(usedspilt64)(usedspilt6400)) 
         };
         typedef eosio::multi_index<N(global), global> global_index;
