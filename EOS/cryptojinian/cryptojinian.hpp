@@ -12,6 +12,8 @@
 
 typedef double real_type;
 
+using namespace eosio ;
+
 using std::string;
 using eosio::symbol_name;
 using eosio::asset;
@@ -30,7 +32,7 @@ class cryptojinian : public eosio::contract {
         void setcoin(const account_name owner, const uint64_t type, const uint64_t value, const uint64_t number);
 
         void onTransfer(account_name from, account_name to,
-                    extended_asset quantity, string memo);        
+                    asset quantity, string memo);        
         void apply(account_name code, action_name action) {
             auto &thiscontract = *this;
 
@@ -48,23 +50,29 @@ class cryptojinian : public eosio::contract {
 
 
         // @abi action
-        uint64_t cryptojinian::randommath( const checksum256 &seed ) {
+        auto cryptojinian::randommath( const checksum256 &seed ) {
             require_auth(_self);
-            //return random 1-6..
-            uint64_t r = set;
-            return set;
+
+            return merge_seed(seed, seed);
         }
 
     private:
 
- 
+        inline auto merge_seed(const checksum256 &s1, const checksum256 &s2) {
+            uint64_t hash = 0;
+            for (int i = 0; i < 32; ++i) {
+                hash ^= (s1.hash[i]) << ((i & 7) << 3);
+                //  hash ^= (s1.hash[i] ^ s2.hash[31-i]) << ((i & 7) << 3);
+            }
+            return hash;
+        }
         struct player {
             account_name name;
             checksum256 seed;
             std::vector<uint64_t> coins; // coins, for id
 
             auto primary_key() const { return name; }
-            EOSLIB_SERIALIZE(player, (account)(name)(seed)(coins))
+            EOSLIB_SERIALIZE(player, (name)(seed)(coins))
         };
         typedef eosio::multi_index<N(player), player> player_index;
         player_index _players;
@@ -79,8 +87,8 @@ class cryptojinian : public eosio::contract {
             auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(coin, (id)(owner)(type)(value)(number))
         };
-        typedef eosio::multi_index<N(coin), coin> coin_index;
-        round_index _coins; 
+        typedef eosio::multi_index<N(coin), coin> coin_t;
+        coin_t _coins; 
 
         struct global {
             uint64_t id = 0;
@@ -104,7 +112,7 @@ class cryptojinian : public eosio::contract {
 extern "C" {
     [[noreturn]] void apply(uint64_t receiver, uint64_t code, uint64_t action) 
     {
-        escrow p(receiver);
+        cryptojinian p(receiver);
         p.apply(code, action);
         eosio_exit(0);
     }
