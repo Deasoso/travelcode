@@ -48,15 +48,20 @@ class cryptojinian : public eosio::contract {
         }     
         
         void mining( const asset &cost ) {
-            auto m = miningcost() ;            
-           
+            // cost check
+            auto mc = _global.miningcost() ;
+            eosio_assert( cost != mc , "invalid EOS ");
+
+            // start mining
+            // waiting mining
+
         }
 
         // @abi action
-        void mining( const asset &cost, const uint8_t &tims ) {
+        void mining( const asset &totalcost, const uint8_t &tims ) {
             for ( auto i : times ) mining( cost ) ;
 
-            eosio_assert( m != cost , "invalid EOS ");
+            // eosio_assert( m != cost , "invalid EOS ");
 
         }
 
@@ -114,15 +119,16 @@ class cryptojinian : public eosio::contract {
             //remainspilt8: [1,2,0,3]
             //remainspilt16: [3,3]
             uint64_t remainamount; // return remain coin amounts
-            const uint64_t totalmount;
-            const uint64_t initminingcost ;
 
             const auto miningcost() {
+                return cost_table( remainamount ) ;
+                /*
                 int i = 0 ;
                 for ( i = 0 ; i < 20 ; i++ )
                     if ( remainamount >= ( i / 100 ) * totalmount )
                         return asset( "EOS", initminingcost * pow( 1.1, i ) ) ;
                 return asset( "EOS", initminingcost * pow( 1.1, --i ) ) ;
+                */
             }
 
             auto primary_key() const { return id; }
