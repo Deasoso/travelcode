@@ -30,12 +30,6 @@ void cryptojinian::setcoin(const account_name owner, const uint64_t type, const 
     
 }
 
- // @abi action
-uint64_t cryptojinian::randommath(const uint64_t set){
-    //return random 1-6..
-    uint64_t r = set;
-    return set;
-}
 
 void cryptojinian::onTransfer(account_name from, account_name to, extended_asset quantity, std::string memo) {        
     

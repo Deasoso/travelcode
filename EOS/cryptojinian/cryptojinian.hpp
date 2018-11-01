@@ -5,7 +5,6 @@
 #pragma once
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
-#include <eosiolib/contract.hpp>
 //#include "../eosio.token/eosio.token.hpp"
 #include <cmath>
 #include <string>
@@ -21,12 +20,12 @@ using eosio::contract;
 using eosio::permission_level;
 using eosio::action;
 
-class cryptojinian : public contract{
+class cryptojinian : public eosio::contract {
     public:
         cryptojinian(account_name self) :
         contract(self),
         _global(_self, _self),
-        _coins(_self, _self), // _self
+        _coins(_self, _self),
         _players(_self, _self){}
         void setcoin(const account_name owner, const uint64_t type, const uint64_t value, const uint64_t number);
 
@@ -46,10 +45,19 @@ class cryptojinian : public contract{
             };
         }     
         
+
+
+        // @abi action
+        uint64_t cryptojinian::randommath( const checksum256 &seed ) {
+            require_auth(_self);
+            //return random 1-6..
+            uint64_t r = set;
+            return set;
+        }
+
     private:
 
-        uint64_t randommath(const uint64_t set);
-
+ 
         struct player {
             account_name name;
             checksum256 seed;
