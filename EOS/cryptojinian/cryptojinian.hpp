@@ -1,17 +1,18 @@
 /**
- *  @dev deaso
+ *  @dev deaso, yukiexe
  *  @copyright Andoromeda
  */
 #pragma once
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
-#include <eosiolib/contract.hpp>
 //#include "../eosio.token/eosio.token.hpp"
 #include <cmath>
 #include <string>
 #include <vector>
 
 typedef double real_type;
+
+using namespace eosio ;
 
 using std::string;
 using eosio::symbol_name;
@@ -21,17 +22,17 @@ using eosio::contract;
 using eosio::permission_level;
 using eosio::action;
 
-class cryptojinian : public contract{
+class cryptojinian : public eosio::contract {
     public:
-        cryptojinian(account_name self):
+        cryptojinian(account_name self) :
         contract(self),
-        global(_self, _self),
-        coins(_self, _self), // _self
-        players(_self, _self){}
+        _global(_self, _self),
+        _coins(_self, _self),
+        _players(_self, _self){}
         void setcoin(const account_name owner, const uint64_t type, const uint64_t value, const uint64_t number);
 
         void onTransfer(account_name from, account_name to,
-                    extended_asset quantity, string memo);        
+                    asset quantity, string memo);        
         void apply(account_name code, action_name action) {
             auto &thiscontract = *this;
 
@@ -46,20 +47,53 @@ class cryptojinian : public contract{
             };
         }     
         
+        void mining( const asset &cost ) {
+            // cost check
+            auto mc = _global.miningcost() ;
+            eosio_assert( cost != mc , "invalid EOS ");
+
+            // start mining
+            // waiting mining
+
+        }
+
+        // @abi action
+        void mining( const asset &totalcost, const uint8_t &tims ) {
+            for ( auto i : times ) mining( cost ) ;
+
+            // eosio_assert( m != cost , "invalid EOS ");
+
+        }
+
+
+
+        // @abi action
+        auto randommath( const checksum256 &seed ) {
+            require_auth(_self);
+
+            return merge_seed(seed, seed);
+        }
+
     private:
 
-        uint64_t randommath(const uint64_t set);
-
+        inline auto merge_seed(const checksum256 &s1, const checksum256 &s2) {
+            uint64_t hash = 0;
+            for (int i = 0; i < 32; ++i) {
+                hash ^= (s1.hash[i]) << ((i & 7) << 3);
+                //  hash ^= (s1.hash[i] ^ s2.hash[31-i]) << ((i & 7) << 3);
+            }
+            return hash;
+        }
         struct player {
             account_name name;
             checksum256 seed;
             std::vector<uint64_t> coins; // coins, for id
 
-            uint64_t primary_key() const { return name; }
-            EOSLIB_SERIALIZE(player, (account)(name)(seed)(coins))
+            auto primary_key() const { return name; }
+            EOSLIB_SERIALIZE(player, (name)(seed)(coins))
         };
         typedef eosio::multi_index<N(player), player> player_index;
-        player_index players;
+        player_index _players;
 
         struct coin {
             uint64_t id;
@@ -68,11 +102,11 @@ class cryptojinian : public contract{
             uint64_t value;
             uint64_t number;
 
-            uint64_t primary_key() const { return id; }
+            auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(coin, (id)(owner)(type)(value)(number))
         };
-        typedef eosio::multi_index<N(coin), coin> coin_index;
-        round_index coins; 
+        typedef eosio::multi_index<N(coin), coin> coin_t;
+        coin_t _coins; 
 
         struct global {
             uint64_t id = 0;
@@ -86,17 +120,28 @@ class cryptojinian : public contract{
             //remainspilt16: [3,3]
             uint64_t remainamount; // return remain coin amounts
 
-            uint64_t primary_key() const { return id; }
+            const auto miningcost() {
+                return cost_table( remainamount ) ;
+                /*
+                int i = 0 ;
+                for ( i = 0 ; i < 20 ; i++ )
+                    if ( remainamount >= ( i / 100 ) * totalmount )
+                        return asset( "EOS", initminingcost * pow( 1.1, i ) ) ;
+                return asset( "EOS", initminingcost * pow( 1.1, --i ) ) ;
+                */
+            }
+
+            auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(global, (id)(hash)(coins)(usedspilt64)(usedspilt6400)) 
         };
         typedef eosio::multi_index<N(global), global> global_index;
-        global_index global;
+        global_index _global;
 };
 
 extern "C" {
     [[noreturn]] void apply(uint64_t receiver, uint64_t code, uint64_t action) 
     {
-        escrow p(receiver);
+        cryptojinian p(receiver);
         p.apply(code, action);
         eosio_exit(0);
     }
