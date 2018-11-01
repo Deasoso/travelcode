@@ -47,10 +47,23 @@ class cryptojinian : public eosio::contract {
             };
         }     
         
+        void mining( const asset &cost ) {
+            auto m = miningcost() ;            
+           
+        }
+
+        // @abi action
+        void mining( const asset &cost, const uint8_t &tims ) {
+            for ( auto i : times ) mining( cost ) ;
+
+            eosio_assert( m != cost , "invalid EOS ");
+
+        }
+
 
 
         // @abi action
-        auto cryptojinian::randommath( const checksum256 &seed ) {
+        auto randommath( const checksum256 &seed ) {
             require_auth(_self);
 
             return merge_seed(seed, seed);
@@ -101,6 +114,16 @@ class cryptojinian : public eosio::contract {
             //remainspilt8: [1,2,0,3]
             //remainspilt16: [3,3]
             uint64_t remainamount; // return remain coin amounts
+            const uint64_t totalmount;
+            const uint64_t initminingcost ;
+
+            const auto miningcost() {
+                int i = 0 ;
+                for ( i = 0 ; i < 20 ; i++ )
+                    if ( remainamount >= ( i / 100 ) * totalmount )
+                        return asset( "EOS", initminingcost * pow( 1.1, i ) ) ;
+                return asset( "EOS", initminingcost * pow( 1.1, --i ) ) ;
+            }
 
             auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(global, (id)(hash)(coins)(usedspilt64)(usedspilt6400)) 

@@ -30,7 +30,7 @@ void cryptojinian::setcoin(const account_name owner, const uint64_t type, const 
     
 }
 
-
+// input
 void cryptojinian::onTransfer(account_name from, account_name to, asset quantity, std::string memo) {        
     
     if (to != _self) return;
@@ -39,8 +39,8 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
     eosio_assert(quantity.is_valid(), "invalid token transfer");
     eosio_assert(quantity.amount > 0, "must transfer a positive amount");
     
-    asset a = asset(quantity.symbol, quantity.amount / 2);
-    asset b = asset(quantity.symbol, quantity.amount - quantity.amount / 2);
+    auto a = asset(quantity.symbol, quantity.amount / 2);
+    auto b = asset(quantity.symbol, quantity.amount - quantity.amount / 2);
 
     if (a.amount > 0) {
         action(
