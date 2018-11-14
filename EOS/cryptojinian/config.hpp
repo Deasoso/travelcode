@@ -35,6 +35,14 @@ const auto cost_table( const uint64_t &n ) {
 #endif
 
 /*
+int i = 0 ;
+for ( i = 0 ; i < 20 ; i++ )
+    if ( remainamount >= ( i / 100 ) * totalmount )
+        return asset( "EOS", initminingcost * pow( 1.1, i ) ) ;
+    return asset( "EOS", initminingcost * pow( 1.1, --i ) ) ;
+*/
+
+/*
 剩余总量为429,600张时	挖矿成本为        1EOS进行一次挖矿
 剩余总量为408,120张时	挖矿成本增加到1.100EOS进行一次挖矿
 剩余总量为386,640张时	挖矿成本增加到1.210EOS进行一次挖矿
