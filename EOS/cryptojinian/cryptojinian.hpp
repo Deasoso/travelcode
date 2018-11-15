@@ -111,9 +111,9 @@ class cryptojinian : public eosio::contract {
         struct global {
             uint64_t id = 0;
             checksum256 hash; // hash of the game seed, 0 when idle.
-            std::vector<uint64_t> coins; // 1 uint64_t for 64 coins
-            std::vector<uint64_t> usedspilt64; // for faster finding
-            std::vector<uint64_t> usedspilt6400; // for faster finding
+            std::map<uint64_t, uint64_t> coins; // 1 uint64_t for 64 coins
+            std::map<uint64_t, uint64_t> usedspilt64; // for faster finding
+            std::map<uint64_t, uint64_t> usedspilt6400; // for faster finding
             //example(for uint8_t):
             //coins: [1,9,0,11] ([00000001.00001001,00000000,00001011])
             //remainspilt8: [1,2,0,3]
