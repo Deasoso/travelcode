@@ -99,7 +99,6 @@ class cryptojinian : public eosio::contract {
             uint64_t id;
             account_name owner;
             uint64_t type;
-            uint64_t value;
             uint64_t number;
 
             auto primary_key() const { return id; }
