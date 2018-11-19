@@ -4,7 +4,7 @@
 #include <cstdio>
 
  // @abi action
-void cryptojinian::setcoin(const account_name owner, const uint64_t type, const uint64_t value, const uint64_t number) {
+void cryptojinian::setcoin(const account_name owner, const uint64_t type, const uint64_t number) {
     //require_auth( msgsender );
     // auto player = players.find(owner);
     // if(player == players.end()){
@@ -24,7 +24,6 @@ void cryptojinian::setcoin(const account_name owner, const uint64_t type, const 
         coin.id = offers.available_primary_key();
         coin.owner = owner;
         coin.type = type;
-        coin.value = value;
         coin.number = number;
     });
     
@@ -99,7 +98,7 @@ void cryptojinian::findcoinpos(const uint64_t inputrandom){
                             pos += 1;
                         }
                         if(addamount == inputrandom){//found!
-                            global.emplace(_self, [&](auto &g) {
+                            global.modify(g, 0, [&](auto &g) {
                                 g.coins[i3] = s | s_finder;
                                 g.usedspilt64[i2] = s64 + 1;
                                 g.usedspilt6400[i1] = s6400 + 1;
@@ -147,7 +146,6 @@ void cryptojinian::newcoinbypos(const account_name owner, const uint64_t pos){
         coin.id = offers.available_primary_key();
         coin.owner = owner;
         coin.type = type;
-        coin.value = 1;
         coin.number = number;
     });
     auto g = global.find(0);
@@ -157,49 +155,81 @@ void cryptojinian::newcoinbypos(const account_name owner, const uint64_t pos){
     }else{
         coincount = 1;
     }
+    global.modify(g, 0, [&](auto &g) {
+        g.typecounts[type+100] = coincount;
+    });
 }
 
 void ctyptojinian::exchange(const vector<uint64_t> inputs){
     // input ids.
-    auto g = global.find(0);
     uint64_t coincount = inputs.size();
     uint64_t type = 0;
+    acount_name coinowner;
     coin onecoin;
     for(int i=0;i<inputs.size();i++){
         onecoin = _coins.find(inputs[i]);
         require_auth(onecoin.owner);
         if (type == 0) {
             type = onecoin.type;
+            coinowner = onecoin.owner;
         } else {
             eosio_assert(type == onecoin.type, "Not Equal Type");  
         }
     }
-    uint64_t coinvalues[22][10] ={
-    {1,1,2,5,10},   //btc
-    {1,1,2,5,10},   //eth
-    {1,1,2,5,10},   //lt
-    {1,1,5,10,50,100},   //ba
-    {1,1,5,10,20,50},   //ri
-    {1,1,2,5,10},   //og
-    {1,1,2,5,10,20},   //ae
-    {1,1,2,5,10},   //as
-    {1,1,2,5,10,20,50,100},   //ud
-    {1,1,2,5,10},   //pt
-    {1,1,2,5,10},   //mo
-    {1,1,2,5,10},   //qt
-    {5,5,10,20,50,100},   //bt
-    {5,5,10,20,50},   //ht
-    {5,5,10,20,50,100},   //eos
-    {10,10,20,50,100},   //io
-    {10,10,20,50,100},   //zb
-    {50,50,100,200,500,1000},   //xlma
-    {100,100,200,500,1000},   //ada
-    {500,500,1000,2000,5000},   //dg
-    {500,500,1000,2000,5000},   //rp
-    {500,500,1000,2000,5000}    //tr
+    vector<vector<uint64_t>> coinvalues = {
+        {1,1,2,5,10},   //btc
+        {1,1,2,5,10},   //eth
+        {1,1,2,5,10},   //lt
+        {1,1,5,10,50,100},   //ba
+        {1,1,5,10,20,50},   //ri
+        {1,1,2,5,10},   //og
+        {1,1,2,5,10,20},   //ae
+        {1,1,2,5,10},   //as
+        {1,1,2,5,10,20,50,100},   //ud
+        {1,1,2,5,10},   //pt
+        {1,1,2,5,10},   //mo
+        {1,1,2,5,10},   //qt
+        {5,5,10,20,50,100},   //bt
+        {5,5,10,20,50},   //ht
+        {5,5,10,20,50,100},   //eos
+        {10,10,20,50,100},   //io
+        {10,10,20,50,100},   //zb
+        {50,50,100,200,500,1000},   //xlma
+        {100,100,200,500,1000},   //ada
+        {500,500,1000,2000,5000},   //dg
+        {500,500,1000,2000,5000},   //rp
+        {500,500,1000,2000,5000}    //tr
     };
-    uint64_t cointype = type % 100;
-    uint64_t coinvalue = type / 100;
+    uint64_t inputtype = type % 100;
+    uint64_t inputvalue = type / 100;
+    uint64_t coinvalue = coinvalues[inputtype][inputvalue];
+    uint64_t newcointype = 0;
+    uint64_t coincount = 0;
+    for(int i1=0;i1<coinvalues[inputtype].size();i1++){
+        if (coincount * coinvalue == coinvalues[inputtype][i1] && i1 > inputvalue){
+            for(int i2=0;i2<inputs.size();i2++){
+                onecoin = _coins.find(inputs[i2]);
+                _coins.modify(onecoin, 0, [&](auto &onecoin) {
+                    onecoin.owner = _self;
+                });
+            }
+            newcointype = i1*100+inputtype;
+            if(g->typecounts.count(newcointype))>0){ // no empty.
+                coincount = g->typecounts[newcointype] + 1;
+            } else {
+                coincount = 1;
+            }
+            _coins.emplace(_self, [&](auto &coin) {
+                coin.id = offers.available_primary_key();
+                coin.owner = coinowner;
+                coin.type = newcointype;
+                coin.number = coincount;
+            });
+            global.modify(g, 0, [&](auto &g) {
+                g.typecounts[newcointype] = coincount;
+            });
+        }
+    }
 }
 
 // input

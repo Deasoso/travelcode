@@ -29,7 +29,7 @@ class cryptojinian : public eosio::contract {
         _global(_self, _self),
         _coins(_self, _self),
         _players(_self, _self){}
-        void setcoin(const account_name owner, const uint64_t type, const uint64_t value, const uint64_t number);
+        void setcoin(const account_name owner, const uint64_t type, const uint64_t number);
 
         void onTransfer(account_name from, account_name to,
                     asset quantity, string memo);        
