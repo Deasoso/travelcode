@@ -5,12 +5,11 @@
 #pragma once
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
-//#include "../eosio.token/eosio.token.hpp"
+#include "eosio.token.hpp"
 #include <cmath>
-#include <string>
-#include <vector>
 
-typedef double real_type;
+#include "config.hpp"
+#include "utils.hpp"
 
 using namespace eosio ;
 
@@ -29,10 +28,39 @@ class cryptojinian : public eosio::contract {
         _global(_self, _self),
         _coins(_self, _self),
         _players(_self, _self){}
+
+        struct order {
+            uint64_t id;
+            account_name account;
+            asset bid;
+            vector<uint64_t> the_coins_for_sell ; // coins, for id
+            time timestamp;
+
+            auto primary_key() const { return id; }
+            auto get_unit_price() const { return bid / the_coin_for_sell.number  }
+            EOSLIB_SERIALIZE(order, (id)(account)(bid)(the_coin_for_sell)(timestamp))
+        };
+        typedef eosio::multi_index<N(order), order> order_t;
+        order_t _orders;
+
+        struct rec_takeOrder {
+            order matched_order ;
+            account_name buyer ;
+            const string message( "Order matched." );
+        };
+
+        // @abi action
+        void receipt(const rec_takeOrder& take_order_record) {
+            require_auth(_self);
+        }
+
         void setcoin(const account_name owner, const uint64_t type, const uint64_t value, const uint64_t number);
 
         void onTransfer(account_name from, account_name to,
-                    asset quantity, string memo);        
+                    asset quantity, string memo);
+
+
+
         void apply(account_name code, action_name action) {
             auto &thiscontract = *this;
 
@@ -47,25 +75,19 @@ class cryptojinian : public eosio::contract {
             };
         }     
         
-        void mining( const asset &cost ) {
-            // cost check
-            auto mc = _global.miningcost() ;
-            eosio_assert( cost != mc , "invalid EOS ");
-
-            // start mining
-            // waiting mining
-
-        }
+        // @abi action
+        void miningcost() { return _global.miningcost().amount; } 
 
         // @abi action
-        void mining( const asset &totalcost, const uint8_t &tims ) {
-            for ( auto i : times ) mining( cost ) ;
+        void mining( const asset &totalcost, const uint8_t &times ) {
+            require_auth(_self);
+            // cost check
+            auto mc = _global.miningcost() ;
+            eosio_assert( totalcost.amount != mc.amount * times , "invalid EOS ");
 
-            // eosio_assert( m != cost , "invalid EOS ");
+            // add mining waiting Q
 
         }
-
-
 
         // @abi action
         auto randommath( const checksum256 &seed ) {
@@ -73,6 +95,40 @@ class cryptojinian : public eosio::contract {
 
             return merge_seed(seed, seed);
         }
+
+        // @abi action
+        void add_order( const account_name &account, asset &eos, string &str_add_order ) {
+            // 由於掛單不需要轉 token 進來，直接用 acton 就可以了
+            require_auth(account);
+
+            auto itr_players = _players.find( account ) ;
+            eosio_assert( itr_players != _players.end(), "Player is not found"); // player 存在 check
+            
+            auto v_str = explode( str_add_order, ' ' ) ;
+            auto type_coin = coin::str_to_coin_type( v_str[0] ) ;
+            auto n_coin = str_to_int( v_str[1] ) ;
+            uint64_t pn_coin = 0 ;
+            vector<uint64_t> pcoins ;
+            auto citr = _coins.begin() ;
+            for ( cid : itr_players->coins ) {
+                citr = _coins.find( cid ) ;
+                if ( citr->type == type_coin ) {
+                    pn_coin += citr->number ;
+                    pcoins.push_back( cid ) ;
+                    if ( pn_coin >= ncoin ) break ;
+                }
+            }
+            eosio_assert( pn_coin >= ncoin, "Player dont have enough coins for sell order");
+            
+            _orders.emplace( _self, [&](auto &o) {
+                o.id = _orders.available_primary_key();
+                o.account = account ;
+                o.bid = eos ;
+                o.the_coins_for_sell = pcoins  ;// set coins
+            });
+
+
+        } // add_order()
 
     private:
 
@@ -84,10 +140,41 @@ class cryptojinian : public eosio::contract {
             }
             return hash;
         }
+
+        // onTransfer() ->
+        void take_order( const uint64_t &order_id, const asset &eos, const account_name &toAccount ) {
+            require_auth(toAccount);
+  
+            auto itr = _orders.find(id);
+            eosio_assert(itr != _orders.end(), "Trade id is not found");
+            eosio_assert(itr->bid == eos, "Asset does not match");
+            
+            // 一個轉移 coin 的 move
+            for ( cid : itr->the_coins_for_sell ) {
+                _coins.modify( _coins.find( cid ), _self, [&](auto& c) {
+                    c.owner = toAccount ;
+                });
+            }
+
+            // 打 log
+            const rec_takeOrder _tor{
+                .matched_order = *itr,
+                .buyer = toAccount,
+            }; 
+
+            action( permission_level{_self, N(active)},
+                    _self, N(receipt), _tor )
+            .send();
+        
+            // 刪了
+            _orders.erase(itr) ;
+
+        } // take_order()
+
         struct player {
             account_name name;
             checksum256 seed;
-            std::vector<uint64_t> coins; // coins, for id
+            vector<uint64_t> coins; // coins, for id
 
             auto primary_key() const { return name; }
             EOSLIB_SERIALIZE(player, (name)(seed)(coins))
@@ -99,8 +186,11 @@ class cryptojinian : public eosio::contract {
             uint64_t id;
             account_name owner;
             uint64_t type;
-            uint64_t value;
             uint64_t number;
+
+            auto str_to_coin_type( string &str ) {
+                return string_to_int( str ) ;
+            }
 
             auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(coin, (id)(owner)(type)(value)(number))
@@ -119,17 +209,9 @@ class cryptojinian : public eosio::contract {
             //remainspilt8: [1,2,0,3]
             //remainspilt16: [3,3]
             uint64_t remainamount; // return remain coin amounts
+            
 
-            const auto miningcost() {
-                return cost_table( remainamount ) ;
-                /*
-                int i = 0 ;
-                for ( i = 0 ; i < 20 ; i++ )
-                    if ( remainamount >= ( i / 100 ) * totalmount )
-                        return asset( "EOS", initminingcost * pow( 1.1, i ) ) ;
-                return asset( "EOS", initminingcost * pow( 1.1, --i ) ) ;
-                */
-            }
+            const auto miningcost() { return cost_table( remainamount ); }
 
             auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(global, (id)(hash)(coins)(usedspilt64)(usedspilt6400)) 

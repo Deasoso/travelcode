@@ -30,15 +30,18 @@ void cryptojinian::setcoin(const account_name owner, const uint64_t type, const 
     
 }
 
+
 // input
 void cryptojinian::onTransfer(account_name from, account_name to, asset quantity, std::string memo) {        
     
-    if (to != _self) return;
-    
+    if (to != _self) return;   
     require_auth(from);
     eosio_assert(quantity.is_valid(), "invalid token transfer");
     eosio_assert(quantity.amount > 0, "must transfer a positive amount");
-    
+
+
+    take_order( from,  ) ;
+    /*    
     auto a = asset(quantity.symbol, quantity.amount / 2);
     auto b = asset(quantity.symbol, quantity.amount - quantity.amount / 2);
 
@@ -58,4 +61,6 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
             std::string(""))
         ).send();
     }
+
+    */
 }
