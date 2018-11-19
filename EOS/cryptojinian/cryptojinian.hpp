@@ -98,7 +98,9 @@ class cryptojinian : public eosio::contract {
         struct coin {
             uint64_t id;
             account_name owner;
-            uint64_t type;
+            uint64_t type; //type :xxyy, xx for valuetype, yy for cointype
+            //BTC 1 cointype, ETH 2 cointype
+            //for example: 2 valuetype BTC: 201
             uint64_t number;
 
             auto primary_key() const { return id; }
@@ -118,6 +120,7 @@ class cryptojinian : public eosio::contract {
             //remainspilt8: [1,2,0,3]
             //remainspilt16: [3,3]
             uint64_t remainamount; // return remain coin amounts
+            std::map<uint64_t, uint64_t> typecounts;
 
             const auto miningcost() {
                 return cost_table( remainamount ) ;
@@ -131,7 +134,7 @@ class cryptojinian : public eosio::contract {
             }
 
             auto primary_key() const { return id; }
-            EOSLIB_SERIALIZE(global, (id)(hash)(coins)(usedspilt64)(usedspilt6400)) 
+            EOSLIB_SERIALIZE(global, (id)(hash)(coins)(usedspilt64)(usedspilt6400)(typecounts)) 
         };
         typedef eosio::multi_index<N(global), global> global_index;
         global_index _global;

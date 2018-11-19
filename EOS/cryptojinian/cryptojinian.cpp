@@ -36,15 +36,18 @@ void cryptojinian::init(){
     if (g == global.end()) {
         std::map<uint64_t, uint64_t> coins;
         std::map<uint64_t, uint64_t> usedspilt64;
+        std::map<uint64_t, uint64_t> coinspilt6400;
         uint64_t remainamount = 429600;
-        std::map<uint64_t, uint64_t> coins;
+        std::map<uint64_t, uint64_t> typecounts;
+        
         global.emplace(_self, [&](auto &g) {
             g.id = 0;
-            g.hash = hash;
+            g.hash = 0;
             g.coins = coins;
             g.usedspilt64 = usedspilt64;
             g.usedspilt6400 = usedspilt6400;
             g.remainamount = remainamount;
+            g.typecounts = typecounts;
         });
     } else {
         global.modify(g, 0, [&](auto &g) {
@@ -147,7 +150,58 @@ void cryptojinian::newcoinbypos(const account_name owner, const uint64_t pos){
         coin.value = 1;
         coin.number = number;
     });
+    auto g = global.find(0);
+    uint64_t coincount = 0;
+    if(g->typecounts.count(type+100))>0){ // no empty.
+        coincount = g->typecounts[type+100] + 1;
+    }else{
+        coincount = 1;
+    }
 }
+
+void ctyptojinian::exchange(const vector<uint64_t> inputs){
+    // input ids.
+    auto g = global.find(0);
+    uint64_t coincount = inputs.size();
+    uint64_t type = 0;
+    coin onecoin;
+    for(int i=0;i<inputs.size();i++){
+        onecoin = _coins.find(inputs[i]);
+        require_auth(onecoin.owner);
+        if (type == 0) {
+            type = onecoin.type;
+        } else {
+            eosio_assert(type == onecoin.type, "Not Equal Type");  
+        }
+    }
+    uint64_t coinvalues[22][10] ={
+    {1,1,2,5,10},   //btc
+    {1,1,2,5,10},   //eth
+    {1,1,2,5,10},   //lt
+    {1,1,5,10,50,100},   //ba
+    {1,1,5,10,20,50},   //ri
+    {1,1,2,5,10},   //og
+    {1,1,2,5,10,20},   //ae
+    {1,1,2,5,10},   //as
+    {1,1,2,5,10,20,50,100},   //ud
+    {1,1,2,5,10},   //pt
+    {1,1,2,5,10},   //mo
+    {1,1,2,5,10},   //qt
+    {5,5,10,20,50,100},   //bt
+    {5,5,10,20,50},   //ht
+    {5,5,10,20,50,100},   //eos
+    {10,10,20,50,100},   //io
+    {10,10,20,50,100},   //zb
+    {50,50,100,200,500,1000},   //xlma
+    {100,100,200,500,1000},   //ada
+    {500,500,1000,2000,5000},   //dg
+    {500,500,1000,2000,5000},   //rp
+    {500,500,1000,2000,5000}    //tr
+    };
+    uint64_t cointype = type % 100;
+    uint64_t coinvalue = type / 100;
+}
+
 // input
 void cryptojinian::onTransfer(account_name from, account_name to, asset quantity, std::string memo) {        
     
