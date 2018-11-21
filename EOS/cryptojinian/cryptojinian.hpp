@@ -66,22 +66,6 @@ class cryptojinian : public eosio::contract {
         void onTransfer(account_name from, account_name to,
                     asset quantity, string memo);
 
-
-
-        void apply(account_name code, action_name action) {
-            auto &thiscontract = *this;
-
-            if (action == N(transfer)) {
-                auto transfer_data = unpack_action_data<st_transfer>();
-                onTransfer(transfer_data.from, transfer_data.to, transfer_data.quantity, transfer_data.memo);
-                return;
-            }
-            if (code != _self) return;
-            switch (action) {
-                EOSIO_API(cryptojinian, (init)(mining));
-            };
-        }     
-        
         // @abi action
         // void miningcost() { return _global.miningcost().amount; } 
 
@@ -136,6 +120,8 @@ class cryptojinian : public eosio::contract {
 
 
         } // add_order()
+
+    void apply(account_name code, action_name action) ;
 
     private:
 
@@ -249,6 +235,21 @@ class cryptojinian : public eosio::contract {
         usedcoins_index _usedcoins;
 
 };
+
+void cryptojinian::apply(account_name code, action_name action) {
+            auto &thiscontract = *this;
+
+            if (action == N(transfer) && code == N(eosio.token) ) {
+                auto transfer_data = unpack_action_data<st_transfer>();
+                onTransfer(transfer_data.from, transfer_data.to, transfer_data.quantity, transfer_data.memo);
+                return;
+            }
+            if (code != _self) return;
+            switch (action) {
+                EOSIO_API(cryptojinian, (init)(mining));
+            };
+        }     
+        
 
 extern "C" {
     [[noreturn]] void apply(uint64_t receiver, uint64_t code, uint64_t action) 
