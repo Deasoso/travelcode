@@ -29,21 +29,13 @@ void cryptojinian::setcoin(const account_name owner, const uint64_t type, const 
 }
 
 uint64_t cryptojinian::addcoincount(const uint64_t type){
-    auto g = _global.find(0);
-    eosio_assert(g != _global.end(), "Not Inited (No _global)");
-
+    auto usedcoins = _usedcoins.find(type << 48);
     uint64_t globalcoincount = 0;
-    std::map<uint64_t, uint64_t> typecounts;
-
-    if(g->typecounts.count(type)>0){ // no empty.
-        typecounts = g->typecounts;
-        globalcoincount = typecounts[type];
-    }else{
-        globalcoincount = 0;
-    }
+    eosio_assert(usedcoins != _usedcoins.end(), "Not Inited (No _global)");
+    globalcoincount = usedcoins->value;
     globalcoincount += 1;
-    _global.modify(g, 0, [&](auto &g) {
-        g.typecounts[type] = globalcoincount;
+    _usedcoins.modify(usedcoins, 0, [&](auto &usedcoins) {
+        usedcoins.value = globalcoincount;
     });
     return globalcoincount;
 }
@@ -51,30 +43,16 @@ uint64_t cryptojinian::addcoincount(const uint64_t type){
 void cryptojinian::init(){
     require_auth(_self);
     auto g = _global.find(0);
-    std::map<uint64_t, uint64_t> coins;
-    std::map<uint64_t, uint64_t> usedspilt64;
-    std::map<uint64_t, uint64_t> usedspilt6400;
     uint64_t remainamount = 429600;
-    std::map<uint64_t, uint64_t> typecounts;
     if (g == _global.end()) {
         _global.emplace(_self, [&](auto &g) {
             g.id = 0;
-            // g.hash = 0;
-            g.coins = coins;
-            g.usedspilt64 = usedspilt64;
-            g.usedspilt6400 = usedspilt6400;
             g.remainamount = remainamount;
-            g.typecounts = typecounts;
         });
     } else {
         _global.modify(g, 0, [&](auto &g) {
             g.id = 0;
-            // g.hash = 0;
-            g.coins = coins;
-            g.usedspilt64 = usedspilt64;
-            g.usedspilt6400 = usedspilt6400;
             g.remainamount = remainamount;
-            g.typecounts = typecounts;
         });
     }
 }
@@ -90,36 +68,34 @@ uint64_t cryptojinian::findcoinpos(const uint64_t inputrandom){
     uint64_t s6400;
     uint64_t s64;
     uint64_t s;
-    std::map<uint64_t, uint64_t> coinints;
-    std::map<uint64_t, uint64_t> usedspilt64;
-    std::map<uint64_t, uint64_t> usedspilt6400;
+    auto coinints = _usedcoins.find(0);
+    auto usedspilt64 = _usedcoins.find(0);
+    auto usedspilt6400 = _usedcoins.find(0);
     uint64_t s_finder = 1ULL<<63;
     for(int i1 = 0;i1 < 100; i1++){ // for usedspilt6400, max640000 > 429600
-
-        if(g->usedspilt6400.count(i1)>0){// no empty.
-            usedspilt6400 = g->usedspilt6400;
-            s6400 = usedspilt6400[i1];
-        }else{
+        usedspilt6400 = _usedcoins.find(i1 << 32);
+        if (usedspilt6400 == _usedcoins.end()) {
             s6400 = 0;
+        } else {
+            s6400 = usedspilt6400->value;
         }
-
         if(addamount + (6400 - s6400) > inputrandom){ // no >=
             for(int i2 = 0;i2 < 100; i2++){// for usedspilt64;
-
-                if(g->usedspilt64.count(i2)>0){ // no empty.
-                    usedspilt64 = g->usedspilt64;
-                    s64 = usedspilt64[i2];
-                }else{
+                usedspilt64 = _usedcoins.find(i2 << 16);
+                if (usedspilt64 == _usedcoins.end()) {
                     s64 = 0;
+                } else {
+                    s64 = usedspilt64->value;
                 }
 
-                if(addamount + (64 - s64) > inputrandom){ // no >=
-                    if(g->coins.count(posspilt64)>0){ // no empty (only once)
-                        coinints = g->coins;
-                        s = coinints[posspilt64];
-                    }else{
+                if(addamount + (64 - s64) > inputrandom){ // no >= , is >
+                    coinints = _usedcoins.find(posspilt64);
+                    if (usedspilt64 == _usedcoins.end()) {
                         s = 0;
+                    } else {
+                        s = coinints->value;
                     }
+
                     for(int i3 = 0;i3 < 64; i3++){// for usedspilt64;
                         if((s | s_finder) == s){ // is 1
                             pos += 1;
@@ -129,11 +105,41 @@ uint64_t cryptojinian::findcoinpos(const uint64_t inputrandom){
                         }
                         if(addamount == inputrandom){//found!
                             _global.modify(g, 0, [&](auto &g) {
-                                g.coins[i3] = s | s_finder;
-                                g.usedspilt64[i2] = s64 + 1;
-                                g.usedspilt6400[i1] = s6400 + 1;
                                 g.remainamount = g.remainamount - 1;
                             });
+
+                            if (coinints == _usedcoins.end()) {
+                                _usedcoins.emplace(_self, [&](auto &coinints) {
+                                    coinints.key = i3;
+                                    coinints.value = s | s_finder;
+                                });
+                            } else {
+                                _usedcoins.modify(coinints, 0, [&](auto &coinints) {
+                                    coinints.value = s | s_finder;
+                                });
+                            }
+
+                            if (usedspilt64 == _usedcoins.end()) {
+                                _usedcoins.emplace(_self, [&](auto &usedspilt64) {
+                                    usedspilt64.key = i2 << 16;
+                                    usedspilt64.value = s64 + 1;
+                                });
+                            } else {
+                                _usedcoins.modify(usedspilt64, 0, [&](auto &usedspilt64) {
+                                    usedspilt64.value = s64 + 1;
+                                });
+                            }
+
+                            if (usedspilt6400 == _usedcoins.end()) {
+                                _usedcoins.emplace(_self, [&](auto &usedspilt6400) {
+                                    usedspilt6400.key = i1 << 32;
+                                    usedspilt6400.value = s6400 + 1;
+                                });
+                            } else {
+                                _usedcoins.modify(usedspilt6400, 0, [&](auto &usedspilt6400) {
+                                    usedspilt6400.value = s6400 + 1;
+                                });
+                            }
                             return pos;
                             break;
                         }
