@@ -6,17 +6,17 @@ void cryptojinian::setcoin(const account_name owner, const uint64_t type, const 
     //two-way binding.
     uint64_t newcoinid = _coins.available_primary_key()
     std::vector<uint64_t> newcoinlist;
-    auto player = players.find(owner);
-    if(player == players.end()){
+    auto player = _players.find(owner);
+    if(player == _players.end()){
         newcoinlist.push_back(newcoinid);
-        players.emplace(_self, [&](auto &player) {
+        _players.emplace(_self, [&](auto &player) {
             player.name = owner;
             player.coins = newcoinlist;
         });
     } else {
         newcoinlist = player->coins;
         newcoinlist.push_back(newcoinid);
-        players.modify(player, 0, [&](auto &player) {
+        _players.modify(player, 0, [&](auto &player) {
             player.coins = newcoinlist;
         });
     }
