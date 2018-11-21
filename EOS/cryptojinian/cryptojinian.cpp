@@ -103,7 +103,7 @@ void cryptojinian::findcoinpos(const uint64_t inputrandom){
                                 g.coins[i3] = s | s_finder;
                                 g.usedspilt64[i2] = s64 + 1;
                                 g.usedspilt6400[i1] = s6400 + 1;
-                                g.remainamount = g.remainamount + 1;
+                                g.remainamount = g.remainamount - 1;
                             });
                             return pos;
                             break;

@@ -30,6 +30,9 @@ class cryptojinian : public eosio::contract {
         _coins(_self, _self),
         _players(_self, _self){}
         void setcoin(const account_name owner, const uint64_t type, const uint64_t number);
+        void init();
+        void findcoinpos(const uint64_t inputrandom);
+        void newcoinbypos(const account_name owner, const uint64_t pos);
 
         void onTransfer(account_name from, account_name to,
                     asset quantity, string memo);        
@@ -43,7 +46,7 @@ class cryptojinian : public eosio::contract {
             }
             if (code != _self) return;
             switch (action) {
-                EOSIO_API(cryptojinian, (setcoin));
+                EOSIO_API(cryptojinian, (setcoin)(init)(findcoinpos)(newcoinbypos));
             };
         }     
         
@@ -104,7 +107,7 @@ class cryptojinian : public eosio::contract {
             uint64_t number;
 
             auto primary_key() const { return id; }
-            EOSLIB_SERIALIZE(coin, (id)(owner)(type)(value)(number))
+            EOSLIB_SERIALIZE(coin, (id)(owner)(type)(number))
         };
         typedef eosio::multi_index<N(coin), coin> coin_t;
         coin_t _coins; 
@@ -134,7 +137,7 @@ class cryptojinian : public eosio::contract {
             }
 
             auto primary_key() const { return id; }
-            EOSLIB_SERIALIZE(global, (id)(hash)(coins)(usedspilt64)(usedspilt6400)(typecounts)) 
+            EOSLIB_SERIALIZE(global, (id)(hash)(coins)(usedspilt64)(usedspilt6400)(remainamount)(typecounts)) 
         };
         typedef eosio::multi_index<N(global), global> global_index;
         global_index _global;
