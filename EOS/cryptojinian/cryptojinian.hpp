@@ -5,11 +5,11 @@
 #pragma once
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
-#include "eosio.token.hpp"
 #include <cmath>
 
 #include "config.hpp"
 #include "utils.hpp"
+#include "kyubey.hpp"
 
 using namespace eosio ;
 
