@@ -6,7 +6,7 @@
 #define EOS_SYMBOL S(4, EOS)
 
 const asset cost_table( const uint64_t &n ) {
-    if ( n >= 429600 ) return asset( 1, EOS_SYMBOL ) ;
+    if ( n >= 429600 ) return asset( string_to_price("1.000"), EOS_SYMBOL ) ;
     else if ( n >= 408120 ) return asset( string_to_price("1.100"), EOS_SYMBOL ) ;
     else if ( n >= 386640 ) return asset( string_to_price("1.210"), EOS_SYMBOL ) ;
     else if ( n >= 365160 ) return asset( string_to_price("1.331"), EOS_SYMBOL ) ;
