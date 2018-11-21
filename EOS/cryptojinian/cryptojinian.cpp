@@ -30,15 +30,15 @@ void cryptojinian::setcoin(const account_name owner, const uint64_t type, const 
 
 void cryptojinian::init(){
     require_auth(from);
-    auto g = global.find(0);
-    if (g == global.end()) {
+    auto g = _global.find(0);
+    if (g == _global.end()) {
         std::map<uint64_t, uint64_t> coins;
         std::map<uint64_t, uint64_t> usedspilt64;
         std::map<uint64_t, uint64_t> coinspilt6400;
         uint64_t remainamount = 429600;
         std::map<uint64_t, uint64_t> typecounts;
         
-        global.emplace(_self, [&](auto &g) {
+        _global.emplace(_self, [&](auto &g) {
             g.id = 0;
             g.hash = 0;
             g.coins = coins;
@@ -48,7 +48,7 @@ void cryptojinian::init(){
             g.typecounts = typecounts;
         });
     } else {
-        global.modify(g, 0, [&](auto &g) {
+        _global.modify(g, 0, [&](auto &g) {
             g.hash = hash;
         });
     }
@@ -60,8 +60,8 @@ void cryptojinian::findcoinpos(const uint64_t inputrandom){
     uint64_t addamount = 0;
     uint64_t pos = 0;
     uint64_t posspilt64 = 0;
-    auto g = global.find(0);
-    eosio_assert(g != global.end(), "Not Inited (No Global)");
+    auto g = _global.find(0);
+    eosio_assert(g != _global.end(), "Not Inited (No _global)");
     uint64_t s6400;
     uint64_t s64;
     uint64_t s;
@@ -97,7 +97,7 @@ void cryptojinian::findcoinpos(const uint64_t inputrandom){
                             pos += 1;
                         }
                         if(addamount == inputrandom){//found!
-                            global.modify(g, 0, [&](auto &g) {
+                            _global.modify(g, 0, [&](auto &g) {
                                 g.coins[i3] = s | s_finder;
                                 g.usedspilt64[i2] = s64 + 1;
                                 g.usedspilt6400[i1] = s6400 + 1;
@@ -142,14 +142,14 @@ void cryptojinian::newcoinbypos(const account_name owner, const uint64_t pos){
         }
     }
     setcoin(owner,type,number)
-    auto g = global.find(0);
+    auto g = _global.find(0);
     uint64_t coincount = 0;
     if(g->typecounts.count(type+100))>0){ // no empty.
         coincount = g->typecounts[type+100] + 1;
     }else{
         coincount = 1;
     }
-    global.modify(g, 0, [&](auto &g) {
+    _global.modify(g, 0, [&](auto &g) {
         g.typecounts[type+100] = coincount;
     });
 }
@@ -214,7 +214,7 @@ void ctyptojinian::exchange(const vector<uint64_t> inputs){
                 coincount = 1;
             }
             setcoin(coinowner,newcointype,coincount)
-            global.modify(g, 0, [&](auto &g) {
+            _global.modify(g, 0, [&](auto &g) {
                 g.typecounts[newcointype] = coincount;
             });
         }
