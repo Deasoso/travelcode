@@ -5,7 +5,7 @@
 
 #define EOS_SYMBOL S(4, EOS)
 
-const auto cost_table( const uint64_t &n ) {
+const asset cost_table( const uint64_t &n ) {
     if ( n >= 429600 ) return asset( 1, EOS_SYMBOL ) ;
     else if ( n >= 408120 ) return asset( string_to_price("1.100"), EOS_SYMBOL ) ;
     else if ( n >= 386640 ) return asset( string_to_price("1.210"), EOS_SYMBOL ) ;
@@ -33,6 +33,14 @@ const auto cost_table( const uint64_t &n ) {
 }
 
 #endif
+
+/*
+int i = 0 ;
+for ( i = 0 ; i < 20 ; i++ )
+    if ( remainamount >= ( i / 100 ) * totalmount )
+        return asset( "EOS", initminingcost * pow( 1.1, i ) ) ;
+    return asset( "EOS", initminingcost * pow( 1.1, --i ) ) ;
+*/
 
 /*
 剩余总量为429,600张时	挖矿成本为        1EOS进行一次挖矿

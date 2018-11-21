@@ -6,6 +6,14 @@
 using namespace eosio;
 using namespace std;
 
+struct st_transfer {
+    account_name from;
+    account_name to;
+    asset        quantity;
+    string       memo;
+
+    EOSLIB_SERIALIZE( st_transfer, (from)(to)(quantity)(memo) )
+};
 
 const vector<string> explode(const string& s, const char& c) {
     string buff{""};
