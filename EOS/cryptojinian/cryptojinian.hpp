@@ -65,7 +65,7 @@ class cryptojinian : public eosio::contract {
             auto &thiscontract = *this;
 
             if (action == N(transfer)) {
-                auto transfer_data = unpack_action_data<currency::transfer>();
+                auto transfer_data = unpack_action_data<st_transfer>();
                 onTransfer(transfer_data.from, transfer_data.to, extended_asset(transfer_data.quantity, code), transfer_data.memo);
                 return;
             }
