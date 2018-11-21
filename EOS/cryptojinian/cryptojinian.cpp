@@ -5,28 +5,29 @@
 
  // @abi action
 void cryptojinian::setcoin(const account_name owner, const uint64_t type, const uint64_t number) {
-    //require_auth( msgsender );
-    // auto player = players.find(owner);
-    // if(player == players.end()){
-    //     coins.emplace(_self, [&](auto &coin) {
-    //         coin.id = offers.available_primary_key();
-    //         coin.owner = owner;
-    //     });
-    // } 
-    //
-    // std::vector<account_name> accounts;
-    // for(int i=0;i<players.size();i++){
-    //     string k = players[i];
-    //     accounts.push_back(eosio::string_to_name(k.c_str()));
-    // }
-
+    //two-way binding.
+    uint64_t newcoinid = _coins.available_primary_key()
+    std::vector<uint64_t> newcoinlist;
+    auto player = players.find(owner);
+    if(player == players.end()){
+        newcoinlist.push_back(newcoinid);
+        players.emplace(_self, [&](auto &player) {
+            player.name = owner;
+            player.coins = newcoinlist;
+        });
+    } else {
+        newcoinlist = player->coins;
+        newcoinlist.push_back(newcoinid);
+        players.modify(player, 0, [&](auto &player) {
+            player.coins = newcoinlist;
+        });
+    }
     _coins.emplace(_self, [&](auto &coin) {
-        coin.id = offers.available_primary_key();
+        coin.id = newcoinid;
         coin.owner = owner;
         coin.type = type;
         coin.number = number;
     });
-    
 }
 
 void cryptojinian::init(){
@@ -142,12 +143,7 @@ void cryptojinian::newcoinbypos(const account_name owner, const uint64_t pos){
             break;
         }
     }
-    _coins.emplace(_self, [&](auto &coin) {
-        coin.id = offers.available_primary_key();
-        coin.owner = owner;
-        coin.type = type;
-        coin.number = number;
-    });
+    setcoin(owner,type,number)
     auto g = global.find(0);
     uint64_t coincount = 0;
     if(g->typecounts.count(type+100))>0){ // no empty.
@@ -219,12 +215,7 @@ void ctyptojinian::exchange(const vector<uint64_t> inputs){
             } else {
                 coincount = 1;
             }
-            _coins.emplace(_self, [&](auto &coin) {
-                coin.id = offers.available_primary_key();
-                coin.owner = coinowner;
-                coin.type = newcointype;
-                coin.number = coincount;
-            });
+            setcoin(coinowner,newcointype,coincount)
             global.modify(g, 0, [&](auto &g) {
                 g.typecounts[newcointype] = coincount;
             });

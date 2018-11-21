@@ -86,11 +86,11 @@ class cryptojinian : public eosio::contract {
         }
         struct player {
             account_name name;
-            checksum256 seed;
+            // checksum256 seed;
             std::vector<uint64_t> coins; // coins, for id
 
             auto primary_key() const { return name; }
-            EOSLIB_SERIALIZE(player, (name)(seed)(coins))
+            EOSLIB_SERIALIZE(player, (name)(coins))//(seed)
         };
         typedef eosio::multi_index<N(player), player> player_index;
         player_index _players;
