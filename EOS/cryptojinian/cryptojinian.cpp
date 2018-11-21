@@ -1,8 +1,6 @@
 #include <eosiolib/crypto.h>
 #include "cryptojinian.hpp"
 
-#include <cstdio>
-
  // @abi action
 void cryptojinian::setcoin(const account_name owner, const uint64_t type, const uint64_t value, const uint64_t number) {
     //require_auth( msgsender );
@@ -21,10 +19,10 @@ void cryptojinian::setcoin(const account_name owner, const uint64_t type, const 
     // }
 
     _coins.emplace(_self, [&](auto &coin) {
-        coin.id = offers.available_primary_key();
+        coin.id = _coins.available_primary_key();
         coin.owner = owner;
         coin.type = type;
-        coin.value = value;
+        // coin.value = value;
         coin.number = number;
     });
     
@@ -40,7 +38,7 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
     eosio_assert(quantity.amount > 0, "must transfer a positive amount");
 
 
-    take_order( from,  ) ;
+    // take_order( from,  ) ;
     /*    
     auto a = asset(quantity.symbol, quantity.amount / 2);
     auto b = asset(quantity.symbol, quantity.amount - quantity.amount / 2);
