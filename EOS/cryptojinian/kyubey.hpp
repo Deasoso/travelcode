@@ -105,6 +105,6 @@ class kyubey : public token {
             EOSLIB_SERIALIZE(market, (id)(supply)(balance)(progress))
         };
 
-        typedef eosio::multi_index<N(market), market> market_index;
-        market_index _market;      
+        typedef eosio::multi_index<N(market), market> market_t;
+        market_t _market;      
 };

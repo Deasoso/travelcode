@@ -17,7 +17,6 @@ cleos wallet unlock --password PW5JaGpLtoM1vtD1WxiAC4RDsr82FRUczmKgocw1KJZqVahB4
 
 #cleos -u http://api.eosbeijing.one get table -l 65536 cryptomeetup cryptomeetup land
 
-#cleos -u http://api.eosbeijing.one get table -l 3 cryptomeetup cryptomeetup land
 
 #cleos -u http://api-direct.eosasia.one push action eosio.token transfer '[ "minakokojima", "knowncarried", "360.2802 EOS", "" ]' -p minakokojima@active
 
@@ -124,9 +123,6 @@ cleos wallet unlock --password PW5JaGpLtoM1vtD1WxiAC4RDsr82FRUczmKgocw1KJZqVahB4
 
 
 #cleos -u http://api-direct.eosasia.one get table cryptomeetup cryptomeetup buyorder
-
-#cleos -u http://api-direct.eosasia.one get table tokendapppub PUB games
-
 
 # cleos -u https://api-kylin.eosasia.one push action pomelodex111 test '[]' -p minakokojima@active
 
