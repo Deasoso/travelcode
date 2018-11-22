@@ -17,6 +17,7 @@ class cryptojinian : public eosio::contract {
     public:
         cryptojinian(account_name self) :
         contract(self),
+        _kyubey(self),
         _global(_self, _self),
         _coins(_self, _self),
         _players(_self, _self),
@@ -226,6 +227,8 @@ class cryptojinian : public eosio::contract {
         typedef eosio::multi_index<N(usedcoins), usedcoins> usedcoins_index;
         usedcoins_index _usedcoins;
 
+
+        kyubey _kyubey ;
 };
 
 void cryptojinian::apply(account_name code, action_name action) {

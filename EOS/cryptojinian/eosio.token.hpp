@@ -37,12 +37,14 @@ namespace eosio {
          inline asset get_balance( account_name owner, symbol_name sym )const;
 
       protected:
+         // @abi table accounts i64  
          struct account {
             asset    balance;
 
             uint64_t primary_key()const { return balance.symbol.name(); }
          };
 
+          // @abi table stats i64
          struct currency_stats {
             asset          supply;
             asset          max_supply;
