@@ -24,40 +24,36 @@ class cryptojinian : public eosio::contract {
         _usedcoins(_self, _self),
         _orders(_self, _self) {}
 
-        struct order {
-            uint64_t id;
-            account_name account;
-            asset bid;
-            vector<uint64_t> the_coins_for_sell ; // coins, for id
-            time timestamp;
+        // @abi action
+        void init();
+        // @abi action
+        void clear();     
+        // @abi action
+        void test();
+        // @abi action
+        void unstake(account_name from, uint64_t amount);
+        // @abi action
+        void claim(account_name from);    
 
-            auto primary_key() const { return id; }
-            // auto get_unit_price() const { return bid / the_coins_for_sell.number  }
-            EOSLIB_SERIALIZE(order, (id)(account)(bid)(the_coins_for_sell)(timestamp))
-        };
-        typedef eosio::multi_index<N(order), order> order_t;
-        order_t _orders;
+        // @abi action
+        void transfer(account_name   from,
+                      account_name   to,
+                      asset          quantity,
+                      string         memo);
 
-        struct rec_takeOrder {
-            order matched_order ;
-            account_name buyer ;
-            string message = "Order matched." ;
-        };
+        void onTransfer(account_name from, account_name to,
+                        asset quantity, string memo);
+
+        void setcoin(const account_name owner, const uint64_t type, const uint64_t number);
+        uint64_t addcoincount(const uint64_t type);
+        uint64_t findcoinpos(const uint64_t inputrandom);
+        void newcoinbypos(const account_name owner, const uint64_t pos);
+        void exchange(const vector<uint64_t> inputs);
 
         // @abi action
         void receipt(const rec_takeOrder& take_order_record) {
             require_auth(_self);
         }
-
-        void setcoin(const account_name owner, const uint64_t type, const uint64_t number);
-        uint64_t addcoincount(const uint64_t type);
-        void init();
-        uint64_t findcoinpos(const uint64_t inputrandom);
-        void newcoinbypos(const account_name owner, const uint64_t pos);
-        void exchange(const vector<uint64_t> inputs);
-
-        void onTransfer(account_name from, account_name to,
-                    asset quantity, string memo);
 
         // @abi action
         // void miningcost() { return _global.miningcost().amount; } 
@@ -157,6 +153,25 @@ class cryptojinian : public eosio::contract {
 
         } // take_order()
 
+        // @abi table orders i64
+        struct order {
+            uint64_t id;
+            account_name account;
+            asset bid;
+            vector<uint64_t> the_coins_for_sell ; // coins, for id
+            time timestamp;
+
+            auto primary_key() const { return id; }
+            // auto get_unit_price() const { return bid / the_coins_for_sell.number  }
+            EOSLIB_SERIALIZE(order, (id)(account)(bid)(the_coins_for_sell)(timestamp))
+        };
+
+        struct rec_takeOrder {
+            order matched_order ;
+            account_name buyer ;
+            string message = "Order matched." ;
+        };
+
         // @abi table players i64
         struct player {
             account_name name;
@@ -166,8 +181,6 @@ class cryptojinian : public eosio::contract {
             auto primary_key() const { return name; }
             EOSLIB_SERIALIZE(player, (name)(coins))//(seed)
         };
-        typedef eosio::multi_index<N(player), player> player_index;
-        player_index _players;
 
         // @abi table coins i64
         struct coin {
@@ -185,9 +198,6 @@ class cryptojinian : public eosio::contract {
             auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(coin, (id)(owner)(type)(number))
         };
-        typedef eosio::multi_index<N(coin), coin> coin_t;
-        coin_t _coins; 
-
 
         // @abi table global i64
         struct global {
@@ -209,8 +219,6 @@ class cryptojinian : public eosio::contract {
             auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(global, (id)(hash)(remainamount)) 
         };
-        typedef eosio::multi_index<N(global), global> global_index;
-        global_index _global;
 
         // @abi table usedcoins i64
         struct usedcoins {
@@ -224,8 +232,22 @@ class cryptojinian : public eosio::contract {
             EOSLIB_SERIALIZE(usedcoins, (key)(value)) 
         };
 
-        typedef eosio::multi_index<N(usedcoins), usedcoins> usedcoins_index;
-        usedcoins_index _usedcoins;
+        typedef eosio::multi_index<N(global), global> global_t;
+        global_t _global;
+
+        typedef eosio::multi_index<N(order), order> order_t;
+        order_t _orders;
+
+        typedef eosio::multi_index<N(player), player> player_t;
+        player_t _players;
+
+        typedef eosio::multi_index<N(coin), coin> coin_t;
+        coin_t _coins; 
+
+        typedef eosio::multi_index<N(usedcoins), usedcoins> usedcoins_t;
+        usedcoins_t _usedcoins;
+
+        kyubey _kyubey ;
 
         /*
         uint64_t get_next_defer_id() {
@@ -242,8 +264,6 @@ class cryptojinian : public eosio::contract {
             // trx.send(get_next_defer_id(), _self, false);
         }
 
-
-        kyubey _kyubey ;
 };
 
 void cryptojinian::apply(account_name code, action_name action) {
