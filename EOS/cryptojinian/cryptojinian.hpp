@@ -13,14 +13,6 @@
 
 using namespace eosio ;
 
-using std::string;
-using eosio::symbol_name;
-using eosio::asset;
-using eosio::symbol_type;
-using eosio::contract;
-using eosio::permission_level;
-using eosio::action;
-
 class cryptojinian : public eosio::contract {
     public:
         cryptojinian(account_name self) :
@@ -83,7 +75,7 @@ class cryptojinian : public eosio::contract {
         // @abi action
         uint64_t randommath( const checksum256 &seed ) {
             require_auth(_self);
-
+        
             return merge_seed(seed, seed);
         }
 
@@ -248,9 +240,8 @@ void cryptojinian::apply(account_name code, action_name action) {
             switch (action) {
                 EOSIO_API(cryptojinian, (init)(mining));
             };
-        }     
+}     
         
-
 extern "C" {
     [[noreturn]] void apply(uint64_t receiver, uint64_t code, uint64_t action) 
     {
