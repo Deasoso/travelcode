@@ -5,6 +5,7 @@
 #pragma once
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
+#include <eosiolib/singleton.hpp>
 #include <cmath>
 
 #include "config.hpp"
@@ -51,18 +52,13 @@ class cryptojinian : public eosio::contract {
         void exchange(const vector<uint64_t> inputs);
 
         // @abi action
-        void receipt(const rec_takeOrder& take_order_record) {
-            require_auth(_self);
-        }
-
-        // @abi action
         // void miningcost() { return _global.miningcost().amount; } 
 
         // @abi action
         void mining( const asset &totalcost, const uint8_t &times ) {
             require_auth(_self);
             // cost check
-            const auto mc = _global.begin()->miningcost() ;
+            const auto mc =  _global.get().miningcost() ;
             eosio_assert( totalcost.amount != mc.amount * times , "invalid EOS ");
 
             // add mining waiting Q
@@ -114,14 +110,7 @@ class cryptojinian : public eosio::contract {
 
     private:
 
-        inline uint64_t merge_seed(const checksum256 &s1, const checksum256 &s2) {
-            uint64_t hash = 0;
-            for (int i = 0; i < 32; ++i) {
-                hash ^= (s1.hash[i]) << ((i & 7) << 3);
-                //  hash ^= (s1.hash[i] ^ s2.hash[31-i]) << ((i & 7) << 3);
-            }
-            return hash;
-        }
+        inline uint64_t merge_seed(const checksum256 &s1, const checksum256 &s2) ;
 
         // onTransfer() ->
         void take_order( const uint64_t &order_id, const asset &eos, const account_name &toAccount ) {
@@ -166,11 +155,6 @@ class cryptojinian : public eosio::contract {
             EOSLIB_SERIALIZE(order, (id)(account)(bid)(the_coins_for_sell)(timestamp))
         };
 
-        struct rec_takeOrder {
-            order matched_order ;
-            account_name buyer ;
-            string message = "Order matched." ;
-        };
 
         // @abi table players i64
         struct player {
@@ -200,7 +184,7 @@ class cryptojinian : public eosio::contract {
         };
 
         // @abi table global i64
-        struct global {
+        struct st_global {
             uint64_t id = 0;
             checksum256 hash; // hash of the game seed, 0 when idle.
             // std::map<uint64_t, uint64_t> usedcoins; // 1 uint64_t for 64 coins
@@ -217,7 +201,7 @@ class cryptojinian : public eosio::contract {
             const asset miningcost() const { return cost_table( remainamount ); }
 
             auto primary_key() const { return id; }
-            EOSLIB_SERIALIZE(global, (id)(hash)(remainamount)) 
+            EOSLIB_SERIALIZE(st_global, (id)(hash)(remainamount)) 
         };
 
         // @abi table usedcoins i64
@@ -232,8 +216,14 @@ class cryptojinian : public eosio::contract {
             EOSLIB_SERIALIZE(usedcoins, (key)(value)) 
         };
 
-        typedef eosio::multi_index<N(global), global> global_t;
-        global_t _global;
+        struct rec_takeOrder {
+            order matched_order ;
+            account_name buyer ;
+            string message = "Order matched." ;
+        };
+
+        typedef singleton<N(global), st_global> singleton_global_t;
+        singleton_global_t _global; 
 
         typedef eosio::multi_index<N(order), order> order_t;
         order_t _orders;
@@ -264,7 +254,21 @@ class cryptojinian : public eosio::contract {
             // trx.send(get_next_defer_id(), _self, false);
         }
 
+    public:
+        // @abi action
+        void receipt(const rec_takeOrder& take_order_record) {
+            require_auth(_self);
+        }
 };
+
+uint64_t cryptojinian::merge_seed(const checksum256 &s1, const checksum256 &s2) {
+    uint64_t hash = 0;
+    for (int i = 0; i < 32; ++i) {
+        hash ^= (s1.hash[i]) << ((i & 7) << 3);
+        //  hash ^= (s1.hash[i] ^ s2.hash[31-i]) << ((i & 7) << 3);
+    }
+    return hash;
+}
 
 void cryptojinian::apply(account_name code, action_name action) {
             auto &thiscontract = *this;

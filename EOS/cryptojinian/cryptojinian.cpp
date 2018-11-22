@@ -42,7 +42,7 @@ uint64_t cryptojinian::addcoincount(const uint64_t type){
 
 void cryptojinian::init(){
     require_auth(_self);
-    auto g = _global.find(0);
+    auto g = _global.get();
     uint64_t remainamount = 429600;
     if (g == _global.end()) {
         _global.emplace(_self, [&](auto &g) {
