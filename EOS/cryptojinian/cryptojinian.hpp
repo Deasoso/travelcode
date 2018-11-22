@@ -227,6 +227,21 @@ class cryptojinian : public eosio::contract {
         typedef eosio::multi_index<N(usedcoins), usedcoins> usedcoins_index;
         usedcoins_index _usedcoins;
 
+        /*
+        uint64_t get_next_defer_id() {
+            auto g = _global.get();    
+            g.defer_id += 1;
+            _global.set(g, _self);
+            return g.defer_id;
+        }*/
+
+        template <typename... Args>
+        void send_defer_action(Args&&... args) {
+            transaction trx;
+            trx.actions.emplace_back(std::forward<Args>(args)...);
+            // trx.send(get_next_defer_id(), _self, false);
+        }
+
 
         kyubey _kyubey ;
 };
