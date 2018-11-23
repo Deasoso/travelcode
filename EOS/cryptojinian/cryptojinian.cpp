@@ -40,11 +40,6 @@ uint64_t cryptojinian::addcoincount(const uint64_t type){
     return globalcoincount;
 }
 
-void cryptojinian::init(){
-    require_auth(_self);
-    _global.set( st_global{ .id = 0, .remainamount = 429600 } , _self );
-}
-
 uint64_t cryptojinian::findcoinpos(const uint64_t inputrandom){
     // inputrandom: 1 ~ remain coins
     // return 1 ~ all coins

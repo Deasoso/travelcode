@@ -308,6 +308,12 @@ vector<uint64_t> cryptojinian::merge_seed(const checksum256 &s1) {
     return v_hash;
 }
 
+void cryptojinian::init() {
+    require_auth(_self);
+    _global.set( st_global{ .id = 0, .remainamount = 429600 } , _self );
+    _kyubey.create( _self, asset( CCC_MAX_SUPPLY, CCC_SYMBOL ) ) ;
+}
+
 void cryptojinian::apply(account_name code, action_name action) {
             auto &thiscontract = *this;
 

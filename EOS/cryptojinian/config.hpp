@@ -4,6 +4,9 @@
 #include "utils.hpp"
 
 #define EOS_SYMBOL S(4, EOS)
+#define CCC_SYMBOL S(4, CCC)
+#define CCC_MAX_SUPPLY 30000000
+
 
 const asset cost_table( const uint64_t &n ) {
     if ( n >= 429600 ) return asset( string_to_price("1.000"), EOS_SYMBOL ) ;
