@@ -26,22 +26,22 @@ class cryptojinian : public eosio::contract {
         _usedcoins(_self, _self),
         _orders(_self, _self) {}
 
-        // @abi action
+        [[eosio::action]]
         void init();
-        // @abi action
+        [[eosio::action]]
         void clear();     
-        // @abi action
+        [[eosio::action]]
         void test();
-        // @abi action
+        [[eosio::action]]
         void unstake(account_name from, uint64_t amount);
-        // @abi action
+        [[eosio::action]]
         void claim(account_name from);
-        // @abi action
+        [[eosio::action]]
         void transfer(account_name   from,
                       account_name   to,
                       asset          quantity,
                       string         memo);
-        // @abi action
+        [[eosio::action]]
         void setcoin(const account_name owner, const uint64_t type, const uint64_t number);
 
         uint64_t addcoincount(const uint64_t type);
@@ -49,8 +49,8 @@ class cryptojinian : public eosio::contract {
         void newcoinbypos(const account_name owner, const uint64_t pos);
         void exchange(const vector<uint64_t> inputs);
 
-        // @abi action
-        void add_order( const account_name &account, asset &eos, string &str_add_order ) {
+        // [[eosio::action]]
+        void pinOrder( const account_name &account, asset &eos, string &str_add_order ) {
             // 由於掛單不需要轉 token 進來，直接用 acton 就可以了
             require_auth(account);
 
@@ -84,7 +84,7 @@ class cryptojinian : public eosio::contract {
 
     private:
         // @abi table orders i64
-        struct order {
+        struct [[eosio::table]] order {
             uint64_t id;
             account_name account;
             asset bid;
@@ -97,7 +97,7 @@ class cryptojinian : public eosio::contract {
         };
 
         // @abi table players i64
-        struct player {
+        struct [[eosio::table]] player {
             account_name name;
             checksum256 seed;
             vector<uint64_t> coins; // coins, for id
@@ -107,7 +107,7 @@ class cryptojinian : public eosio::contract {
         };
 
         // @abi table coins i64
-        struct coin {
+        struct [[eosio::table]] coin {
             uint64_t id;
             account_name owner;
             uint64_t type; //type :xxyy, xx for valuetype, yy for cointype
@@ -124,7 +124,7 @@ class cryptojinian : public eosio::contract {
         };
 
         // @abi table global i64
-        struct st_global {
+        struct [[eosio::table]] st_global {
             uint64_t id = 0;
             checksum256 hash; // hash of the game seed, 0 when idle.
             // std::map<uint64_t, uint64_t> usedcoins; // 1 uint64_t for 64 coins
@@ -144,7 +144,7 @@ class cryptojinian : public eosio::contract {
             EOSLIB_SERIALIZE(st_global, (id)(hash)(remainamount)) 
         };
 
-        struct st_miningqueue {
+        struct [[eosio::table]] st_miningqueue {
             uint64_t id ;
             account_name miner ;
 
@@ -153,7 +153,7 @@ class cryptojinian : public eosio::contract {
         };
 
         // @abi table usedcoins i64
-        struct usedcoins {
+        struct [[eosio::table]] usedcoins {
             // << 16 to fix usedspilt64;
             // << 32 to fix usedspilt6400;
             // << 48 to fix typecounts;
@@ -271,11 +271,11 @@ class cryptojinian : public eosio::contract {
         // onTransfer() ->
         void ibobuy( const account_name &buyer, asset &in ) {
             require_auth( buyer );
-            _kyubey.buy( buyer, in ) ;
+            _kyubey.buy( buyer, in );
         }
 
     public:
-        // @abi action
+        [[eosio::action]]
         void mining( const checksum256& seed ) {
             require_auth(_self);
             auto v_seed = merge_seed( seed ) ;

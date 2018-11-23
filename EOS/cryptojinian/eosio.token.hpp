@@ -38,14 +38,14 @@ namespace eosio {
 
       protected:
          // @abi table accounts i64  
-         struct account {
+         struct [[eosio::table]] account {
             asset    balance;
 
             uint64_t primary_key()const { return balance.symbol.name(); }
          };
 
           // @abi table stats i64
-         struct currency_stats {
+         struct [[eosio::table]] currency_stats {
             asset          supply;
             asset          max_supply;
             account_name   issuer;

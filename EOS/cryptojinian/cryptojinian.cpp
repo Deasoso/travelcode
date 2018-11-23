@@ -1,4 +1,3 @@
-#include <eosiolib/crypto.h>
 #include "cryptojinian.hpp"
 
  // @abi action
