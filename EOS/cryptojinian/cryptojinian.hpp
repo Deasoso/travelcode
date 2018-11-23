@@ -20,6 +20,7 @@ class cryptojinian : public eosio::contract {
         contract(self),
         _kyubey(self),
         _global(_self, _self),
+        _miningqueue(_self, _self),
         _coins(_self, _self),
         _players(_self, _self),
         _usedcoins(_self, _self),
@@ -51,27 +52,7 @@ class cryptojinian : public eosio::contract {
         void newcoinbypos(const account_name owner, const uint64_t pos);
         void exchange(const vector<uint64_t> inputs);
 
-        // @abi action
-        // void miningcost() { return _global.miningcost().amount; } 
-
-        // @abi action
-        void mining( const asset &totalcost, const uint8_t &times ) {
-            require_auth(_self);
-            // cost check
-            const auto mc =  _global.get().miningcost() ;
-            eosio_assert( totalcost.amount != mc.amount * times , "invalid EOS ");
-
-            // add mining waiting Q
-
-        }
-
-        // @abi action
-        uint64_t randommath( const checksum256 &seed ) {
-            require_auth(_self);
         
-            return merge_seed(seed, seed);
-        }
-
         // @abi action
         void add_order( const account_name &account, asset &eos, string &str_add_order ) {
             // 由於掛單不需要轉 token 進來，直接用 acton 就可以了
@@ -106,7 +87,7 @@ class cryptojinian : public eosio::contract {
 
         } // add_order()
 
-    void apply(account_name code, action_name action) ;
+        void apply(account_name code, action_name action) ;
 
     private:
 
@@ -204,6 +185,14 @@ class cryptojinian : public eosio::contract {
             EOSLIB_SERIALIZE(st_global, (id)(hash)(remainamount)) 
         };
 
+        struct st_miningqueue {
+            uint64_t id ;
+            account_name miner ;
+
+            auto primary_key() const { return id; }
+            EOSLIB_SERIALIZE(st_miningqueue, (id)(miner))
+        };
+
         // @abi table usedcoins i64
         struct usedcoins {
             // << 16 to fix usedspilt64;
@@ -224,6 +213,9 @@ class cryptojinian : public eosio::contract {
 
         typedef singleton<N(global), st_global> singleton_global_t;
         singleton_global_t _global; 
+
+        typedef eosio::multi_index<N(miningqueue), st_miningqueue> miningqueue_t;
+        miningqueue_t _miningqueue; 
 
         typedef eosio::multi_index<N(order), order> order_t;
         order_t _orders;
@@ -254,20 +246,66 @@ class cryptojinian : public eosio::contract {
             // trx.send(get_next_defer_id(), _self, false);
         }
 
+        uint64_t randommath( const checksum256 &seed ) {
+            require_auth(_self);
+        
+            return merge_seed(seed, seed);
+        }
+
+
+        void join_miningqueue( const account_name &miner, const asset &totalcost, const uint8_t &times ) {
+            require_auth(_self);
+
+            // cost check
+            const auto mc = _global.get().miningcost() ;
+            eosio_assert( totalcost.amount != mc.amount * times , "invalid EOS ");
+
+            // add mining waiting Q
+            for ( auto n : times ) {
+                _miningqueue.emplace( _self, [&](auto &q) {
+                    q.id = _miningqueue.available_primary_key();
+                    q.account = miner ;
+                });
+            }
+            
+        }
+
     public:
         // @abi action
         void receipt(const rec_takeOrder& take_order_record) {
             require_auth(_self);
         }
+
+        // @abi action
+        void mining( const checksum256& seed ) {
+            require_auth(_self);
+            auto v_seed = merge_seed( seed ) ;
+            uint8_t n = 0 ;
+            for( auto &itr : _miningqueue ) {
+                newcoinbypos( itr->miner, findcoinpos( v_seed[n] ) ) ;
+                _miningqueue.erase( itr ) ;
+                n++ ;
+                if ( n == 10 ) break ;
+            }
+        }
+
+        // @abi action
+        void ibobuy( account_name &account, asset &in ) {
+            _kyubey.buy( account, in) ;
+
+        }
+
 };
 
-uint64_t cryptojinian::merge_seed(const checksum256 &s1, const checksum256 &s2) {
+auto cryptojinian::merge_seed(const checksum256 &s1) {
     uint64_t hash = 0;
+    vector<uint64_t> v_hash ;
     for (int i = 0; i < 32; ++i) {
         hash ^= (s1.hash[i]) << ((i & 7) << 3);
         //  hash ^= (s1.hash[i] ^ s2.hash[31-i]) << ((i & 7) << 3);
+        v_hash.push_back( hash ) ;
     }
-    return hash;
+    return v_hash;
 }
 
 void cryptojinian::apply(account_name code, action_name action) {
