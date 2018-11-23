@@ -65,7 +65,7 @@ class kyubey : public token {
         }
 
         // @abi table market i64
-        struct market {
+        struct [[eosio::table]] market {
             uint64_t id = 0;        
             asset supply;
             asset balance;
