@@ -42,19 +42,7 @@ uint64_t cryptojinian::addcoincount(const uint64_t type){
 
 void cryptojinian::init(){
     require_auth(_self);
-    auto g = _global.get();
-    uint64_t remainamount = 429600;
-    if (g == _global.end()) {
-        _global.emplace(_self, [&](auto &g) {
-            g.id = 0;
-            g.remainamount = remainamount;
-        });
-    } else {
-        _global.modify(g, 0, [&](auto &g) {
-            g.id = 0;
-            g.remainamount = remainamount;
-        });
-    }
+    _global.set( st_global{ .id = 0, .remainamount = 429600 } , _self );
 }
 
 uint64_t cryptojinian::findcoinpos(const uint64_t inputrandom){
@@ -63,8 +51,7 @@ uint64_t cryptojinian::findcoinpos(const uint64_t inputrandom){
     uint64_t addamount = 0;
     uint64_t pos = 0;
     uint64_t posspilt64 = 0;
-    auto g = _global.find(0);
-    eosio_assert(g != _global.end(), "Not Inited (No _global)");
+    auto g = _global.get();
     uint64_t s6400;
     uint64_t s64;
     uint64_t s;
@@ -104,9 +91,9 @@ uint64_t cryptojinian::findcoinpos(const uint64_t inputrandom){
                             pos += 1;
                         }
                         if(addamount == inputrandom){//found!
-                            _global.modify(g, 0, [&](auto &g) {
-                                g.remainamount = g.remainamount - 1;
-                            });
+                            g = _global.get() ;
+                            g.remainamount -= 1;
+                            _global.set( g, _self) ;
 
                             if (coinints == _usedcoins.end()) {
                                 _usedcoins.emplace(_self, [&](auto &coinints) {

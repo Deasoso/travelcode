@@ -268,7 +268,6 @@ class cryptojinian : public eosio::contract {
                     q.miner = miner ;
                 });
             }
-            
         }
 
     public:
