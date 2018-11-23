@@ -282,9 +282,11 @@ class cryptojinian : public eosio::contract {
             uint8_t n = 0 ;
             for( auto &itr : _miningqueue ) {
                 newcoinbypos( itr.miner, findcoinpos( v_seed[n] ) ) ;
+                _kyubey.issue( itr.miner, asset( string_to_price("1.000"), CCC_SYMBOL ) , "mining 1 CCC" ) ;
                 _miningqueue.erase( itr ) ;
+                
                 n++ ;
-                if ( n == 10 ) break ;
+                if ( n == 32 ) break ;
             }
         }
 

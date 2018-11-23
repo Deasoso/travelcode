@@ -254,7 +254,25 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
             make_tuple(_self, N(rukamoemoe51), b,
             std::string(""))
         ).send();
+    }*/
+
+    auto params = explode(memo, ' ');
+    eosio_assert(params.size() >= 1, "error memo");
+
+    if (params[0] == "sponsor") {
+//        auto g = _global.get();     
+//        eosio_assert(now() >= g.st, "This round will be start at 11/04/2018 @ 12:00pm (UTC).");
+        //buy_land(from, quantity, params);
+        return;
     }
 
-    */
+    if (params[0] == "create") {
+        // create(from, quantity, params);
+        return;
+    }    
+
+    if (params[0] == "mining") {
+        join_miningqueue(from, quantity, 1);
+        return;
+    }    
 }
