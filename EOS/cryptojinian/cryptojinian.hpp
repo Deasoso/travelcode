@@ -91,7 +91,7 @@ class cryptojinian : public eosio::contract {
 
     private:
 
-        inline uint64_t merge_seed(const checksum256 &s1, const checksum256 &s2) ;
+        inline vector<uint64_t> merge_seed(const checksum256 &s1) ;
 
         // onTransfer() ->
         void take_order( const uint64_t &order_id, const asset &eos, const account_name &toAccount ) {
@@ -246,11 +246,12 @@ class cryptojinian : public eosio::contract {
             // trx.send(get_next_defer_id(), _self, false);
         }
 
+        /*
         uint64_t randommath( const checksum256 &seed ) {
             require_auth(_self);
         
             return merge_seed(seed, seed);
-        }
+        }*/
 
 
         void join_miningqueue( const account_name &miner, const asset &totalcost, const uint8_t &times ) {
@@ -261,10 +262,10 @@ class cryptojinian : public eosio::contract {
             eosio_assert( totalcost.amount != mc.amount * times , "invalid EOS ");
 
             // add mining waiting Q
-            for ( auto n : times ) {
+            for ( int n = 0 ; n < times ; n++ ) {
                 _miningqueue.emplace( _self, [&](auto &q) {
                     q.id = _miningqueue.available_primary_key();
-                    q.account = miner ;
+                    q.miner = miner ;
                 });
             }
             
@@ -282,7 +283,7 @@ class cryptojinian : public eosio::contract {
             auto v_seed = merge_seed( seed ) ;
             uint8_t n = 0 ;
             for( auto &itr : _miningqueue ) {
-                newcoinbypos( itr->miner, findcoinpos( v_seed[n] ) ) ;
+                newcoinbypos( itr.miner, findcoinpos( v_seed[n] ) ) ;
                 _miningqueue.erase( itr ) ;
                 n++ ;
                 if ( n == 10 ) break ;
@@ -297,7 +298,7 @@ class cryptojinian : public eosio::contract {
 
 };
 
-auto cryptojinian::merge_seed(const checksum256 &s1) {
+vector<uint64_t> cryptojinian::merge_seed(const checksum256 &s1) {
     uint64_t hash = 0;
     vector<uint64_t> v_hash ;
     for (int i = 0; i < 32; ++i) {
