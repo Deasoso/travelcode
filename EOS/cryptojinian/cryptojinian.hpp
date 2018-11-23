@@ -35,24 +35,20 @@ class cryptojinian : public eosio::contract {
         // @abi action
         void unstake(account_name from, uint64_t amount);
         // @abi action
-        void claim(account_name from);    
-
+        void claim(account_name from);
         // @abi action
         void transfer(account_name   from,
                       account_name   to,
                       asset          quantity,
                       string         memo);
-
-        void onTransfer(account_name from, account_name to,
-                        asset quantity, string memo);
-
+        // @abi action
         void setcoin(const account_name owner, const uint64_t type, const uint64_t number);
+
         uint64_t addcoincount(const uint64_t type);
         uint64_t findcoinpos(const uint64_t inputrandom);
         void newcoinbypos(const account_name owner, const uint64_t pos);
         void exchange(const vector<uint64_t> inputs);
 
-        
         // @abi action
         void add_order( const account_name &account, asset &eos, string &str_add_order ) {
             // 由於掛單不需要轉 token 進來，直接用 acton 就可以了
@@ -84,45 +80,9 @@ class cryptojinian : public eosio::contract {
                 o.the_coins_for_sell = pcoins  ;// set coins
             });
 
-
         } // add_order()
 
-        void apply(account_name code, action_name action) ;
-
     private:
-
-        inline vector<uint64_t> merge_seed(const checksum256 &s1) ;
-
-        // onTransfer() ->
-        void take_order( const uint64_t &order_id, const asset &eos, const account_name &toAccount ) {
-            require_auth(toAccount);
-  
-            auto itr = _orders.find( order_id );
-            eosio_assert(itr != _orders.end(), "Trade id is not found");
-            eosio_assert(itr->bid == eos, "Asset does not match");
-            
-            // 一個轉移 coin 的 move
-            for ( auto && cid : itr->the_coins_for_sell ) {
-                _coins.modify( _coins.find( cid ), _self, [&](auto& c) {
-                    c.owner = toAccount ;
-                });
-            }
-
-            // 打 log
-            const rec_takeOrder _tor{
-                .matched_order = *itr,
-                .buyer = toAccount,
-            }; 
-
-            action( permission_level{_self, N(active)},
-                    _self, N(receipt), _tor )
-            .send();
-        
-            // 刪了
-            _orders.erase(itr) ;
-
-        } // take_order()
-
         // @abi table orders i64
         struct order {
             uint64_t id;
@@ -135,7 +95,6 @@ class cryptojinian : public eosio::contract {
             // auto get_unit_price() const { return bid / the_coins_for_sell.number  }
             EOSLIB_SERIALIZE(order, (id)(account)(bid)(the_coins_for_sell)(timestamp))
         };
-
 
         // @abi table players i64
         struct player {
@@ -253,7 +212,12 @@ class cryptojinian : public eosio::contract {
             return merge_seed(seed, seed);
         }*/
 
+        inline vector<uint64_t> merge_seed(const checksum256 &s1) ;
 
+        void onTransfer(account_name from, account_name to,
+                        asset quantity, string memo);
+        
+        // onTransfer() ->
         void join_miningqueue( const account_name &miner, const asset &totalcost, const uint8_t &times ) {
             require_auth(_self);
 
@@ -270,12 +234,47 @@ class cryptojinian : public eosio::contract {
             }
         }
 
-    public:
-        // @abi action
+        // onTransfer() ->
+        void take_order( const uint64_t &order_id, const asset &eos, const account_name &toAccount ) {
+            require_auth(toAccount);
+  
+            auto itr = _orders.find( order_id );
+            eosio_assert(itr != _orders.end(), "Trade id is not found");
+            eosio_assert(itr->bid == eos, "Asset does not match");
+            
+            // 一個轉移 coin 的 move
+            for ( auto && cid : itr->the_coins_for_sell ) {
+                _coins.modify( _coins.find( cid ), _self, [&](auto& c) {
+                    c.owner = toAccount ;
+                });
+            }
+
+            // 打 log
+            const rec_takeOrder _tor{
+                .matched_order = *itr,
+                .buyer = toAccount,
+            }; 
+
+            action( permission_level{_self, N(active)},
+                    _self, N(receipt), _tor )
+            .send();
+        
+            // 刪了
+            _orders.erase(itr) ;
+
+        } // take_order()
+
+        
         void receipt(const rec_takeOrder& take_order_record) {
             require_auth(_self);
         }
+        // onTransfer() ->
+        void ibobuy( const account_name &buyer, asset &in ) {
+            require_auth( buyer );
+            _kyubey.buy( buyer, in ) ;
+        }
 
+    public:
         // @abi action
         void mining( const checksum256& seed ) {
             require_auth(_self);
@@ -283,18 +282,15 @@ class cryptojinian : public eosio::contract {
             uint8_t n = 0 ;
             for( auto &itr : _miningqueue ) {
                 newcoinbypos( itr.miner, findcoinpos( v_seed[n] ) ) ;
+                _kyubey.issue( itr.miner, asset( string_to_price("1.000"), CCC_SYMBOL ) , "mining 1 CCC" ) ;
                 _miningqueue.erase( itr ) ;
+                
                 n++ ;
-                if ( n == 10 ) break ;
+                if ( n == 32 ) break ;
             }
         }
 
-        // @abi action
-        void ibobuy( account_name &account, asset &in ) {
-            _kyubey.buy( account, in) ;
-
-        }
-
+        void apply(account_name code, action_name action) ;
 };
 
 vector<uint64_t> cryptojinian::merge_seed(const checksum256 &s1) {
@@ -308,18 +304,25 @@ vector<uint64_t> cryptojinian::merge_seed(const checksum256 &s1) {
     return v_hash;
 }
 
-void cryptojinian::apply(account_name code, action_name action) {
-            auto &thiscontract = *this;
+void cryptojinian::init() {
+    require_auth(_self);
+    _global.set( st_global{ .id = 0, .remainamount = 429600 } , _self );
+    _kyubey.create( _self, asset( CCC_MAX_SUPPLY, CCC_SYMBOL ) ) ;
+}
 
-            if (action == N(transfer) && code == N(eosio.token) ) {
-                auto transfer_data = unpack_action_data<st_transfer>();
-                onTransfer(transfer_data.from, transfer_data.to, transfer_data.quantity, transfer_data.memo);
-                return;
-            }
-            if (code != _self) return;
-            switch (action) {
-                EOSIO_API(cryptojinian, (init)(mining));
-            };
+void cryptojinian::apply(account_name code, action_name action) {
+    auto &thiscontract = *this;
+
+    if (action == N(transfer) && code == N(eosio.token) ) {
+        auto transfer_data = unpack_action_data<st_transfer>();
+        onTransfer(transfer_data.from, transfer_data.to, transfer_data.quantity, transfer_data.memo);
+        return;
+    }
+    
+    if (code != _self) return;
+    switch (action) {
+        EOSIO_API(cryptojinian, (init)(mining));
+    };
 }     
         
 extern "C" {
