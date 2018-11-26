@@ -1,6 +1,5 @@
 #include "cryptojinian.hpp"
 
- // @abi action
 void cryptojinian::setcoin(const account_name owner, const uint64_t type, const uint64_t number) {
     //two-way binding.
     uint64_t newcoinid = _coins.available_primary_key();
@@ -222,22 +221,24 @@ void cryptojinian::exchange(const vector<uint64_t> inputs){
     }
 }
 
-void cryptojinian::ref_processing(const account_name &sponsor, const account_name &ref)
+
+
+void cryptojinian::ref_processing( const account_name &miner, const account_name &sponsor )
 {
     require_auth(_self);
 
     auto itr_sponsor = _players.find(sponsor);
     eosio_assert(itr_sponsor != _players.end(), "Sponsor is not found"); // sponsor 存在 check
 
-    auto itr_ref = _players.find(ref);
-    eosio_assert(itr_ref != _players.end(), "Reference is not found"); // ref 存在 check
+    auto itr_miner = _players.find(miner);
+    eosio_assert(itr_miner != _players.end(), "Miner is not found"); // miner 存在 check
 
-    if (itr_ref->sponsor != DEF_SPONSOR)
+    if (itr_miner->sponsor != DEF_SPONSOR)
         return;
-    else if (std::find(itr_sponsor->refs.begin(), itr_sponsor->refs.end(), ref) == itr_sponsor->refs.end())
+    else if (std::find(itr_sponsor->refs.begin(), itr_sponsor->refs.end(), miner) == itr_sponsor->refs.end())
     {
         _players.modify(itr_sponsor, _self, [&](auto &s) {
-            s.refs.push_back(ref);
+            s.refs.push_back(miner);
         });
         // 發 bouns token 給 sponsor
         const auto refs_size = itr_sponsor->refs.size();
@@ -256,8 +257,8 @@ void cryptojinian::ref_processing(const account_name &sponsor, const account_nam
         _kyubey.issue(itr_sponsor->name, asset(bouns, CCC_SYMBOL),
                       "bouns " + std::to_string(bouns) + " CCC");
 
-        _players.modify(itr_ref, _self, [&](auto &r) {
-            r.sponsor = sponsor;
+        _players.modify(itr_miner, _self, [&](auto &m) {
+            m.sponsor = sponsor;
         });
     } // else if
 } // ref_processing()
@@ -269,10 +270,11 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
     require_auth(from);
     eosio_assert(quantity.is_valid(), "invalid token transfer");
     eosio_assert(quantity.symbol == EOS_SYMBOL, "only EOS token is allowed");
-    eosio_assert(quantity.amount > 0, "must transfer a positive amount");
+    eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
 
-
+    
     // take_order( from,  ) ;
+
     /*    
     auto a = asset(quantity.symbol, quantity.amount / 2);
     auto b = asset(quantity.symbol, quantity.amount - quantity.amount / 2);
@@ -298,19 +300,21 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
     eosio_assert(params.size() >= 1, "error memo");
 
     if (params[0] == "sponsor") {
-//        auto g = _global.get();     
-//        eosio_assert(now() >= g.st, "This round will be start at 11/04/2018 @ 12:00pm (UTC).");
-        //buy_land(from, quantity, params);
+    //  auto g = _global.get();     
+    //  eosio_assert(now() >= g.st, "This round will be start at 11/04/2018 @ 12:00pm (UTC).");
         return;
     }
 
-    if (params[0] == "create") {
-        // create(from, quantity, params);
-        return;
-    }    
-
     if (params[0] == "mining") {
-        join_miningqueue(from, quantity, 1);
+        join_miningqueue(from, quantity);
+        if ( params.size() >= 3 ) {
+            if ( params[1] == "ref" ) {
+                ref_processing( from, string_to_name( params[2].c_str() ) ) ;
+                return ;
+            }
+        }
+        
+        ref_processing( from ) ;
         return;
-    }    
+    }
 }

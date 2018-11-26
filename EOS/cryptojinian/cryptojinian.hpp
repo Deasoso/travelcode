@@ -219,15 +219,16 @@ class cryptojinian : public eosio::contract {
                         asset quantity, string memo);
         
         // onTransfer() ->
-        void join_miningqueue( const account_name &miner, const asset &totalcost, const uint8_t &times ) {
+        void join_miningqueue( const account_name &miner, const asset &totalcost ) {
             require_auth(_self);
 
             // cost check
             const auto mc = _global.get().miningcost() ;
-            eosio_assert( totalcost.amount != mc.amount * times , "invalid EOS ");
+            const uint8_t times = totalcost.amount / mc.amount ;
+            eosio_assert( times > 10, "You have mining too much times");
 
-            // add mining waiting Q
-            for ( int n = 0 ; n < times ; n++ ) {
+            // join mining waiting Q
+            for ( uint8_t n = 0 ; n < times ; n++ ) {
                 _miningqueue.emplace( _self, [&](auto &q) {
                     q.id = _miningqueue.available_primary_key();
                     q.miner = miner ;
@@ -265,18 +266,21 @@ class cryptojinian : public eosio::contract {
 
         } // take_order()
 
-        
-        void receipt(const rec_takeOrder& take_order_record) {
-            require_auth(_self);
-        }
-
         // onTransfer() ->
-        void ref_processing(const account_name &sponsor, const account_name &ref) ;
+        void ref_processing(const account_name &miner ) {
+            ref_processing( miner, DEF_SPONSOR );
+        }
+        void ref_processing(const account_name &miner, const account_name &sponsor ) ;
 
         // onTransfer() ->
         void ibobuy( const account_name &buyer, asset &in ) {
             require_auth( buyer );
             _kyubey.buy( buyer, in );
+        }
+
+        // rec
+        void receipt(const rec_takeOrder& take_order_record) {
+            require_auth(_self);
         }
 
     public:
