@@ -221,8 +221,6 @@ void cryptojinian::exchange(const vector<uint64_t> inputs){
     }
 }
 
-
-
 void cryptojinian::ref_processing( const account_name &miner, const account_name &sponsor )
 {
     require_auth(_self);
@@ -264,40 +262,15 @@ void cryptojinian::ref_processing( const account_name &miner, const account_name
 } // ref_processing()
 
 // input
-void cryptojinian::onTransfer(account_name from, account_name to, asset quantity, std::string memo) {        
-    
+void cryptojinian::onTransfer(account_name from, account_name to, asset quantity, std::string memo) {            
     if (to != _self) return;   
     require_auth(from);
     eosio_assert(quantity.is_valid(), "invalid token transfer");
     eosio_assert(quantity.symbol == EOS_SYMBOL, "only EOS token is allowed");
     eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
 
-    
-    // take_order( from,  ) ;
-
-    /*    
-    auto a = asset(quantity.symbol, quantity.amount / 2);
-    auto b = asset(quantity.symbol, quantity.amount - quantity.amount / 2);
-
-    if (a.amount > 0) {
-        action(
-            permission_level{_self, N(active)},
-            quantity.contract, N(transfer),
-            make_tuple(_self, N(minakokojima), a,
-            std::string(""))
-        ).send();
-    }
-    if (b.amount > 0) {
-        action(
-            permission_level{_self, N(active)},
-            quantity.contract, N(transfer),
-            make_tuple(_self, N(rukamoemoe51), b,
-            std::string(""))
-        ).send();
-    }*/
-
     auto params = explode(memo, ' ');
-    eosio_assert(params.size() >= 1, "error memo");
+    eosio_assert(params.size() >= 5, "error memo");
 
     if (params[0] == "sponsor") {
     //  auto g = _global.get();     

@@ -27,23 +27,17 @@ class cryptojinian : public eosio::contract {
         _usedcoins(_self, _self),
         _orders(_self, _self) {}
 
-        [[eosio::action]]
-        void init();
-        [[eosio::action]]
-        void clear();     
-        [[eosio::action]]
-        void test();
-        [[eosio::action]]
-        void unstake(account_name from, uint64_t amount);
-        // [[eosio::action]]
-        // void claim(account_name from);
+        [[eosio::action]] void init();
+        // [[eosio::action]] void clear();     
+        // [[eosio::action]] void test();
+        // [[eosio::action]] void unstake(account_name from, uint64_t amount);
+        // [[eosio::action]] void claim(account_name from);
         [[eosio::action]]
         void transfer(account_name   from,
                       account_name   to,
                       asset          quantity,
                       string         memo);
-        [[eosio::action]]
-        void setcoin(const account_name owner, const uint64_t type, const uint64_t number);
+        [[eosio::action]] void setcoin(const account_name owner, const uint64_t type, const uint64_t number);
 
         uint64_t addcoincount(const uint64_t type);
         uint64_t findcoinpos(const uint64_t inputrandom);
@@ -327,10 +321,10 @@ void cryptojinian::apply(account_name code, action_name action) {
         onTransfer(transfer_data.from, transfer_data.to, transfer_data.quantity, transfer_data.memo);
         return;
     }
-    
+
     if (code != _self) return;
     switch (action) {
-        EOSIO_API(cryptojinian, (init)(mining));
+        EOSIO_API(cryptojinian, (init)(setcoin)(mining));
     };
 }     
         
