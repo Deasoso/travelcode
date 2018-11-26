@@ -42,7 +42,8 @@ class cryptojinian : public eosio::contract {
         uint64_t addcoincount(const uint64_t type);
         uint64_t findcoinpos(const uint64_t inputrandom);
         void newcoinbypos(const account_name owner, const uint64_t pos);
-        void exchange(const vector<uint64_t> inputs);
+        void exchange(const std::string inputs);
+        void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
 
         // [[eosio::action]]
         void pinOrder( const account_name &account, asset &eos, string &str_add_order ) {

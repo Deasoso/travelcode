@@ -162,8 +162,10 @@ void cryptojinian::newcoinbypos(const account_name owner, const uint64_t pos){
     addcoincount(type);
 }
 
-void cryptojinian::exchange(const vector<uint64_t> inputs){
+void cryptojinian::exchange(const std::string inputstrs){
     // input ids.
+    std::vector<uint64_t> inputs;
+    SplitString(inputstrs, inputs, ",");
     uint64_t coincount = inputs.size();
     uint64_t type = 0;
     account_name coinowner;
@@ -260,6 +262,23 @@ void cryptojinian::ref_processing( const account_name &miner, const account_name
         });
     } // else if
 } // ref_processing()
+
+void cryptojinian::SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c)
+{
+    std::string::size_type pos1, pos2;
+    pos2 = s.find(c);
+    pos1 = 0;
+    while(std::string::npos != pos2)
+    {
+        // strtoull(pszValue, NULL, 0)
+        v.push_back(std::strtoull(s.substr(pos1, pos2-pos1).c_str(), NULL, 0));
+         
+        pos1 = pos2 + c.size();
+        pos2 = s.find(c, pos1);
+    }
+    if(pos1 != s.length())
+        v.push_back(std::strtoull(s.substr(pos1, pos2-pos1).c_str(), NULL, 0));
+}
 
 // input
 void cryptojinian::onTransfer(account_name from, account_name to, asset quantity, std::string memo) {            
