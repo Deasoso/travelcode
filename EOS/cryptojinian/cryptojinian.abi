@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Nov 25 19:47:12 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Nov 26 21:41:36 2018",
     "version": "eosio::abi/1.0",
     "structs": [
         {
@@ -11,11 +11,6 @@
                     "type": "asset"
                 }
             ]
-        },
-        {
-            "name": "clear",
-            "base": "",
-            "fields": []
         },
         {
             "name": "coin",
@@ -135,6 +130,14 @@
                 {
                     "name": "coins",
                     "type": "vector<uint64_t>"
+                },
+                {
+                    "name": "sponsor",
+                    "type": "name"
+                },
+                {
+                    "name": "refs",
+                    "type": "vector<account_name>"
                 }
             ]
         },
@@ -189,11 +192,6 @@
             ]
         },
         {
-            "name": "test",
-            "base": "",
-            "fields": []
-        },
-        {
             "name": "transfer",
             "base": "",
             "fields": [
@@ -216,20 +214,6 @@
             ]
         },
         {
-            "name": "unstake",
-            "base": "",
-            "fields": [
-                {
-                    "name": "from",
-                    "type": "name"
-                },
-                {
-                    "name": "amount",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
             "name": "usedcoins",
             "base": "",
             "fields": [
@@ -247,11 +231,6 @@
     "types": [],
     "actions": [
         {
-            "name": "clear",
-            "type": "clear",
-            "ricardian_contract": ""
-        },
-        {
             "name": "init",
             "type": "init",
             "ricardian_contract": ""
@@ -267,18 +246,8 @@
             "ricardian_contract": ""
         },
         {
-            "name": "test",
-            "type": "test",
-            "ricardian_contract": ""
-        },
-        {
             "name": "transfer",
             "type": "transfer",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "unstake",
-            "type": "unstake",
             "ricardian_contract": ""
         }
     ],
