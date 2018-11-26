@@ -7,6 +7,7 @@
 #include <eosiolib/asset.hpp>
 #include <eosiolib/singleton.hpp>
 #include <cmath>
+#include <algorithm>
 
 #include "config.hpp"
 #include "utils.hpp"
@@ -34,8 +35,8 @@ class cryptojinian : public eosio::contract {
         void test();
         [[eosio::action]]
         void unstake(account_name from, uint64_t amount);
-        [[eosio::action]]
-        void claim(account_name from);
+        // [[eosio::action]]
+        // void claim(account_name from);
         [[eosio::action]]
         void transfer(account_name   from,
                       account_name   to,
@@ -83,7 +84,6 @@ class cryptojinian : public eosio::contract {
         } // add_order()
 
     private:
-        // @abi table orders i64
         struct [[eosio::table]] order {
             uint64_t id;
             account_name account;
@@ -96,14 +96,15 @@ class cryptojinian : public eosio::contract {
             EOSLIB_SERIALIZE(order, (id)(account)(bid)(the_coins_for_sell)(timestamp))
         };
 
-        // @abi table players i64
         struct [[eosio::table]] player {
             account_name name;
             checksum256 seed;
             vector<uint64_t> coins; // coins, for id
+            account_name sponsor = DEF_SPONSOR ;
+            vector<account_name> refs ;
 
             auto primary_key() const { return name; }
-            EOSLIB_SERIALIZE(player, (name)(coins))//(seed)
+            EOSLIB_SERIALIZE(player, (name)(seed)(coins)(sponsor)(refs) )
         };
 
         // @abi table coins i64
@@ -268,6 +269,10 @@ class cryptojinian : public eosio::contract {
         void receipt(const rec_takeOrder& take_order_record) {
             require_auth(_self);
         }
+
+        // onTransfer() ->
+        void ref_processing(const account_name &sponsor, const account_name &ref) ;
+
         // onTransfer() ->
         void ibobuy( const account_name &buyer, asset &in ) {
             require_auth( buyer );

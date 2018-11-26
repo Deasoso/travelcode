@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Nov 23 18:17:30 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Nov 25 19:47:12 2018",
     "version": "eosio::abi/1.0",
     "structs": [
         {
@@ -9,16 +9,6 @@
                 {
                     "name": "balance",
                     "type": "asset"
-                }
-            ]
-        },
-        {
-            "name": "claim",
-            "base": "",
-            "fields": [
-                {
-                    "name": "from",
-                    "type": "name"
                 }
             ]
         },
@@ -256,11 +246,6 @@
     ],
     "types": [],
     "actions": [
-        {
-            "name": "claim",
-            "type": "claim",
-            "ricardian_contract": ""
-        },
         {
             "name": "clear",
             "type": "clear",

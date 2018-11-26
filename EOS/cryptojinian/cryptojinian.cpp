@@ -222,6 +222,45 @@ void cryptojinian::exchange(const vector<uint64_t> inputs){
     }
 }
 
+void cryptojinian::ref_processing(const account_name &sponsor, const account_name &ref)
+{
+    require_auth(_self);
+
+    auto itr_sponsor = _players.find(sponsor);
+    eosio_assert(itr_sponsor != _players.end(), "Sponsor is not found"); // sponsor 存在 check
+
+    auto itr_ref = _players.find(ref);
+    eosio_assert(itr_ref != _players.end(), "Reference is not found"); // ref 存在 check
+
+    if (itr_ref->sponsor != DEF_SPONSOR)
+        return;
+    else if (std::find(itr_sponsor->refs.begin(), itr_sponsor->refs.end(), ref) == itr_sponsor->refs.end())
+    {
+        _players.modify(itr_sponsor, _self, [&](auto &s) {
+            s.refs.push_back(ref);
+        });
+        // 發 bouns token 給 sponsor
+        const auto refs_size = itr_sponsor->refs.size();
+        uint8_t bouns = 0;
+        if (refs_size <= 10)
+            bouns = 30;
+        else if (refs_size <= 30)
+            bouns = 40;
+        else if (refs_size <= 70)
+            bouns = 50;
+        else if (refs_size <= 100)
+            bouns = 60;
+        else
+            bouns = 80;
+
+        _kyubey.issue(itr_sponsor->name, asset(bouns, CCC_SYMBOL),
+                      "bouns " + std::to_string(bouns) + " CCC");
+
+        _players.modify(itr_ref, _self, [&](auto &r) {
+            r.sponsor = sponsor;
+        });
+    } // else if
+} // ref_processing()
 
 // input
 void cryptojinian::onTransfer(account_name from, account_name to, asset quantity, std::string memo) {        
