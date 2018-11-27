@@ -210,19 +210,32 @@ class cryptojinian : public eosio::contract {
 
         inline vector<uint64_t> merge_seed(const checksum256 &s1) ;
 
+        auto join_game_processing( const account_name &account ) {
+            auto itr_players = _players.find( account ) ;
+            if ( itr_players == _players.end() ) { // noob
+                _players.emplace(_self, [&](auto &p) {
+                    p.name = account;
+                    p.sponsor = DEF_SPONSOR;
+                });
+
+                itr_players = _players.find( account ) ;
+            }
+            return itr_players ;
+        } // join_game_processing()
+
         void onTransfer(account_name from, account_name to,
                         asset quantity, string memo);
-        
+
         // onTransfer() ->
         void join_miningqueue( const account_name &miner, const asset &totalcost ) {
-            // require_auth(_self);
-
             // cost check
             const auto mc = _global.get().miningcost() ;
             const uint64_t totalamount = (uint64_t)totalcost.amount;
             const uint64_t mcamount = (uint64_t)mc.amount;
             const uint64_t times = totalamount / mcamount ;
-            eosio_assert( times <= 10, "You have mining too much times");
+            eosio_assert( times <= 10, "You have mining too much times.");
+
+            join_game_processing( miner ) ;
 
             // join mining waiting Q
             for ( uint8_t n = 0 ; n < times ; n++ ) {

@@ -224,15 +224,10 @@ void cryptojinian::exchange(const std::string inputstrs){
 }
 
 void cryptojinian::ref_processing( const account_name &miner, const account_name &sponsor )
-{
-    // require_auth(_self);
-
-    auto itr_sponsor = _players.find(sponsor);
-    eosio_assert(itr_sponsor != _players.end(), "Sponsor is not found"); // sponsor 存在 check
-
+{   
+    auto itr_sponsor = join_game_processing( sponsor ) ;
     auto itr_miner = _players.find(miner);
-    eosio_assert(itr_miner != _players.end(), "Miner is not found"); // miner 存在 check
-
+    
     if (itr_miner->sponsor != DEF_SPONSOR)
         return;
     else if (std::find(itr_sponsor->refs.begin(), itr_sponsor->refs.end(), miner) == itr_sponsor->refs.end())
@@ -300,8 +295,12 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
     if (params[0] == "mining") {
         join_miningqueue(from, quantity);
         if ( params.size() >= 3 ) {
+            eosio_assert(params.size() == 3, "Error memo");
+            eosio_assert(params[1] == "ref", "Error memo");
             if ( params[1] == "ref" ) {
-                ref_processing( from, string_to_name( params[2].c_str() ) ) ;
+                auto sponsor = string_to_name( params[2].c_str() ) ;
+                eosio_assert( is_account(sponsor), "Sponsor is not an existing account."); // sponsor 存在 check
+                ref_processing( from, sponsor );
                 return ;
             }
         }
