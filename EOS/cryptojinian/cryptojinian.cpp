@@ -289,7 +289,7 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
     eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
 
     auto params = explode(memo, ' ');
-    eosio_assert(params.size() >= 5, "error memo");
+    eosio_assert(params.size() <= 5, "Error memo");
 
     if (params[0] == "sponsor") {
     //  auto g = _global.get();     

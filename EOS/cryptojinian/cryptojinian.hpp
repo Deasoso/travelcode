@@ -84,7 +84,7 @@ class cryptojinian : public eosio::contract {
             account_name account;
             asset bid;
             vector<uint64_t> the_coins_for_sell ; // coins, for id
-            time timestamp;
+            uint64_t timestamp;
 
             auto primary_key() const { return id; }
             // auto get_unit_price() const { return bid / the_coins_for_sell.number  }

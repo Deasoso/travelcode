@@ -107,11 +107,11 @@
                 },
                 {
                     "name": "the_coins_for_sell",
-                    "type": "vector<uint64_t>"
+                    "type": "uint64[]"
                 },
                 {
                     "name": "timestamp",
-                    "type": "time"
+                    "type": "uint64"
                 }
             ]
         },
@@ -129,7 +129,7 @@
                 },
                 {
                     "name": "coins",
-                    "type": "vector<uint64_t>"
+                    "type": "uint64[]"
                 },
                 {
                     "name": "sponsor",
@@ -137,7 +137,7 @@
                 },
                 {
                     "name": "refs",
-                    "type": "vector<account_name>"
+                    "type": "name[]"
                 }
             ]
         },
