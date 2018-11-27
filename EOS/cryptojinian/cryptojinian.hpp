@@ -215,12 +215,14 @@ class cryptojinian : public eosio::contract {
         
         // onTransfer() ->
         void join_miningqueue( const account_name &miner, const asset &totalcost ) {
-            require_auth(_self);
+            // require_auth(_self);
 
             // cost check
             const auto mc = _global.get().miningcost() ;
-            const uint8_t times = totalcost.amount / mc.amount ;
-            eosio_assert( times > 10, "You have mining too much times");
+            const uint64_t totalamount = (uint64_t)totalcost.amount;
+            const uint64_t mcamount = (uint64_t)mc.amount;
+            const uint64_t times = totalamount / mcamount ;
+            eosio_assert( times <= 10, "You have mining too much times");
 
             // join mining waiting Q
             for ( uint8_t n = 0 ; n < times ; n++ ) {

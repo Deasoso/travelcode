@@ -225,7 +225,7 @@ void cryptojinian::exchange(const std::string inputstrs){
 
 void cryptojinian::ref_processing( const account_name &miner, const account_name &sponsor )
 {
-    require_auth(_self);
+    // require_auth(_self);
 
     auto itr_sponsor = _players.find(sponsor);
     eosio_assert(itr_sponsor != _players.end(), "Sponsor is not found"); // sponsor 存在 check
