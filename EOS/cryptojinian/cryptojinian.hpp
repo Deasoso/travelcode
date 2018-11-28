@@ -32,11 +32,10 @@ class cryptojinian : public eosio::contract {
         // [[eosio::action]] void test();
         // [[eosio::action]] void unstake(account_name from, uint64_t amount);
         // [[eosio::action]] void claim(account_name from);
-        [[eosio::action]]
-        void transfer(account_name   from,
-                      account_name   to,
-                      asset          quantity,
-                      string         memo);
+        [[eosio::action]] void transfer(account_name   from,
+                                        account_name   to,
+                                        asset          quantity,
+                                        string         memo);
         [[eosio::action]] void setcoin(const account_name owner, const uint64_t type, const uint64_t number);
 
         uint64_t addcoincount(const uint64_t type);
@@ -102,7 +101,6 @@ class cryptojinian : public eosio::contract {
             EOSLIB_SERIALIZE(player, (name)(seed)(coins)(sponsor)(refs) )
         };
 
-        // @abi table coins i64
         struct [[eosio::table]] coin {
             uint64_t id;
             account_name owner;
@@ -119,7 +117,6 @@ class cryptojinian : public eosio::contract {
             EOSLIB_SERIALIZE(coin, (id)(owner)(type)(number))
         };
 
-        // @abi table global i64
         struct [[eosio::table]] st_global {
             uint64_t id = 0;
             checksum256 hash; // hash of the game seed, 0 when idle.
@@ -148,7 +145,6 @@ class cryptojinian : public eosio::contract {
             EOSLIB_SERIALIZE(st_miningqueue, (id)(miner))
         };
 
-        // @abi table usedcoins i64
         struct [[eosio::table]] usedcoins {
             // << 16 to fix usedspilt64;
             // << 32 to fix usedspilt6400;
@@ -167,23 +163,18 @@ class cryptojinian : public eosio::contract {
         };
 
         typedef singleton<N(global), st_global> singleton_global_t;
-        singleton_global_t _global; 
-
         typedef eosio::multi_index<N(miningqueue), st_miningqueue> miningqueue_t;
-        miningqueue_t _miningqueue; 
-
         typedef eosio::multi_index<N(order), order> order_t;
-        order_t _orders;
-
         typedef eosio::multi_index<N(player), player> player_t;
-        player_t _players;
-
         typedef eosio::multi_index<N(coin), coin> coin_t;
-        coin_t _coins; 
-
         typedef eosio::multi_index<N(usedcoins), usedcoins> usedcoins_t;
-        usedcoins_t _usedcoins;
 
+        singleton_global_t _global;
+        miningqueue_t _miningqueue; 
+        order_t _orders;
+        player_t _players;
+        coin_t _coins; 
+        usedcoins_t _usedcoins;
         kyubey _kyubey ;
 
         /*
@@ -283,7 +274,7 @@ class cryptojinian : public eosio::contract {
                 SEND_INLINE_ACTION( _kyubey, issue, {_self,N(active)},
                                     {itr.miner, asset( string_to_price("1.000"), CCC_SYMBOL ),
                                      "mining 1 CCC"} );
-                                     
+
                 _miningqueue.erase( itr ) ;
                 
                 n++ ;
