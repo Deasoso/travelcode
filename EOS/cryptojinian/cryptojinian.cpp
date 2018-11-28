@@ -316,18 +316,16 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
 
     if (params[0] == "mining") {
         join_miningqueue(from, quantity);
-        if ( params.size() >= 3 ) {
-            eosio_assert(params.size() == 3, "Error memo");
-            eosio_assert(params[1] == "ref", "Error memo");
-            if ( params[1] == "ref" ) {
-                auto sponsor = string_to_name( params[2].c_str() ) ;
-                eosio_assert( is_account(sponsor), "Sponsor is not an existing account."); // sponsor 存在 check
-                ref_processing( from, sponsor );
-                return ;
-            }
+        if ( params.size() < 3 )
+            ref_processing( from ) ;
+        else {
+            eosio_assert(params.size() == 3 && params[1] == "ref", "Error memo");
+
+            auto sponsor = string_to_name( params[2].c_str() ) ;
+            eosio_assert( is_account(sponsor), "Sponsor is not an existing account."); // sponsor 存在 check
+            ref_processing( from, sponsor );
         }
         
-        ref_processing( from ) ;
         return;
     }
 }
