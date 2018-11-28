@@ -223,6 +223,27 @@ void cryptojinian::exchange(const std::string inputstrs){
     }
 }
 
+void cryptojinian::join_miningqueue(const account_name &miner, const asset &totalcost)
+{
+    // cost check
+    const auto mc = _global.get().miningcost();
+    const uint64_t totalamount = (uint64_t)totalcost.amount;
+    const uint64_t mcamount = (uint64_t)mc.amount;
+    const uint64_t times = totalamount / mcamount;
+    eosio_assert(times <= 10, "You have mining too much times.");
+
+    join_game_processing(miner);
+
+    // join mining waiting Q
+    for (uint8_t n = 0; n < times; n++)
+    {
+        _miningqueue.emplace(_self, [&](auto &q) {
+            q.id = _miningqueue.available_primary_key();
+            q.miner = miner;
+        });
+    }
+}
+
 void cryptojinian::ref_processing( const account_name &miner, const account_name &sponsor )
 {   
     auto itr_sponsor = join_game_processing( sponsor ) ;
@@ -249,8 +270,9 @@ void cryptojinian::ref_processing( const account_name &miner, const account_name
         else
             bouns = 80;
 
-        _kyubey.issue(itr_sponsor->name, asset(bouns, CCC_SYMBOL),
-                      "bouns " + std::to_string(bouns) + " CCC");
+        SEND_INLINE_ACTION( _kyubey, issue, {_self,N(active)},
+                            {itr_sponsor->name, asset(bouns, CCC_SYMBOL),
+                             "bouns " + std::to_string(bouns) + " CCC"} );
 
         _players.modify(itr_miner, _self, [&](auto &m) {
             m.sponsor = sponsor;

@@ -227,26 +227,7 @@ class cryptojinian : public eosio::contract {
                         asset quantity, string memo);
 
         // onTransfer() ->
-        void join_miningqueue( const account_name &miner, const asset &totalcost ) {
-            // cost check
-            const auto mc = _global.get().miningcost() ;
-            const uint64_t totalamount = (uint64_t)totalcost.amount;
-            const uint64_t mcamount = (uint64_t)mc.amount;
-            const uint64_t times = totalamount / mcamount ;
-            eosio_assert( times <= 10, "You have mining too much times.");
-
-            join_game_processing( miner ) ;
-
-            // join mining waiting Q
-            for ( uint8_t n = 0 ; n < times ; n++ ) {
-                _miningqueue.emplace( _self, [&](auto &q) {
-                    q.id = _miningqueue.available_primary_key();
-                    q.miner = miner ;
-                });
-            }
-        }
-
-        // onTransfer() ->
+        void join_miningqueue( const account_name &miner, const asset &totalcost ) ;
         void take_order( const uint64_t &order_id, const asset &eos, const account_name &toAccount ) {
             require_auth(toAccount);
   
@@ -276,13 +257,11 @@ class cryptojinian : public eosio::contract {
 
         } // take_order()
 
-        // onTransfer() ->
         void ref_processing(const account_name &miner ) {
             ref_processing( miner, DEF_SPONSOR );
         }
-        void ref_processing(const account_name &miner, const account_name &sponsor ) ;
-
-        // onTransfer() ->
+        void ref_processing(const account_name &miner, const account_name &sponsor );
+        
         void ibobuy( const account_name &buyer, asset &in ) {
             require_auth( buyer );
             _kyubey.buy( buyer, in );
@@ -294,8 +273,7 @@ class cryptojinian : public eosio::contract {
         }
 
     public:
-        [[eosio::action]]
-        void mining( const checksum256& seed ) {
+        [[eosio::action]] void mining( const checksum256& seed ) {
             require_auth(_self);
             auto v_seed = merge_seed( seed ) ;
             uint8_t n = 0 ;
