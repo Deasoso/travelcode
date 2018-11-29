@@ -11,29 +11,29 @@
 
 
 const asset cost_table( const uint64_t &n ) {
-    if ( n >= 429600 ) return asset( string_to_price("1.000"), EOS_SYMBOL ) ;
-    else if ( n >= 408120 ) return asset( string_to_price("1.100"), EOS_SYMBOL ) ;
-    else if ( n >= 386640 ) return asset( string_to_price("1.210"), EOS_SYMBOL ) ;
-    else if ( n >= 365160 ) return asset( string_to_price("1.331"), EOS_SYMBOL ) ;
-    else if ( n >= 343680 ) return asset( string_to_price("1.464"), EOS_SYMBOL ) ;
-    else if ( n >= 322200 ) return asset( string_to_price("1.611"), EOS_SYMBOL ) ;
-    else if ( n >= 279240 ) return asset( string_to_price("1.772"), EOS_SYMBOL ) ;
+    if ( n >= 429600 ) return asset( string_to_price("1.0000"), EOS_SYMBOL ) ;
+    else if ( n >= 408120 ) return asset( string_to_price("1.1000"), EOS_SYMBOL ) ;
+    else if ( n >= 386640 ) return asset( string_to_price("1.2100"), EOS_SYMBOL ) ;
+    else if ( n >= 365160 ) return asset( string_to_price("1.3310"), EOS_SYMBOL ) ;
+    else if ( n >= 343680 ) return asset( string_to_price("1.4640"), EOS_SYMBOL ) ;
+    else if ( n >= 322200 ) return asset( string_to_price("1.6110"), EOS_SYMBOL ) ;
+    else if ( n >= 279240 ) return asset( string_to_price("1.7720"), EOS_SYMBOL ) ;
 
-    else if ( n >= 408120 ) return asset( string_to_price("1.949"), EOS_SYMBOL ) ; // ???
+    else if ( n >= 408120 ) return asset( string_to_price("1.9490"), EOS_SYMBOL ) ; // ???
 
-    else if ( n >= 257760 ) return asset( string_to_price("2.144"), EOS_SYMBOL ) ;
-    else if ( n >= 236280 ) return asset( string_to_price("2.358"), EOS_SYMBOL ) ;
-    else if ( n >= 214800 ) return asset( string_to_price("2.594"), EOS_SYMBOL ) ;
-    else if ( n >= 193320 ) return asset( string_to_price("2.853"), EOS_SYMBOL ) ;
-    else if ( n >= 171840 ) return asset( string_to_price("3.138"), EOS_SYMBOL ) ;
-    else if ( n >= 150360 ) return asset( string_to_price("3.452"), EOS_SYMBOL ) ;
-    else if ( n >= 128880 ) return asset( string_to_price("3.797"), EOS_SYMBOL ) ;
-    else if ( n >= 107400 ) return asset( string_to_price("4.177"), EOS_SYMBOL ) ;
-    else if ( n >= 85920 ) return asset( string_to_price("4.595"), EOS_SYMBOL ) ;
-    else if ( n >= 64440 ) return asset( string_to_price("5.054"), EOS_SYMBOL ) ;
-    else if ( n >= 42960 ) return asset( string_to_price("5.560"), EOS_SYMBOL ) ;
-    else if ( n >= 21480 ) return asset( string_to_price("6.116"), EOS_SYMBOL ) ;
-    else return asset( string_to_price("6.116"), EOS_SYMBOL ) ;
+    else if ( n >= 257760 ) return asset( string_to_price("2.1440"), EOS_SYMBOL ) ;
+    else if ( n >= 236280 ) return asset( string_to_price("2.3580"), EOS_SYMBOL ) ;
+    else if ( n >= 214800 ) return asset( string_to_price("2.5940"), EOS_SYMBOL ) ;
+    else if ( n >= 193320 ) return asset( string_to_price("2.8530"), EOS_SYMBOL ) ;
+    else if ( n >= 171840 ) return asset( string_to_price("3.1380"), EOS_SYMBOL ) ;
+    else if ( n >= 150360 ) return asset( string_to_price("3.4520"), EOS_SYMBOL ) ;
+    else if ( n >= 128880 ) return asset( string_to_price("3.7970"), EOS_SYMBOL ) ;
+    else if ( n >= 107400 ) return asset( string_to_price("4.1770"), EOS_SYMBOL ) ;
+    else if ( n >= 85920 ) return asset( string_to_price("4.5950"), EOS_SYMBOL ) ;
+    else if ( n >= 64440 ) return asset( string_to_price("5.0540"), EOS_SYMBOL ) ;
+    else if ( n >= 42960 ) return asset( string_to_price("5.5600"), EOS_SYMBOL ) ;
+    else if ( n >= 21480 ) return asset( string_to_price("6.1160"), EOS_SYMBOL ) ;
+    else return asset( string_to_price("6.1160"), EOS_SYMBOL ) ;
 
 }
 
