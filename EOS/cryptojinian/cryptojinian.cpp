@@ -280,7 +280,7 @@ void cryptojinian::ref_processing( const account_name &miner, const account_name
     } // else if
 } // ref_processing()
 
-void take_order(const uint64_t &order_id, const asset &eos, const account_name &buyer)
+void cryptojinian::take_order(const uint64_t &order_id, const asset &eos, const account_name &buyer)
 {
     require_auth(buyer);
 
@@ -299,7 +299,7 @@ void take_order(const uint64_t &order_id, const asset &eos, const account_name &
     // 打 log
     const rec_takeOrder _tor{
         .matched_order = *itr,
-        .buyer = toAccount,
+        .buyer = buyer,
     };
 
     action(permission_level{_self, N(active)},
@@ -363,7 +363,7 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
     if (params[0] == "take_order") {
         eosio_assert(params.size() == 2, "Error memo");
 
-        take_order( string_to_int(params[1]), eos, from );
+        take_order( string_to_int(params[1]), quantity, from );
         return;
     }
 }

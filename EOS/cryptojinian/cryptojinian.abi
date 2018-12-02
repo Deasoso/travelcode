@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Nov 26 21:41:36 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Dec  3 00:14:23 2018",
     "version": "eosio::abi/1.0",
     "structs": [
         {
@@ -142,6 +142,24 @@
             ]
         },
         {
+            "name": "push_order",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "eos",
+                    "type": "asset"
+                },
+                {
+                    "name": "str_add_order",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "setcoin",
             "base": "",
             "fields": [
@@ -238,6 +256,11 @@
         {
             "name": "mining",
             "type": "mining",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "push.order",
+            "type": "push_order",
             "ricardian_contract": ""
         },
         {

@@ -44,37 +44,6 @@ class cryptojinian : public eosio::contract {
         void exchange(const std::string inputs);
         void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
 
-        [[eosio::action("push.order")]] void push_order( const account_name &account, asset &eos, string &str_add_order ) {
-            // 由於掛單不需要轉 token 進來，直接用 acton 就可以了
-            require_auth(account);
-
-            auto itr_players = _players.find( account ) ;
-            eosio_assert( itr_players != _players.end(), "Player is not found"); // player 存在 check
-            
-            auto v_str = explode( str_add_order, ' ' ) ;
-            auto type_coin = coin::str_to_coin_type( v_str[0] ) ;
-            auto n_coin = string_to_int( v_str[1] ) ;
-            uint64_t pn_coin = 0 ;
-            vector<uint64_t> pcoins ;
-            auto citr = _coins.begin() ;
-            for ( auto && cid : itr_players->coins ) {
-                citr = _coins.find( cid ) ;
-                if ( citr->type == type_coin ) {
-                    pn_coin += citr->number ;
-                    pcoins.push_back( cid ) ;
-                    if ( pn_coin >= n_coin ) break ;
-                }
-            }
-            eosio_assert( pn_coin >= n_coin, "Player dont have enough coins for sell order");
-            
-            _orders.emplace( _self, [&](auto &o) {
-                o.id = _orders.available_primary_key();
-                o.account = account ;
-                o.bid = eos ;
-                o.the_coins_for_sell = pcoins  ;// set coins
-            });
-
-        } // add_order()
 
     private:
         struct [[eosio::table]] order {
@@ -251,6 +220,37 @@ class cryptojinian : public eosio::contract {
                 if ( n == 32 ) break ;
             }
         }
+
+        [[eosio::action("push.order")]] void push_order( const account_name &account, asset &eos, string &str_add_order ) {
+            // 由於掛單不需要轉 token 進來，直接用 acton 就可以了
+            require_auth(account);
+            
+            auto itr_players = join_game_processing( account ) ;
+
+            auto v_str = explode( str_add_order, ' ' ) ;
+            eosio_assert(v_str.size() == 2, "Error memo");
+
+            auto type_coin = coin::str_to_coin_type( v_str[0] ) ;
+            auto n_coin = string_to_int( v_str[1] ) ;
+            vector<uint64_t> pcoins ;
+            auto citr = _coins.begin() ;
+            for ( auto && cid : itr_players->coins ) {
+                citr = _coins.find( cid ) ;
+                if ( citr->type == type_coin ) {
+                    pcoins.push_back( cid ) ;
+                    if ( pcoins.size() == n_coin ) break ;
+                }
+            }
+            eosio_assert( pcoins.size() == n_coin, "Player dont have enough coins for sell order");
+
+            _orders.emplace( account, [&](auto &o) { // !
+                o.id = _orders.available_primary_key();
+                o.account = account ;
+                o.bid = eos ;
+                o.the_coins_for_sell = pcoins  ;// set coins
+            });
+
+        } // push_order()
 
         void apply(account_name code, action_name action) ;
 };
