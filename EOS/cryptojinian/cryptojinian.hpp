@@ -44,8 +44,7 @@ class cryptojinian : public eosio::contract {
         void exchange(const std::string inputs);
         void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
 
-        // [[eosio::action]]
-        void pinOrder( const account_name &account, asset &eos, string &str_add_order ) {
+        [[eosio::action("push.order")]] void push_order( const account_name &account, asset &eos, string &str_add_order ) {
             // 由於掛單不需要轉 token 進來，直接用 acton 就可以了
             require_auth(account);
 
@@ -218,41 +217,12 @@ class cryptojinian : public eosio::contract {
                         asset quantity, string memo);
 
         // onTransfer() ->
-        void join_miningqueue( const account_name &miner, const asset &totalcost ) ;
-        void take_order( const uint64_t &order_id, const asset &eos, const account_name &toAccount ) {
-            require_auth(toAccount);
-  
-            auto itr = _orders.find( order_id );
-            eosio_assert(itr != _orders.end(), "Trade id is not found");
-            eosio_assert(itr->bid == eos, "Asset does not match");
-            
-            // 一個轉移 coin 的 move
-            for ( auto && cid : itr->the_coins_for_sell ) {
-                _coins.modify( _coins.find( cid ), _self, [&](auto& c) {
-                    c.owner = toAccount ;
-                });
-            }
-
-            // 打 log
-            const rec_takeOrder _tor{
-                .matched_order = *itr,
-                .buyer = toAccount,
-            }; 
-
-            action( permission_level{_self, N(active)},
-                    _self, N(receipt), _tor )
-            .send();
-        
-            // 刪了
-            _orders.erase(itr) ;
-
-        } // take_order()
-
+        void join_miningqueue( const account_name &miner, const asset &totalcost );
         void ref_processing(const account_name &miner ) {
             ref_processing( miner, DEF_SPONSOR );
         }
         void ref_processing(const account_name &miner, const account_name &sponsor );
-        
+        void take_order( const uint64_t &order_id, const asset &eos, const account_name &buyer );
         void ibobuy( const account_name &buyer, asset &in ) {
             require_auth( buyer );
             _kyubey.buy( buyer, in );

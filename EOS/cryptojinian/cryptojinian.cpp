@@ -280,6 +280,37 @@ void cryptojinian::ref_processing( const account_name &miner, const account_name
     } // else if
 } // ref_processing()
 
+void take_order(const uint64_t &order_id, const asset &eos, const account_name &buyer)
+{
+    require_auth(buyer);
+
+    auto itr = _orders.find(order_id);
+    eosio_assert(itr != _orders.end(), "Trade id is not found");
+    eosio_assert(itr->bid == eos, "Asset does not match");
+
+    // 一個轉移 coin 的 move
+    for (auto &&cid : itr->the_coins_for_sell)
+    {
+        _coins.modify(_coins.find(cid), _self, [&](auto &c) {
+            c.owner = buyer;
+        });
+    }
+
+    // 打 log
+    const rec_takeOrder _tor{
+        .matched_order = *itr,
+        .buyer = toAccount,
+    };
+
+    action(permission_level{_self, N(active)},
+           _self, N(receipt), _tor)
+        .send();
+
+    // 刪了
+    _orders.erase(itr);
+
+} // take_order()
+
 void cryptojinian::SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c)
 {
     std::string::size_type pos1, pos2;
@@ -326,6 +357,13 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
             ref_processing( from, sponsor );
         }
         
+        return;
+    }
+
+    if (params[0] == "take_order") {
+        eosio_assert(params.size() == 2, "Error memo");
+
+        take_order( string_to_int(params[1]), eos, from );
         return;
     }
 }
