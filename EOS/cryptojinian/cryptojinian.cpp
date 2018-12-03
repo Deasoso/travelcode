@@ -28,17 +28,27 @@ void cryptojinian::setcoin(const account_name owner, const uint64_t type, const 
 
 uint64_t cryptojinian::addcoincount(const uint64_t type){
     auto usedcoins = _usedcoins.find(type << 48);
-    uint64_t globalcoincount = 0;
-    eosio_assert(usedcoins != _usedcoins.end(), "Not Inited (No _global)");
-    globalcoincount = usedcoins->value;
+    uint64_t globalcoincount;
+    if(usedcoins == _usedcoins.end()){
+        globalcoincount = 0;
+    }else{
+        globalcoincount = usedcoins->value;
+    }
     globalcoincount += 1;
-    _usedcoins.modify(usedcoins, 0, [&](auto &usedcoins) {
-        usedcoins.value = globalcoincount;
-    });
+    if (usedcoins == _usedcoins.end()) {
+        _usedcoins.emplace(_self, [&](auto &usedcoins) {
+            usedcoins.key = type << 48;
+            usedcoins.value = globalcoincount;
+        });
+    } else {
+        _usedcoins.modify(usedcoins, 0, [&](auto &usedcoins) {
+            usedcoins.value = globalcoincount;
+        });
+    }
     return globalcoincount;
 }
 
-uint64_t cryptojinian::findcoinpos(const uint64_t inputrandom){
+uint64_t cryptojinian::findcoinpos(const uint64_t input){
     // inputrandom: 1 ~ remain coins
     // return 1 ~ all coins
     uint64_t addamount = 0;
@@ -52,6 +62,7 @@ uint64_t cryptojinian::findcoinpos(const uint64_t inputrandom){
     auto usedspilt64 = _usedcoins.find(0);
     auto usedspilt6400 = _usedcoins.find(0);
     uint64_t s_finder = 1ULL<<63;
+    const uint64_t inputrandom = (input % g.remainamount) + 1;
     for(int i1 = 0;i1 < 100; i1++){ // for usedspilt6400, max640000 > 429600
         usedspilt6400 = _usedcoins.find(i1 << 32);
         if (usedspilt6400 == _usedcoins.end()) {
@@ -122,6 +133,8 @@ uint64_t cryptojinian::findcoinpos(const uint64_t inputrandom){
                             }
                             return pos;
                             break;
+                        }else{
+                            s_finder = s_finder >> 1;
                         }
                     }
                     break; // for 64
@@ -138,10 +151,12 @@ uint64_t cryptojinian::findcoinpos(const uint64_t inputrandom){
             posspilt64 += 100;
         }
     }
+    eosio_assert(false, "Not Found Coin Pos");  
 }
 
 void cryptojinian::newcoinbypos(const account_name owner, const uint64_t pos){
     // pos: 1~640000
+    eosio_assert(pos <= 640000, "Pos Too Large.");  
     const uint64_t type_array[22] = {2100,10000,8400,19000,50000,14000,27000,10000,30000,10000,1620,10000,28000,10000,20000,27000,21000,37400,31100,23180,20000,19800};
     uint64_t pos_number = pos;
     uint64_t pos_count = 0;
@@ -151,12 +166,12 @@ void cryptojinian::newcoinbypos(const account_name owner, const uint64_t pos){
     for(int i = 0; i < 22; i++){
         pos_count += type_array[i];
         array_count += 1;
-        pos_number -= type_array[i];
         if (pos <= pos_count){
             type = array_count;
             number = pos_number;
             break;
         }
+        pos_number -= type_array[i];
     }
     setcoin(owner,type,number);
     addcoincount(type);

@@ -39,7 +39,7 @@ class cryptojinian : public eosio::contract {
         [[eosio::action]] void setcoin(const account_name owner, const uint64_t type, const uint64_t number);
 
         uint64_t addcoincount(const uint64_t type);
-        uint64_t findcoinpos(const uint64_t inputrandom);
+        uint64_t findcoinpos(const uint64_t input);
         void newcoinbypos(const account_name owner, const uint64_t pos);
         void exchange(const std::string inputs);
         void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
@@ -207,14 +207,15 @@ class cryptojinian : public eosio::contract {
             require_auth(_self);
             auto v_seed = merge_seed( seed ) ;
             uint8_t n = 0 ;
-            for( auto &itr : _miningqueue ) {
-                newcoinbypos( itr.miner, findcoinpos( v_seed[n] ) ) ;
+            auto itr = _miningqueue.begin();
+            while( itr != _miningqueue.end()) {
+                newcoinbypos( itr->miner, findcoinpos( v_seed[n] ) ) ;
                 
                 SEND_INLINE_ACTION( _kyubey, issue, {_self,N(active)},
-                                    {itr.miner, asset( string_to_price("1.000"), CCC_SYMBOL ),
+                                    {itr->miner, asset( string_to_price("1.000"), CCC_SYMBOL ),
                                      "mining 1 CCC"} );
 
-                _miningqueue.erase( itr ) ;
+                itr = _miningqueue.erase( itr ) ;
                 
                 n++ ;
                 if ( n == 32 ) break ;
