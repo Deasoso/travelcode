@@ -222,10 +222,10 @@ class cryptojinian : public eosio::contract {
             }
         }
 
-        [[eosio::action("push.order")]] void push_order( const account_name &account, asset &eos, string &str_add_order ) {
+        [[eosio::action("pushorder")]] void pushorder( const account_name &account, asset &eos, string &str_add_order ) {
             // 由於掛單不需要轉 token 進來，直接用 acton 就可以了
             require_auth(account);
-            
+            eosio_assert(false, "Stop Here!");
             auto itr_players = join_game_processing( account ) ;
 
             auto v_str = explode( str_add_order, ' ' ) ;
@@ -251,7 +251,7 @@ class cryptojinian : public eosio::contract {
                 o.the_coins_for_sell = pcoins  ;// set coins
             });
 
-        } // push_order()
+        } // pushorder()
 
         void apply(account_name code, action_name action) ;
 };
