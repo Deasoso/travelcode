@@ -154,7 +154,7 @@
                     "type": "asset"
                 },
                 {
-                    "name": "str_add_order",
+                    "name": "straddorder",
                     "type": "string"
                 }
             ]

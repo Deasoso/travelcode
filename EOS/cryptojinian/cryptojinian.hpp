@@ -222,23 +222,24 @@ class cryptojinian : public eosio::contract {
             }
         }
 
-        [[eosio::action("pushorder")]] void pushorder( const account_name &account, asset &eos, string &str_add_order ) {
+        [[eosio::action]] void pushorder( const account_name &account, asset &eos, string &straddorder ) {
             // 由於掛單不需要轉 token 進來，直接用 acton 就可以了
             require_auth(account);
-            eosio_assert(false, "Stop Here!");
+
             auto itr_players = join_game_processing( account ) ;
 
-            auto v_str = explode( str_add_order, ' ' ) ;
+            auto v_str = explode( straddorder, ' ' ) ;
             eosio_assert(v_str.size() == 2, "Error memo");
 
             auto type_coin = coin::str_to_coin_type( v_str[0] ) ;
             auto n_coin = string_to_int( v_str[1] ) ;
             vector<uint64_t> pcoins ;
             auto citr = _coins.begin() ;
-            for ( auto && cid : itr_players->coins ) {
+            for ( auto cid : itr_players->coins ) {
                 citr = _coins.find( cid ) ;
                 if ( citr->type == type_coin ) {
                     pcoins.push_back( cid ) ;
+                    // eosio_assert(false, "Stop here！");
                     if ( pcoins.size() == n_coin ) break ;
                 }
             }
@@ -284,7 +285,7 @@ void cryptojinian::apply(account_name code, action_name action) {
 
     if (code != _self) return;
     switch (action) {
-        EOSIO_API(cryptojinian, (init)(setcoin)(mining));
+        EOSIO_API(cryptojinian, (init)(setcoin)(mining)(pushorder));
     };
 }     
         

@@ -349,7 +349,7 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
     require_auth(from);
     eosio_assert(quantity.is_valid(), "invalid token transfer");
     eosio_assert(quantity.symbol == EOS_SYMBOL, "only EOS token is allowed");
-    eosio_assert(quantity.amount > 0, "Must transfer a positive amount"); // 正數的結界
+    eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
 
     auto params = explode(memo, ' ');
     eosio_assert(params.size() <= 5, "Error memo");
