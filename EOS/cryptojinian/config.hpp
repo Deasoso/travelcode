@@ -17,10 +17,8 @@ const asset cost_table( const uint64_t &n ) {
     else if ( n >= 365160 ) return asset( string_to_price("1.3310"), EOS_SYMBOL ) ;
     else if ( n >= 343680 ) return asset( string_to_price("1.4640"), EOS_SYMBOL ) ;
     else if ( n >= 322200 ) return asset( string_to_price("1.6110"), EOS_SYMBOL ) ;
-    else if ( n >= 279240 ) return asset( string_to_price("1.7720"), EOS_SYMBOL ) ;
-
-    else if ( n >= 408120 ) return asset( string_to_price("1.9490"), EOS_SYMBOL ) ; // ???
-
+    else if ( n >= 300720 ) return asset( string_to_price("1.7720"), EOS_SYMBOL ) ;
+    else if ( n >= 279240 ) return asset( string_to_price("1.9490"), EOS_SYMBOL ) ;
     else if ( n >= 257760 ) return asset( string_to_price("2.1440"), EOS_SYMBOL ) ;
     else if ( n >= 236280 ) return asset( string_to_price("2.3580"), EOS_SYMBOL ) ;
     else if ( n >= 214800 ) return asset( string_to_price("2.5940"), EOS_SYMBOL ) ;
