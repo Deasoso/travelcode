@@ -212,7 +212,7 @@ class cryptojinian : public eosio::contract {
                 newcoinbypos( itr->miner, findcoinpos( v_seed[n] ) ) ;
                 
                 SEND_INLINE_ACTION( _kyubey, issue, {_self,N(active)},
-                                    {itr->miner, asset( string_to_price("1.000"), CCC_SYMBOL ),
+                                    {itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ),
                                      "mining 1 CCC"} );
 
                 itr = _miningqueue.erase( itr ) ;
