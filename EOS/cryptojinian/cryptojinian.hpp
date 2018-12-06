@@ -174,9 +174,18 @@ class cryptojinian : public eosio::contract {
             return itr_players ;
         } // join_game_processing()
 
+        void token_mining( account_name &miner, asset &quantity, string &memo ) {
+            // SEND_INLINE_ACTION failed !
+            /*
+            SEND_INLINE_ACTION( _kyubey, issue, {_self,N(active)},
+                                    {itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ),
+                                     "mining 1 CCC"} );
+            */
+            _kyubey.issue( miner, quantity, memo);
+        }
+
         void onTransfer(account_name from, account_name to,
                         asset quantity, string memo);
-
         // onTransfer() ->
         void join_miningqueue( const account_name &miner, const asset &totalcost );
         void ref_processing(const account_name &miner ) {
@@ -201,19 +210,12 @@ class cryptojinian : public eosio::contract {
             uint8_t n = 0 ;
             auto itr = _miningqueue.begin();
             while( itr != _miningqueue.end() && n != v_seed.size() ) {
-                //return ;
-                //newcoinbypos( itr->miner, findcoinpos( v_seed[n] ) ) ;
-                //return ;
-                _kyubey.issue( itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ), "Mining 1 CCC");
-                // SEND_INLINE_ACTION failed !
-
-                /*
-                SEND_ INLINE _ ACTION( _kyubey, issue, {_self,N(active)},
-                                    {itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ),
-                                     "mining 1 CCC"} );
-                */
-                itr = _miningqueue.erase( itr ) ;
+                newcoinbypos( itr->miner, findcoinpos( v_seed[n] ) ) ;
                 
+                token_mining( itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ), "Mining 1 CCC" );
+            
+                _miningqueue.erase( itr );
+                itr = _miningqueue.begin();
                 n++ ;
             }
         }
@@ -252,10 +254,7 @@ class cryptojinian : public eosio::contract {
 
         [[eosio::action]] void test() {
             require_auth(_self);
-            _kyubey.issue( _self, asset( string_to_price("1.0000"), CCC_SYMBOL ), "test mining 1 CCC");
-            // SEND _ INLINE_ACTION( _kyubey, issue, {_self,N(active)},
-            //                        {_self, asset( string_to_price("1.0000"), CCC_SYMBOL ),
-            //                         "test mining 1 CCC"} );
+            token_mining(_self, asset( string_to_price("1.0000"), CCC_SYMBOL ), "test mining 1 CCC");
         }
 
         void apply(account_name code, action_name action) ;
