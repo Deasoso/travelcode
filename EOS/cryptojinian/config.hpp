@@ -5,7 +5,7 @@
 
 #define EOS_SYMBOL S(4, EOS)
 #define CCC_SYMBOL S(4, CCC)
-#define CCC_MAX_SUPPLY 30000000
+#define CCC_MAX_SUPPLY 300000000000
 
 #define DEF_SPONSOR N(rukamoemoe51)
 
