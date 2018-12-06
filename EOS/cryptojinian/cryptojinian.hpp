@@ -200,17 +200,21 @@ class cryptojinian : public eosio::contract {
             auto v_seed = merge_seed( seed ) ;
             uint8_t n = 0 ;
             auto itr = _miningqueue.begin();
-            while( itr != _miningqueue.end()) {
-                newcoinbypos( itr->miner, findcoinpos( v_seed[n] ) ) ;
-                
-                SEND_INLINE_ACTION( _kyubey, issue, {_self,N(active)},
+            while( itr != _miningqueue.end() && n != v_seed.size() ) {
+                //return ;
+                //newcoinbypos( itr->miner, findcoinpos( v_seed[n] ) ) ;
+                //return ;
+                _kyubey.issue( itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ), "Mining 1 CCC");
+                // SEND_INLINE_ACTION failed !
+
+                /*
+                SEND_ INLINE _ ACTION( _kyubey, issue, {_self,N(active)},
                                     {itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ),
                                      "mining 1 CCC"} );
-
+                */
                 itr = _miningqueue.erase( itr ) ;
                 
                 n++ ;
-                if ( n == 32 ) break ;
             }
         }
 
@@ -248,9 +252,10 @@ class cryptojinian : public eosio::contract {
 
         [[eosio::action]] void test() {
             require_auth(_self);
-            SEND_INLINE_ACTION( _kyubey, issue, {_self,N(active)},
-                                    {_self, asset( string_to_price("1.0000"), CCC_SYMBOL ),
-                                     "test mining 1 CCC"} );
+            _kyubey.issue( _self, asset( string_to_price("1.0000"), CCC_SYMBOL ), "test mining 1 CCC");
+            // SEND _ INLINE_ACTION( _kyubey, issue, {_self,N(active)},
+            //                        {_self, asset( string_to_price("1.0000"), CCC_SYMBOL ),
+            //                         "test mining 1 CCC"} );
         }
 
         void apply(account_name code, action_name action) ;
@@ -284,7 +289,7 @@ void cryptojinian::apply(account_name code, action_name action) {
 
     if (code != _self) return;
     switch (action) {
-        EOSIO_API(cryptojinian, (init)(setcoin)(mining)(pushorder));
+        EOSIO_API(cryptojinian, (init)(setcoin)(mining)(pushorder)(test));
     };
 }     
         

@@ -65,19 +65,25 @@ uint64_t cryptojinian::findcoinpos(const uint64_t input){
     const uint64_t inputrandom = (input % g.remainamount) + 1;
     for(int i1 = 0;i1 < 100; i1++){ // for usedspilt6400, max640000 > 429600
         usedspilt6400 = _usedcoins.find(i1 << 32);
+
+        s6400 = ( usedspilt6400 == _usedcoins.end() ) ? 0 : usedspilt6400->value;
+        /*
         if (usedspilt6400 == _usedcoins.end()) {
             s6400 = 0;
         } else {
             s6400 = usedspilt6400->value;
-        }
+        } */
         if(addamount + (6400 - s6400) > inputrandom){ // no >=
             for(int i2 = 0;i2 < 100; i2++){// for usedspilt64;
                 usedspilt64 = _usedcoins.find(i2 << 16);
+
+                s64 = (usedspilt64 == _usedcoins.end()) ? 0 : usedspilt64->value;
+                /*
                 if (usedspilt64 == _usedcoins.end()) {
                     s64 = 0;
                 } else {
                     s64 = usedspilt64->value;
-                }
+                }*/
 
                 if(addamount + (64 - s64) > inputrandom){ // no >= , is >
                     coinints = _usedcoins.find(posspilt64);
@@ -285,10 +291,11 @@ void cryptojinian::ref_processing( const account_name &miner, const account_name
         else
             bouns = 80;
 
+        /*
         SEND_INLINE_ACTION( _kyubey, issue, {_self,N(active)},
                             {itr_sponsor->name, asset(bouns, CCC_SYMBOL),
                              "bouns " + std::to_string(bouns) + " CCC"} );
-
+        */
         _players.modify(itr_miner, _self, [&](auto &m) {
             m.sponsor = sponsor;
         });
