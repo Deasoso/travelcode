@@ -304,7 +304,7 @@ void cryptojinian::take_order(const uint64_t &order_id, const asset &eos, const 
     eosio_assert(itr->bid == eos, "Asset does not match");
 
     // 一個轉移 coin 的 move
-    for (auto &&cid : itr->the_coins_for_sell)
+    for (auto &cid : itr->the_coins_for_sell)
     {
         _coins.modify(_coins.find(cid), _self, [&](auto &c) {
             c.owner = buyer;

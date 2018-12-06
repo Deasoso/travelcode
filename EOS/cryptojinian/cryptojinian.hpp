@@ -29,7 +29,6 @@ class cryptojinian : public eosio::contract {
 
         [[eosio::action]] void init();
         // [[eosio::action]] void clear();     
-        // [[eosio::action]] void test();
         // [[eosio::action]] void unstake(account_name from, uint64_t amount);
         // [[eosio::action]] void claim(account_name from);
         [[eosio::action]] void transfer(account_name   from,
@@ -43,7 +42,6 @@ class cryptojinian : public eosio::contract {
         void newcoinbypos(const account_name owner, const uint64_t pos);
         void exchange(const std::string inputs);
         void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
-
 
     private:
         struct [[eosio::table]] order {
@@ -145,26 +143,20 @@ class cryptojinian : public eosio::contract {
         usedcoins_t _usedcoins;
         kyubey _kyubey ;
 
+    private:
         /*
         uint64_t get_next_defer_id() {
             auto g = _global.get();    
             g.defer_id += 1;
             _global.set(g, _self);
             return g.defer_id;
-        }*/
+        }
 
         template <typename... Args>
         void send_defer_action(Args&&... args) {
             transaction trx;
             trx.actions.emplace_back(std::forward<Args>(args)...);
             // trx.send(get_next_defer_id(), _self, false);
-        }
-
-        /*
-        uint64_t randommath( const checksum256 &seed ) {
-            require_auth(_self);
-        
-            return merge_seed(seed, seed);
         }*/
 
         inline vector<uint64_t> merge_seed(const checksum256 &s1) ;
@@ -245,7 +237,7 @@ class cryptojinian : public eosio::contract {
             }
             eosio_assert( pcoins.size() == n_coin, "Player dont have enough coins for sell order");
 
-            _orders.emplace( account, [&](auto &o) { // !
+            _orders.emplace( account, [&](auto &o) {
                 o.id = _orders.available_primary_key();
                 o.account = account ;
                 o.bid = eos ;
@@ -253,6 +245,13 @@ class cryptojinian : public eosio::contract {
             });
 
         } // pushorder()
+
+        [[eosio::action]] void test() {
+            require_auth(_self);
+            SEND_INLINE_ACTION( _kyubey, issue, {_self,N(active)},
+                                    {_self, asset( string_to_price("1.0000"), CCC_SYMBOL ),
+                                     "test mining 1 CCC"} );
+        }
 
         void apply(account_name code, action_name action) ;
 };
