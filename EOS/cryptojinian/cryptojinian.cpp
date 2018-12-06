@@ -279,7 +279,7 @@ void cryptojinian::ref_processing( const account_name &miner, const account_name
         });
         // 發 bouns token 給 sponsor
         const auto refs_size = itr_sponsor->refs.size();
-        uint8_t bouns = 0;
+        uint64_t bouns = 0;
         if (refs_size <= 10)
             bouns = 30;
         else if (refs_size <= 30)
@@ -291,11 +291,9 @@ void cryptojinian::ref_processing( const account_name &miner, const account_name
         else
             bouns = 80;
 
-        /*
-        SEND_INLINE_ACTION( _kyubey, issue, {_self,N(active)},
-                            {itr_sponsor->name, asset(bouns, CCC_SYMBOL),
-                             "bouns " + std::to_string(bouns) + " CCC"} );
-        */
+        token_mining( itr_sponsor->name, asset( bouns * 10000, CCC_SYMBOL ),
+                      "bouns " + std::to_string(bouns) + " CCC" );
+            
         _players.modify(itr_miner, _self, [&](auto &m) {
             m.sponsor = sponsor;
         });
@@ -352,7 +350,7 @@ void cryptojinian::SplitString(const std::string& s, vector<uint64_t>& v, const 
 
 // input
 void cryptojinian::onTransfer(account_name from, account_name to, asset quantity, std::string memo) {            
-    if (to != _self) return;   
+    if (from == _self || to != _self) return;   
     require_auth(from);
     eosio_assert(quantity.is_valid(), "invalid token transfer");
     eosio_assert(quantity.symbol == EOS_SYMBOL, "only EOS token is allowed");
