@@ -48,7 +48,7 @@ uint64_t cryptojinian::addcoincount(const uint64_t type){
     return globalcoincount;
 }
 
-uint64_t cryptojinian::findcoinpos(const uint64_t input){
+uint64_t cryptojinian::findcoinpos(uint64_t input){
     // inputrandom: 1 ~ remain coins
     // return 1 ~ all coins
     uint64_t addamount = 0;
@@ -58,22 +58,15 @@ uint64_t cryptojinian::findcoinpos(const uint64_t input){
     uint64_t s6400;
     uint64_t s64;
     uint64_t s;
-    auto coinints = _usedcoins.find(0);
-    auto usedspilt64 = _usedcoins.find(0);
-    auto usedspilt6400 = _usedcoins.find(0);
+    auto coinints = _usedcoins.begin();
+    auto usedspilt64 = _usedcoins.begin();
+    auto usedspilt6400 = _usedcoins.begin();
     uint64_t s_finder = 1ULL<<63;
-    const uint64_t inputrandom = (input % g.remainamount) + 1;
+    input = (input % g.remainamount) + 1;
     for(int i1 = 0;i1 < 100; i1++){ // for usedspilt6400, max640000 > 429600
         usedspilt6400 = _usedcoins.find(i1 << 32);
-
         s6400 = ( usedspilt6400 == _usedcoins.end() ) ? 0 : usedspilt6400->value;
-        /*
-        if (usedspilt6400 == _usedcoins.end()) {
-            s6400 = 0;
-        } else {
-            s6400 = usedspilt6400->value;
-        } */
-        if(addamount + (6400 - s6400) > inputrandom){ // no >=
+        if(addamount + (6400 - s6400) > input){ // no >=
             for(int i2 = 0;i2 < 100; i2++){// for usedspilt64;
                 usedspilt64 = _usedcoins.find(i2 << 16);
 
@@ -85,7 +78,7 @@ uint64_t cryptojinian::findcoinpos(const uint64_t input){
                     s64 = usedspilt64->value;
                 }*/
 
-                if(addamount + (64 - s64) > inputrandom){ // no >= , is >
+                if(addamount + (64 - s64) > input){ // no >= , is >
                     coinints = _usedcoins.find(posspilt64);
                     if (usedspilt64 == _usedcoins.end()) {
                         s = 0;
@@ -100,7 +93,7 @@ uint64_t cryptojinian::findcoinpos(const uint64_t input){
                             addamount += 1;
                             pos += 1;
                         }
-                        if(addamount == inputrandom){//found!
+                        if(addamount == input){//found!
                             g = _global.get() ;
                             g.remainamount -= 1;
                             _global.set( g, _self) ;
@@ -171,7 +164,7 @@ void cryptojinian::newcoinbypos(const account_name owner, const uint64_t pos){
     uint64_t number = 0;
     for(int i = 0; i < 22; i++){
         pos_count += type_array[i];
-        array_count += 1;
+        array_count ++;
         if (pos <= pos_count){
             type = array_count;
             number = pos_number;
