@@ -174,7 +174,8 @@ class cryptojinian : public eosio::contract {
             return itr_players ;
         } // join_game_processing()
 
-        void token_mining( account_name &miner, asset &quantity, string &memo ) {
+        void token_mining( account_name miner, asset quantity, string memo ) {
+            require_auth(_self);
             // SEND_INLINE_ACTION failed !
             /*
             SEND_INLINE_ACTION( _kyubey, issue, {_self,N(active)},
@@ -210,11 +211,11 @@ class cryptojinian : public eosio::contract {
             uint8_t n = 0 ;
             auto itr = _miningqueue.begin();
             while( itr != _miningqueue.end() && n != v_seed.size() ) {
-                newcoinbypos( itr->miner, findcoinpos( v_seed[n] ) ) ;
-                
+                // newcoinbypos( itr->miner, findcoinpos( v_seed[n] ) ) ;
                 token_mining( itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ), "Mining 1 CCC" );
-            
+                
                 _miningqueue.erase( itr );
+                
                 itr = _miningqueue.begin();
                 n++ ;
             }
