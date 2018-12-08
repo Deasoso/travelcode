@@ -20,12 +20,12 @@ class cryptojinian : public eosio::contract {
         cryptojinian(account_name self) :
         contract(self),
         _kyubey(self),
-        _global(_self, _self),
-        _miningqueue(_self, _self),
-        _coins(_self, _self),
-        _players(_self, _self),
-        _usedcoins(_self, _self),
-        _orders(_self, _self) {}
+        _global(get_self(), get_self()),
+        _miningqueue(get_self(), get_self()),
+        _coins(get_self(), get_self()),
+        _players(get_self(), get_self()),
+        _usedcoins(get_self(), get_self()),
+        _orders(get_self(), get_self()) {}
 
         [[eosio::action]] void init();
         // [[eosio::action]] void clear();     
@@ -148,7 +148,7 @@ class cryptojinian : public eosio::contract {
         uint64_t get_next_defer_id() {
             auto g = _global.get();    
             g.defer_id += 1;
-            _global.set(g, _self);
+            _global.set(g, get_self());
             return g.defer_id;
         }
 
@@ -156,7 +156,7 @@ class cryptojinian : public eosio::contract {
         void send_defer_action(Args&&... args) {
             transaction trx;
             trx.actions.emplace_back(std::forward<Args>(args)...);
-            // trx.send(get_next_defer_id(), _self, false);
+            // trx.send(get_next_defer_id(), get_self(), false);
         }*/
 
         inline vector<uint64_t> merge_seed(const checksum256 &s1) ;
@@ -164,7 +164,7 @@ class cryptojinian : public eosio::contract {
         auto join_game_processing( const account_name &account ) {
             auto itr_players = _players.find( account ) ;
             if ( itr_players == _players.end() ) { // noob
-                _players.emplace(_self, [&](auto &p) {
+                _players.emplace(get_self(), [&](auto &p) {
                     p.name = account;
                     p.sponsor = DEF_SPONSOR;
                 });
@@ -175,10 +175,10 @@ class cryptojinian : public eosio::contract {
         } // join_game_processing()
 
         void token_mining( account_name miner, asset quantity, string memo ) {
-            require_auth(_self);
+            require_auth(get_self());
             // SEND_INLINE_ACTION failed !
             /*
-            SEND_INLINE_ACTION( _kyubey, issue, {_self,N(active)},
+            SEND_INLINE_ACTION( _kyubey, issue, {get_self(),N(active)},
                                     {itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ),
                                      "mining 1 CCC"} );
             */
@@ -201,17 +201,17 @@ class cryptojinian : public eosio::contract {
 
         // rec
         void receipt(const rec_takeOrder& take_order_record) {
-            require_auth(_self);
+            require_auth(get_self());
         }
 
     public:
         [[eosio::action]] void mining( const checksum256& seed ) {
-            require_auth(_self);
+            require_auth(get_self());
             auto v_seed = merge_seed( seed ) ;
             uint8_t n = 0 ;
             auto itr = _miningqueue.begin();
             while( itr != _miningqueue.end() && n != v_seed.size() ) {
-                // newcoinbypos( itr->miner, findcoinpos( v_seed[n] ) ) ;
+                newcoinbypos( itr->miner, findcoinpos( v_seed[n] ) ) ;
                 token_mining( itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ), "Mining 1 CCC" );
                 
                 _miningqueue.erase( itr );
@@ -254,8 +254,12 @@ class cryptojinian : public eosio::contract {
         } // pushorder()
 
         [[eosio::action]] void test() {
-            require_auth(_self);
-            token_mining(_self, asset( string_to_price("1.0000"), CCC_SYMBOL ), "test mining 1 CCC");
+            require_auth(get_self());
+            //auto v_seed = merge_seed( seed ) ;
+            //token_mining(get_self(), asset( string_to_price("1.0000"), CCC_SYMBOL ), "test mining 1 CCC");
+            //print( findcoinpos( v_seed[0]) );
+            return;
+            //newcoinbypos( N(cccmining555), findcoinpos( v_seed[0] ) ) ;
         }
 
         void apply(account_name code, action_name action) ;
@@ -273,9 +277,9 @@ vector<uint64_t> cryptojinian::merge_seed(const checksum256 &s1) {
 }
 
 void cryptojinian::init() {
-    require_auth(_self);
-    _global.set( st_global{ .id = 0, .remainamount = 429600 } , _self );
-    _kyubey.create( _self, asset( CCC_MAX_SUPPLY, CCC_SYMBOL ) ) ;
+    require_auth(get_self());
+    _global.set( st_global{ .id = 0, .remainamount = 429600 } , get_self() );
+    _kyubey.create( get_self(), asset( CCC_MAX_SUPPLY, CCC_SYMBOL ) ) ;
 }
 
 void cryptojinian::apply(account_name code, action_name action) {
@@ -287,7 +291,7 @@ void cryptojinian::apply(account_name code, action_name action) {
         return;
     }
 
-    if (code != _self) return;
+    if (code != get_self()) return;
     switch (action) {
         EOSIO_API(cryptojinian, (init)(setcoin)(mining)(pushorder)(test));
     };
