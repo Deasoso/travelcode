@@ -3,22 +3,12 @@
 void cryptojinian::setcoin(const account_name owner, const uint64_t type, const uint64_t number) {
     //two-way binding.
     uint64_t newcoinid = _coins.available_primary_key();
-    std::vector<uint64_t> newcoinlist;
-    auto player = _players.find(owner);
-    if(player == _players.end()){
-        newcoinlist.push_back(newcoinid);
-        _players.emplace(_self, [&](auto &player) {
-            player.name = owner;
-            player.coins = newcoinlist;
-        });
-    } else {
-        newcoinlist = player->coins;
-        newcoinlist.push_back(newcoinid);
-        _players.modify(player, 0, [&](auto &player) {
-            player.coins = newcoinlist;
-        });
-    }
-    _coins.emplace(_self, [&](auto &coin) {
+    auto itr_players = join_game_processing( owner );
+    _players.modify(itr_players, get_self(), [&](auto &p) {
+            p.coins.push_back(newcoinid);
+    });
+    
+    _coins.emplace(get_self(), [&](auto &coin) {
         coin.id = newcoinid;
         coin.owner = owner;
         coin.type = type;
@@ -28,21 +18,16 @@ void cryptojinian::setcoin(const account_name owner, const uint64_t type, const 
 
 uint64_t cryptojinian::addcoincount(const uint64_t type){
     auto usedcoins = _usedcoins.find(type << 48);
-    uint64_t globalcoincount;
-    if(usedcoins == _usedcoins.end()){
-        globalcoincount = 0;
-    }else{
-        globalcoincount = usedcoins->value;
-    }
-    globalcoincount += 1;
+    uint64_t globalcoincount = ( usedcoins == _usedcoins.end() ) ? 0 : usedcoins->value ;
+    globalcoincount ++;
     if (usedcoins == _usedcoins.end()) {
-        _usedcoins.emplace(_self, [&](auto &usedcoins) {
-            usedcoins.key = type << 48;
-            usedcoins.value = globalcoincount;
+        _usedcoins.emplace(get_self(), [&](auto &u) {
+            u.key = type << 48;
+            u.value = globalcoincount;
         });
     } else {
-        _usedcoins.modify(usedcoins, 0, [&](auto &usedcoins) {
-            usedcoins.value = globalcoincount;
+        _usedcoins.modify(usedcoins, get_self(), [&](auto &u) {
+            u.value = globalcoincount;
         });
     }
     return globalcoincount;
@@ -55,9 +40,7 @@ uint64_t cryptojinian::findcoinpos(uint64_t input){
     uint64_t pos = 0;
     uint64_t posspilt64 = 0;
     auto g = _global.get();
-    uint64_t s6400;
-    uint64_t s64;
-    uint64_t s;
+    uint64_t s, s64, s6400;
     auto coinints = _usedcoins.begin();
     auto usedspilt64 = _usedcoins.begin();
     auto usedspilt6400 = _usedcoins.begin();
@@ -71,12 +54,6 @@ uint64_t cryptojinian::findcoinpos(uint64_t input){
                 usedspilt64 = _usedcoins.find(i2 << 16);
 
                 s64 = (usedspilt64 == _usedcoins.end()) ? 0 : usedspilt64->value;
-                /*
-                if (usedspilt64 == _usedcoins.end()) {
-                    s64 = 0;
-                } else {
-                    s64 = usedspilt64->value;
-                }*/
 
                 if(addamount + (64 - s64) > input){ // no >= , is >
                     coinints = _usedcoins.find(posspilt64);
@@ -87,19 +64,17 @@ uint64_t cryptojinian::findcoinpos(uint64_t input){
                     }
 
                     for(int i3 = 0;i3 < 64; i3++){// for usedspilt64;
-                        if((s | s_finder) == s){ // is 1
-                            pos += 1;
-                        }else{
+                        pos ++;
+                        if((s | s_finder) != s) // is 1
                             addamount += 1;
-                            pos += 1;
-                        }
+                
                         if(addamount == input){//found!
                             g = _global.get() ;
                             g.remainamount -= 1;
                             _global.set( g, _self) ;
 
                             if (coinints == _usedcoins.end()) {
-                                _usedcoins.emplace(_self, [&](auto &coinints) {
+                                _usedcoins.emplace(get_self(), [&](auto &coinints) {
                                     coinints.key = i3;
                                     coinints.value = s | s_finder;
                                 });
@@ -110,7 +85,7 @@ uint64_t cryptojinian::findcoinpos(uint64_t input){
                             }
 
                             if (usedspilt64 == _usedcoins.end()) {
-                                _usedcoins.emplace(_self, [&](auto &usedspilt64) {
+                                _usedcoins.emplace(get_self(), [&](auto &usedspilt64) {
                                     usedspilt64.key = i2 << 16;
                                     usedspilt64.value = s64 + 1;
                                 });
@@ -121,7 +96,7 @@ uint64_t cryptojinian::findcoinpos(uint64_t input){
                             }
 
                             if (usedspilt6400 == _usedcoins.end()) {
-                                _usedcoins.emplace(_self, [&](auto &usedspilt6400) {
+                                _usedcoins.emplace(get_self(), [&](auto &usedspilt6400) {
                                     usedspilt6400.key = i1 << 32;
                                     usedspilt6400.value = s6400 + 1;
                                 });
@@ -241,17 +216,17 @@ void cryptojinian::join_miningqueue(const account_name &miner, const asset &tota
 {
     // cost check
     const auto mc = _global.get().miningcost();
-    const uint64_t totalamount = (uint64_t)totalcost.amount;
-    const uint64_t mcamount = (uint64_t)mc.amount;
-    const uint64_t times = totalamount / mcamount;
+    const int64_t times = totalcost / mc; 
+    eosio_assert(times > 0, "You have wrong cost." );
     eosio_assert(times <= 10, "You have mining too much times.");
+    // eosio_assert(false, int_to_string( times ).c_str() );
 
     join_game_processing(miner);
 
     // join mining waiting Q
     for (uint8_t n = 0; n < times; n++)
     {
-        _miningqueue.emplace(_self, [&](auto &q) {
+        _miningqueue.emplace( get_self(), [&](auto &q) {
             q.id = _miningqueue.available_primary_key();
             q.miner = miner;
         });
@@ -287,7 +262,7 @@ void cryptojinian::ref_processing( const account_name &miner, const account_name
         token_mining( itr_sponsor->name, asset( bouns * 10000, CCC_SYMBOL ),
                       "bouns " + std::to_string(bouns) + " CCC" );
             
-        _players.modify(itr_miner, _self, [&](auto &m) {
+        _players.modify(itr_miner, get_self(), [&](auto &m) {
             m.sponsor = sponsor;
         });
     } // else if
@@ -304,7 +279,7 @@ void cryptojinian::take_order(const uint64_t &order_id, const asset &eos, const 
     // 一個轉移 coin 的 move
     for (auto &cid : itr->the_coins_for_sell)
     {
-        _coins.modify(_coins.find(cid), _self, [&](auto &c) {
+        _coins.modify(_coins.find(cid), get_self(), [&](auto &c) {
             c.owner = buyer;
         });
     }
@@ -343,7 +318,7 @@ void cryptojinian::SplitString(const std::string& s, vector<uint64_t>& v, const 
 
 // input
 void cryptojinian::onTransfer(account_name from, account_name to, asset quantity, std::string memo) {            
-    if (from == _self || to != _self) return;   
+    if (from == get_self() || to != get_self()) return;   
     require_auth(from);
     eosio_assert(quantity.is_valid(), "invalid token transfer");
     eosio_assert(quantity.symbol == EOS_SYMBOL, "only EOS token is allowed");
