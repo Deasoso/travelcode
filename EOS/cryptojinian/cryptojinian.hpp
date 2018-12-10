@@ -21,7 +21,6 @@ class cryptojinian : public eosio::contract {
         contract(self),
         _kyubey(self),
         _global(get_self(), get_self()),
-        _miningqueue(get_self(), get_self()),
         _coins(get_self(), get_self()),
         _players(get_self(), get_self()),
         _usedcoins(get_self(), get_self()),
@@ -122,7 +121,7 @@ class cryptojinian : public eosio::contract {
             EOSLIB_SERIALIZE(usedcoins, (key)(value)) 
         };
 
-        struct rec_takeOrder {
+        struct st_rec_takeOrder {
             order matched_order ;
             account_name buyer ;
             string message = "Order matched." ;
@@ -136,7 +135,6 @@ class cryptojinian : public eosio::contract {
         typedef eosio::multi_index<N(usedcoins), usedcoins> usedcoins_t;
 
         singleton_global_t _global;
-        miningqueue_t _miningqueue; 
         order_t _orders;
         player_t _players;
         coin_t _coins; 
@@ -185,23 +183,16 @@ class cryptojinian : public eosio::contract {
             _kyubey.issue( miner, quantity, memo);
         }
 
-        void onTransfer(account_name from, account_name to,
-                        asset quantity, string memo);
+
         // onTransfer() ->
         void join_miningqueue( const account_name &miner, const asset &totalcost );
         void ref_processing(const account_name &miner ) {
             ref_processing( miner, DEF_SPONSOR );
         }
         void ref_processing(const account_name &miner, const account_name &sponsor );
-        void take_order( const uint64_t &order_id, const asset &eos, const account_name &buyer );
         void ibobuy( const account_name &buyer, asset &in ) {
             require_auth( buyer );
             _kyubey.buy( buyer, in );
-        }
-
-        // rec
-        void receipt(const rec_takeOrder& take_order_record) {
-            require_auth(get_self());
         }
 
     public:
@@ -209,6 +200,7 @@ class cryptojinian : public eosio::contract {
             require_auth(get_self());
             auto v_seed = merge_seed( seed ) ;
             uint8_t n = 0 ;
+            miningqueue_t _miningqueue(get_self(), get_self());
             auto itr = _miningqueue.begin();
             while( itr != _miningqueue.end() && n != v_seed.size() ) {
                 newcoinbypos( itr->miner, findcoinpos( v_seed[n] ) ) ;
@@ -253,6 +245,8 @@ class cryptojinian : public eosio::contract {
 
         } // pushorder()
 
+        [[eosio::action]] void takeorder( const account_name &buyer, const uint64_t &order_id, const asset &eos );
+
         [[eosio::action]] void test() {
             require_auth(get_self());
             //auto v_seed = merge_seed( seed ) ;
@@ -262,6 +256,14 @@ class cryptojinian : public eosio::contract {
             //newcoinbypos( N(cccmining555), findcoinpos( v_seed[0] ) ) ;
         }
 
+        // rec
+        [[eosio::action]] void receipt(const st_rec_takeOrder& take_order_record) {
+            require_auth(get_self());
+        }
+    private:
+        void onTransfer(account_name from, account_name to,
+                        asset quantity, string memo);
+    public:
         void apply(account_name code, action_name action) ;
 };
 
@@ -293,7 +295,15 @@ void cryptojinian::apply(account_name code, action_name action) {
 
     if (code != get_self()) return;
     switch (action) {
-        EOSIO_API(cryptojinian, (init)(setcoin)(mining)(pushorder)(test));
+        EOSIO_API(cryptojinian,
+                  (init)
+                  (setcoin)
+                  (mining)
+                  (pushorder)
+                  (takeorder)
+                  (test)
+                  (receipt)
+                  );
     };
 }     
         

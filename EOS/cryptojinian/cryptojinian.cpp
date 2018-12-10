@@ -224,6 +224,7 @@ void cryptojinian::join_miningqueue(const account_name &miner, const asset &tota
     join_game_processing(miner);
 
     // join mining waiting Q
+    miningqueue_t _miningqueue(get_self(), get_self());
     for (uint8_t n = 0; n < times; n++)
     {
         _miningqueue.emplace( get_self(), [&](auto &q) {
@@ -268,7 +269,7 @@ void cryptojinian::ref_processing( const account_name &miner, const account_name
     } // else if
 } // ref_processing()
 
-void cryptojinian::take_order(const uint64_t &order_id, const asset &eos, const account_name &buyer)
+void cryptojinian::takeorder(const account_name &buyer, const uint64_t &order_id, const asset &eos )
 {
     require_auth(buyer);
 
@@ -285,7 +286,7 @@ void cryptojinian::take_order(const uint64_t &order_id, const asset &eos, const 
     }
 
     // 打 log
-    const rec_takeOrder _tor{
+    const st_rec_takeOrder _tor{
         .matched_order = *itr,
         .buyer = buyer,
     };
@@ -350,8 +351,9 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
 
     if (params[0] == "take_order") {
         eosio_assert(params.size() == 2, "Error memo");
-
-        take_order( string_to_int(params[1]), quantity, from );
+        uint64_t order_id = string_to_int(params[1]) ;
+        require_auth(from);
+        SEND_INLINE_ACTION( *this, takeorder, { from, N(active) }, { from, order_id, quantity } );
         return;
     }
 }

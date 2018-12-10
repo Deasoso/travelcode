@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Dec  6 15:39:08 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Dec 10 19:20:36 2018",
     "version": "eosio::abi/1.0",
     "structs": [
         {
@@ -160,6 +160,32 @@
             ]
         },
         {
+            "name": "st_rec_takeOrder",
+            "base": "",
+            "fields": [
+                {
+                  "name": "matched_order",
+                  "type": "order"
+                },{
+                  "name": "buyer",
+                     "type": "name"
+            },{
+                "name": "message",
+                "type": "string"
+            }
+            ]
+        },
+        {
+            "name": "receipt",
+            "base": "",
+            "fields": [
+                {
+                    "name": "take_order_record",
+                    "type": "st_rec_takeOrder"
+                }
+            ]
+        },
+        {
             "name": "setcoin",
             "base": "",
             "fields": [
@@ -206,6 +232,24 @@
                 {
                     "name": "miner",
                     "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "takeorder",
+            "base": "",
+            "fields": [
+                {
+                    "name": "buyer",
+                    "type": "name"
+                },
+                {
+                    "name": "order_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "eos",
+                    "type": "asset"
                 }
             ]
         },
@@ -269,8 +313,18 @@
             "ricardian_contract": ""
         },
         {
+            "name": "receipt",
+            "type": "receipt",
+            "ricardian_contract": ""
+        },
+        {
             "name": "setcoin",
             "type": "setcoin",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "takeorder",
+            "type": "takeorder",
             "ricardian_contract": ""
         },
         {
