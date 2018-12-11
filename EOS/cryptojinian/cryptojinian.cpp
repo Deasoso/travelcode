@@ -272,7 +272,8 @@ void cryptojinian::ref_processing( const account_name &miner, const account_name
 void cryptojinian::takeorder(const account_name &buyer, const uint64_t &order_id, const asset &eos )
 {
     require_auth(buyer);
-
+    
+    order_t _orders( get_self(), get_self() );
     auto itr = _orders.find(order_id);
     eosio_assert(itr != _orders.end(), "Trade id is not found");
     eosio_assert(itr->bid == eos, "Asset does not match");
@@ -345,7 +346,8 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
             eosio_assert( is_account(sponsor), "Sponsor is not an existing account."); // sponsor 存在 check
             ref_processing( from, sponsor );
         }
-        
+
+        _contract_dividend.make_profit( quantity.amount, _contract_kyubey.get_supply( TOKEN_SYMBOL ) );
         return;
     }
 

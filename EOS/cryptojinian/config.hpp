@@ -3,12 +3,15 @@
 #include <eosiolib/asset.hpp>
 #include "utils.hpp"
 
+
 #define EOS_SYMBOL S(4, EOS)
 #define CCC_SYMBOL S(4, CCC)
 #define CCC_MAX_SUPPLY 300000000000
+#define TOKEN_SYMBOL S(4, CCC)
 
 #define DEF_SPONSOR N(rukamoemoe51)
 
+static constexpr uint128_t MAGNITUDE = 1ll<<32;
 
 const asset cost_table( const uint64_t &n ) {
     if ( n > 408120 ) return asset( string_to_price("1.0000"), EOS_SYMBOL ) ;

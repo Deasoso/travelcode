@@ -12,19 +12,21 @@
 #include "config.hpp"
 #include "utils.hpp"
 #include "kyubey.hpp"
+#include "dividend.hpp"
 
 using namespace eosio ;
+using namespace kyubeytool ;
 
 class cryptojinian : public eosio::contract {
     public:
         cryptojinian(account_name self) :
         contract(self),
-        _kyubey(self),
+        _contract_kyubey(self),
+        _contract_dividend(self),
         _global(get_self(), get_self()),
         _coins(get_self(), get_self()),
         _players(get_self(), get_self()),
-        _usedcoins(get_self(), get_self()),
-        _orders(get_self(), get_self()) {}
+        _usedcoins(get_self(), get_self()) {}
 
         [[eosio::action]] void init();
         // [[eosio::action]] void clear();     
@@ -135,11 +137,11 @@ class cryptojinian : public eosio::contract {
         typedef eosio::multi_index<N(usedcoins), usedcoins> usedcoins_t;
 
         singleton_global_t _global;
-        order_t _orders;
         player_t _players;
         coin_t _coins; 
         usedcoins_t _usedcoins;
-        kyubey _kyubey ;
+        kyubey _contract_kyubey ;
+        dividend _contract_dividend;
 
     private:
         /*
@@ -176,11 +178,11 @@ class cryptojinian : public eosio::contract {
             require_auth(get_self());
             // SEND_INLINE_ACTION failed !
             /*
-            SEND_INLINE_ACTION( _kyubey, issue, {get_self(),N(active)},
+            SEND_INLINE_ACTION( _contract_kyubey, issue, {get_self(),N(active)},
                                     {itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ),
                                      "mining 1 CCC"} );
             */
-            _kyubey.issue( miner, quantity, memo);
+            _contract_kyubey.issue( miner, quantity, memo);
         }
 
 
@@ -192,7 +194,7 @@ class cryptojinian : public eosio::contract {
         void ref_processing(const account_name &miner, const account_name &sponsor );
         void ibobuy( const account_name &buyer, asset &in ) {
             require_auth( buyer );
-            _kyubey.buy( buyer, in );
+            _contract_kyubey.buy( buyer, in );
         }
 
     public:
@@ -236,6 +238,7 @@ class cryptojinian : public eosio::contract {
             }
             eosio_assert( pcoins.size() == n_coin, "Player dont have enough coins for sell order");
 
+            order_t _orders( get_self(), get_self() );
             _orders.emplace( account, [&](auto &o) {
                 o.id = _orders.available_primary_key();
                 o.account = account ;
@@ -281,7 +284,7 @@ vector<uint64_t> cryptojinian::merge_seed(const checksum256 &s1) {
 void cryptojinian::init() {
     require_auth(get_self());
     _global.set( st_global{ .id = 0, .remainamount = 429600 } , get_self() );
-    _kyubey.create( get_self(), asset( CCC_MAX_SUPPLY, CCC_SYMBOL ) ) ;
+    _contract_kyubey.create( get_self(), asset( CCC_MAX_SUPPLY, CCC_SYMBOL ) );
 }
 
 void cryptojinian::apply(account_name code, action_name action) {
