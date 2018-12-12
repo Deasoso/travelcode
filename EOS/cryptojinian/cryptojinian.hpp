@@ -144,20 +144,6 @@ class cryptojinian : public eosio::contract {
         dividend _contract_dividend;
 
     private:
-        /*
-        uint64_t get_next_defer_id() {
-            auto g = _global.get();    
-            g.defer_id += 1;
-            _global.set(g, get_self());
-            return g.defer_id;
-        }
-
-        template <typename... Args>
-        void send_defer_action(Args&&... args) {
-            transaction trx;
-            trx.actions.emplace_back(std::forward<Args>(args)...);
-            // trx.send(get_next_defer_id(), get_self(), false);
-        }*/
 
         inline vector<uint64_t> merge_seed(const checksum256 &s1) ;
 
@@ -250,12 +236,16 @@ class cryptojinian : public eosio::contract {
 
         [[eosio::action]] void takeorder( const account_name &buyer, const uint64_t &order_id, const asset &eos );
 
+        [[eosio::action]] void claim( account_name &from ) {
+            require_auth(get_self());
+            _contract_dividend.claim( from, _contract_kyubey.get_balance( from, TOKEN_SYMBOL ) );
+        }
+
         [[eosio::action]] void test() {
             require_auth(get_self());
             //auto v_seed = merge_seed( seed ) ;
             //token_mining(get_self(), asset( string_to_price("1.0000"), CCC_SYMBOL ), "test mining 1 CCC");
             //print( findcoinpos( v_seed[0]) );
-            return;
             //newcoinbypos( N(cccmining555), findcoinpos( v_seed[0] ) ) ;
         }
 
@@ -304,6 +294,7 @@ void cryptojinian::apply(account_name code, action_name action) {
                   (mining)
                   (pushorder)
                   (takeorder)
+                  (claim)
                   (test)
                   (receipt)
                   );

@@ -169,7 +169,7 @@ void cryptojinian::exchange(const std::string inputstrs){
             eosio_assert(type == onecoin->type, "Not Equal Type");  
         }
     }
-    vector<vector<uint64_t>> coinvalues = {
+    vector<vector<uint64_t>> coinvalues = { // [][+1]
         {1,1,2,5,10},   //btc
         {1,1,2,5,10},   //eth
         {1,1,2,5,10},   //lt

@@ -13,6 +13,8 @@
 
 static constexpr uint128_t MAGNITUDE = 1ll<<32;
 
+
+
 const asset cost_table( const uint64_t &n ) {
     if ( n > 408120 ) return asset( string_to_price("1.0000"), EOS_SYMBOL ) ;
     else if ( n > 386640 ) return asset( string_to_price("1.1000"), EOS_SYMBOL ) ;

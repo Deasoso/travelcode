@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Dec 10 19:20:36 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Dec 12 15:34:47 2018",
     "version": "eosio::abi/1.0",
     "structs": [
         {
@@ -9,6 +9,16 @@
                 {
                     "name": "balance",
                     "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "claim",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
                 }
             ]
         },
@@ -160,22 +170,6 @@
             ]
         },
         {
-            "name": "st_rec_takeOrder",
-            "base": "",
-            "fields": [
-                {
-                  "name": "matched_order",
-                  "type": "order"
-                },{
-                  "name": "buyer",
-                     "type": "name"
-            },{
-                "name": "message",
-                "type": "string"
-            }
-            ]
-        },
-        {
             "name": "receipt",
             "base": "",
             "fields": [
@@ -200,6 +194,32 @@
                 {
                     "name": "number",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "st_d_global",
+            "base": "",
+            "fields": [
+                {
+                    "name": "defer_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "earnings_per_share",
+                    "type": "uint128"
+                },
+                {
+                    "name": "earnings_for_buyback",
+                    "type": "uint64"
+                },
+                {
+                    "name": "earnings_for_collection",
+                    "type": "uint64"
+                },
+                {
+                    "name": "last",
+                    "type": "name"
                 }
             ]
         },
@@ -298,6 +318,11 @@
     "types": [],
     "actions": [
         {
+            "name": "claim",
+            "type": "claim",
+            "ricardian_contract": ""
+        },
+        {
             "name": "init",
             "type": "init",
             "ricardian_contract": ""
@@ -377,6 +402,13 @@
         {
             "name": "player",
             "type": "player",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "dividend",
+            "type": "st_d_global",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
