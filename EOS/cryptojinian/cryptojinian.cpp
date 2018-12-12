@@ -1,6 +1,6 @@
 #include "cryptojinian.hpp"
 
-void cryptojinian::setcoin(const account_name owner, const uint64_t type, const uint64_t number) {
+void cryptojinian::setcoin(const name owner, const uint64_t type, const uint64_t number) {
     //two-way binding.
     uint64_t newcoinid = _coins.available_primary_key();
     auto itr_players = join_game_processing( owner );
@@ -10,7 +10,7 @@ void cryptojinian::setcoin(const account_name owner, const uint64_t type, const 
     
     _coins.emplace(get_self(), [&](auto &coin) {
         coin.id = newcoinid;
-        coin.owner = owner;
+        coin.owner = owner.value;
         coin.type = type;
         coin.number = number;
     });
@@ -79,7 +79,7 @@ uint64_t cryptojinian::findcoinpos(uint64_t input){
                                     coinints.value = s | s_finder;
                                 });
                             } else {
-                                _usedcoins.modify(coinints, 0, [&](auto &coinints) {
+                                _usedcoins.modify(coinints, get_self(), [&](auto &coinints) {
                                     coinints.value = s | s_finder;
                                 });
                             }
@@ -90,7 +90,7 @@ uint64_t cryptojinian::findcoinpos(uint64_t input){
                                     usedspilt64.value = s64 + 1;
                                 });
                             } else {
-                                _usedcoins.modify(usedspilt64, 0, [&](auto &usedspilt64) {
+                                _usedcoins.modify(usedspilt64, get_self(), [&](auto &usedspilt64) {
                                     usedspilt64.value = s64 + 1;
                                 });
                             }
@@ -101,7 +101,7 @@ uint64_t cryptojinian::findcoinpos(uint64_t input){
                                     usedspilt6400.value = s6400 + 1;
                                 });
                             } else {
-                                _usedcoins.modify(usedspilt6400, 0, [&](auto &usedspilt6400) {
+                                _usedcoins.modify(usedspilt6400, get_self(), [&](auto &usedspilt6400) {
                                     usedspilt6400.value = s6400 + 1;
                                 });
                             }
@@ -128,7 +128,7 @@ uint64_t cryptojinian::findcoinpos(uint64_t input){
     eosio_assert(false, "Not Found Coin Pos");  
 }
 
-void cryptojinian::newcoinbypos(const account_name owner, const uint64_t pos){
+void cryptojinian::newcoinbypos(const name owner, const uint64_t pos){
     // pos: 1~640000
     eosio_assert(pos <= 640000, "Pos Too Large.");  
     const uint64_t type_array[22] = {2100,10000,8400,19000,50000,14000,27000,10000,30000,10000,1620,10000,28000,10000,20000,27000,21000,37400,31100,23180,20000,19800};
@@ -157,14 +157,14 @@ void cryptojinian::exchange(const std::string inputstrs){
     SplitString(inputstrs, inputs, ",");
     uint64_t coincount = inputs.size();
     uint64_t type = 0;
-    account_name coinowner;
+    name coinowner;
     auto onecoin = _coins.find(0);
     for(int i=0;i<inputs.size();i++){
         onecoin = _coins.find(inputs[i]);
-        require_auth(onecoin->owner);
+        require_auth(name(onecoin->owner));
         if (type == 0) {
             type = onecoin->type;
-            coinowner = onecoin->owner;
+            coinowner = name(onecoin->owner);
         } else {
             eosio_assert(type == onecoin->type, "Not Equal Type");  
         }
@@ -201,8 +201,8 @@ void cryptojinian::exchange(const std::string inputstrs){
         if ((coincount * coinvalue == coinvalues[inputtype][i1]) && (i1 > inputvalue)){
             for(int i2=0;i2<inputs.size();i2++){
                 onecoin = _coins.find(inputs[i2]);
-                _coins.modify(onecoin, 0, [&](auto &onecoin) {
-                    onecoin.owner = _self;
+                _coins.modify(onecoin, get_self(), [&](auto &onecoin) {
+                    onecoin.owner = get_self().value;
                 });
             }
             newcointype = (i1 * 100) + inputtype;
@@ -212,10 +212,10 @@ void cryptojinian::exchange(const std::string inputstrs){
     }
 }
 
-void cryptojinian::join_miningqueue(const account_name &miner, const asset &totalcost)
+void cryptojinian::join_miningqueue(const name &miner, const asset &totalcost)
 {
     // cost check
-    const auto mc = _global.get().miningcost();
+    const auto &mc = _global.get().miningcost();
     const int64_t times = totalcost / mc; 
     eosio_assert(times > 0, "You have wrong cost." );
     eosio_assert(times <= 10, "You have mining too much times.");
@@ -224,27 +224,26 @@ void cryptojinian::join_miningqueue(const account_name &miner, const asset &tota
     join_game_processing(miner);
 
     // join mining waiting Q
-    miningqueue_t _miningqueue(get_self(), get_self());
-    for (uint8_t n = 0; n < times; n++)
-    {
+    miningqueue_t _miningqueue(get_self(), get_self().value);
+    for (uint8_t n = 0; n < times; n++) {
         _miningqueue.emplace( get_self(), [&](auto &q) {
             q.id = _miningqueue.available_primary_key();
-            q.miner = miner;
+            q.miner = miner.value;
         });
     }
 }
 
-void cryptojinian::ref_processing( const account_name &miner, const account_name &sponsor )
+void cryptojinian::ref_processing( const name &miner, const name &sponsor )
 {   
     auto itr_sponsor = join_game_processing( sponsor ) ;
-    auto itr_miner = _players.find(miner);
+    auto itr_miner = _players.find(miner.value);
     
-    if (itr_miner->sponsor != DEF_SPONSOR)
+    if (name(itr_miner->sponsor) != DEF_SPONSOR)
         return;
-    else if (std::find(itr_sponsor->refs.begin(), itr_sponsor->refs.end(), miner) == itr_sponsor->refs.end())
+    else if (std::find(itr_sponsor->refs.begin(), itr_sponsor->refs.end(), miner.value) == itr_sponsor->refs.end())
     {
-        _players.modify(itr_sponsor, _self, [&](auto &s) {
-            s.refs.push_back(miner);
+        _players.modify(itr_sponsor, get_self(), [&](auto &s) {
+            s.refs.push_back(miner.value);
         });
         // 發 bouns token 給 sponsor
         const auto refs_size = itr_sponsor->refs.size();
@@ -260,40 +259,39 @@ void cryptojinian::ref_processing( const account_name &miner, const account_name
         else
             bouns = 80;
 
-        token_mining( itr_sponsor->name, asset( bouns * 10000, CCC_SYMBOL ),
+        token_mining( name(itr_sponsor->playername), asset( bouns * 10000, CCC_SYMBOL ),
                       "bouns " + std::to_string(bouns) + " CCC" );
             
         _players.modify(itr_miner, get_self(), [&](auto &m) {
-            m.sponsor = sponsor;
+            m.sponsor = sponsor.value;
         });
     } // else if
 } // ref_processing()
 
-void cryptojinian::takeorder(const account_name &buyer, const uint64_t &order_id, const asset &eos )
+void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, const asset &eos )
 {
     require_auth(buyer);
     
-    order_t _orders( get_self(), get_self() );
-    auto itr = _orders.find(order_id);
-    eosio_assert(itr != _orders.end(), "Trade id is not found");
-    eosio_assert(itr->bid == eos, "Asset does not match");
+    order_t _orders( get_self(), get_self().value );
+    auto itr = _orders.get(order_id, "Trade id is not found" );
+    eosio_assert(itr.bid == eos, "Asset does not match");
 
     // 一個轉移 coin 的 move
-    for (auto &cid : itr->the_coins_for_sell)
+    for (auto &cid : itr.the_coins_for_sell)
     {
         _coins.modify(_coins.find(cid), get_self(), [&](auto &c) {
-            c.owner = buyer;
+            c.owner = buyer.value;
         });
     }
 
     // 打 log
     const st_rec_takeOrder _tor{
-        .matched_order = *itr,
+        .matched_order = itr,
         .buyer = buyer,
     };
 
-    action(permission_level{_self, N(active)},
-           _self, N(receipt), _tor)
+    action(permission_level{_self, "active"_n},
+           _self, "receipt"_n, _tor )
         .send();
 
     // 刪了
@@ -319,7 +317,7 @@ void cryptojinian::SplitString(const std::string& s, vector<uint64_t>& v, const 
 }
 
 // input
-void cryptojinian::onTransfer(account_name from, account_name to, asset quantity, std::string memo) {            
+void cryptojinian::onTransfer(name from, name to, asset quantity, std::string memo) {            
     if (from == get_self() || to != get_self()) return;   
     require_auth(from);
     eosio_assert(quantity.is_valid(), "invalid token transfer");
@@ -329,12 +327,6 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
     auto params = explode(memo, ' ');
     eosio_assert(params.size() <= 5, "Error memo");
 
-    if (params[0] == "sponsor") {
-    //  auto g = _global.get();     
-    //  eosio_assert(now() >= g.st, "This round will be start at 11/04/2018 @ 12:00pm (UTC).");
-        return;
-    }
-
     if (params[0] == "mining") {
         join_miningqueue(from, quantity);
         if ( params.size() < 3 )
@@ -342,12 +334,12 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
         else {
             eosio_assert(params.size() == 3 && params[1] == "ref", "Error memo");
 
-            auto sponsor = string_to_name( params[2].c_str() ) ;
+            name sponsor( params[2].c_str() ) ;
             eosio_assert( is_account(sponsor), "Sponsor is not an existing account."); // sponsor 存在 check
             ref_processing( from, sponsor );
         }
-
-        _contract_dividend.make_profit( quantity.amount, _contract_kyubey.get_supply( TOKEN_SYMBOL ) );
+        
+        // _contract_dividend.make_profit( quantity.amount, _contract_kyubey.get_supply( TOKEN_SYMBOL ) );
         return;
     }
 
@@ -355,7 +347,7 @@ void cryptojinian::onTransfer(account_name from, account_name to, asset quantity
         eosio_assert(params.size() == 2, "Error memo");
         uint64_t order_id = string_to_int(params[1]) ;
         require_auth(from);
-        SEND_INLINE_ACTION( *this, takeorder, { from, N(active) }, { from, order_id, quantity } );
+        SEND_INLINE_ACTION( *this, takeorder, { from, "active"_n }, { from, order_id, quantity } );
         return;
     }
 }

@@ -7,29 +7,28 @@
 namespace kyubeytool {
 
    using std::string;
-   typedef account_name name ;
 
    class dividend : public contract {
       public:
-         dividend( name self ):
-            contract(self),
-            _global( get_self(), get_self() ){}
+         dividend( name receiver, name code, datastream<const char*> ds ) :
+            contract( receiver, code, ds ),
+            _global( receiver, receiver.value ){}
 
          void make_profit(uint64_t delta, asset total_staked);
          void claim(name &from, asset quantity);
 
-         struct [[eosio::table]] st_d_global {
+         TABLE st_d_global {
             uint64_t defer_id = 0 ;
             uint128_t earnings_per_share = 0 ;
             uint64_t earnings_for_buyback = 0 ;
             uint64_t earnings_for_collection = 0 ;
-            name last;
+            capi_name last;
 
             auto primary_key() const { return defer_id; }
-            EOSLIB_SERIALIZE(st_d_global, (defer_id)(earnings_per_share)(last)) 
+            EOSLIB_SERIALIZE(st_d_global, (defer_id)(earnings_per_share)(earnings_for_buyback)(earnings_for_collection)(last)) 
          };
 
-         typedef singleton<N(dividend), st_d_global> singleton_global_t;
+         typedef singleton<"dividend"_n, st_d_global> singleton_global_t;
          singleton_global_t _global;
 
          uint64_t get_next_defer_id() {
@@ -80,13 +79,13 @@ void dividend::claim(name &from, asset quantity) {
 
     if ( delta.is_valid() && delta.amount > 0) {
         action(
-            permission_level{_self, N(active)},
-            N(eosio.token), N(transfer),
+            permission_level{_self, "active"_n},
+            "eosio.token"_n, "transfer"_n,
             make_tuple(_self, from, delta,
                 string("claim dividend."))
         ).send();
 
-        g.last = from ;
+        g.last = from.value ;
         _global.set(g, get_self());
     }
    

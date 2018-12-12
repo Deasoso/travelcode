@@ -1,14 +1,14 @@
 #pragma once
+#include <eosiolib/eosio.hpp>
 #include <string>
 #include <vector>
-#include <eosiolib/eosio.hpp>
 
 using namespace eosio;
 using namespace std;
 
 struct st_transfer {
-    account_name from;
-    account_name to;
+    name from;
+    name to;
     asset        quantity;
     string       memo;
 
@@ -50,7 +50,6 @@ uint64_t string_to_int(string s) {
     return z;
 }
 
-
 string int_to_string(uint64_t t) {
     if (t == 0) return "0";
     string z;
@@ -62,17 +61,13 @@ string int_to_string(uint64_t t) {
     return z;
 }
 
-//bet 50 ludufutemp minakokojima
-
 class stringSplitter {
     public:
       stringSplitter(const string& _str) : str(_str) {
           current_position = 0;
       }
 
-      bool eof() {
-          return current_position == str.length();
-      }
+      bool eof() { return current_position == str.length(); }
 
       void skip_empty() {
           while (!eof() && str[current_position] == ' ') current_position ++;

@@ -13,30 +13,21 @@
 
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
-#include <eosiolib/contract.hpp>
 #include <eosiolib/transaction.hpp>
-
-#define EOS_SYMBOL S(4, EOS)
-#define KBY_SYMBOL S(4, KBY)
-#define PXL_SYMBOL S(4, PXL)
 
 typedef double real_type;
 
-using eosio::token;
-using eosio::asset;
-using eosio::symbol_type;
-using eosio::action;
-using eosio::permission_level;
+using namespace eosio ;
 
 const uint64_t K = 10000000000;
 
 class kyubey : public token {
     public:
-        kyubey(account_name self) :
-            token(self),
-            _market(_self, _self) {}
-        
-        void buy(account_name account, asset in) {    
+        kyubey( name receiver, name code, datastream<const char*> ds ) :
+            token( receiver, code, ds ),
+            _market(receiver, receiver.value) {}
+        /*
+        void buy(name account, asset in) {    
             asset out;
             _market.modify(_market.begin(), 0, [&](auto &m) {
                 out = m.buy(in.amount);
@@ -48,8 +39,8 @@ class kyubey : public token {
 
             issue(account, out, "");
         }
-
-        void sell(account_name account, asset in) {
+        
+        void sell(name account, asset in) {
             
             sub_balance(account, in);          
             asset out;
@@ -58,14 +49,14 @@ class kyubey : public token {
             });    
             
             action(
-                permission_level{_self, N(active)},
-                N(eosio.token), N(transfer),
+                permission_level{_self, "active"_n},
+                N(eosio.token), "transfer"_n,
                 make_tuple(_self, account, out, std::string(""))
             ).send();
         }
+        */
 
-        // @abi table market i64
-        struct [[eosio::table]] market {
+        TABLE market {
             uint64_t id = 0;        
             asset supply;
             asset balance;
@@ -105,6 +96,6 @@ class kyubey : public token {
             EOSLIB_SERIALIZE(market, (id)(supply)(balance)(progress))
         };
 
-        typedef eosio::multi_index<N(market), market> market_t;
+        typedef eosio::multi_index<"market"_n, market> market_t;
         market_t _market;      
 };
