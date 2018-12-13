@@ -17,7 +17,7 @@ namespace kyubeytool {
          void make_profit(uint64_t delta, asset total_staked);
          void claim(name &from, asset quantity);
 
-         TABLE st_d_global {
+         struct st_d_global {
             uint64_t defer_id = 0 ;
             uint128_t earnings_per_share = 0 ;
             uint64_t earnings_for_buyback = 0 ;
@@ -72,21 +72,21 @@ void dividend::make_profit(uint64_t delta, asset total_staked) {
 
 void dividend::claim(name &from, asset quantity) {
     require_auth(get_self());
-    
     auto g = _global.get();
-    auto raw_dividend = g.earnings_per_share * quantity.amount / MAGNITUDE;
-    auto delta = asset( raw_dividend, EOS_SYMBOL);
+    int64_t raw_dividend = g.earnings_per_share * quantity.amount / MAGNITUDE;
+    asset delta( raw_dividend, EOS_SYMBOL);
 
     if ( delta.is_valid() && delta.amount > 0) {
-        action(
-            permission_level{_self, "active"_n},
+       
+      action(permission_level{ _self, "active"_n},
             "eosio.token"_n, "transfer"_n,
-            make_tuple(_self, from, delta,
+            make_tuple( _self, from, delta,
                 string("claim dividend."))
-        ).send();
+      ).send();
 
         g.last = from.value ;
         _global.set(g, get_self());
+       
     }
    
 }

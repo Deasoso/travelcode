@@ -36,14 +36,14 @@ namespace eosio {
          
          inline asset get_balance( name owner, symbol sym )const;
 
-      protected: 
-         TABLE account {
+      
+         struct account {
             asset    balance;
 
             uint64_t primary_key()const { return balance.symbol.code().raw(); }
          };
 
-         TABLE currency_stats {
+         struct currency_stats {
             asset          supply;
             asset          max_supply;
             capi_name   issuer;
@@ -53,7 +53,8 @@ namespace eosio {
 
          typedef eosio::multi_index<"accounts"_n, account> accounts;
          typedef eosio::multi_index<"stat"_n, currency_stats> stats;
-
+         
+      protected: 
          void sub_balance( name owner, asset value );
          void add_balance( name owner, asset value, name ram_payer );
 

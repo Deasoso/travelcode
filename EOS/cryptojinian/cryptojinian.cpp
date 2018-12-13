@@ -339,7 +339,7 @@ void cryptojinian::onTransfer(name from, name to, asset quantity, std::string me
             ref_processing( from, sponsor );
         }
         
-        // _contract_dividend.make_profit( quantity.amount, _contract_kyubey.get_supply( TOKEN_SYMBOL ) );
+        _contract_dividend.make_profit( quantity.amount, _contract_kyubey.get_supply( TOKEN_SYMBOL ) );
         return;
     }
 

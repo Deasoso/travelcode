@@ -1,7 +1,22 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Dec 13 05:24:37 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Dec 13 18:14:03 2018",
     "version": "eosio::abi/1.1",
     "structs": [
+        {
+            "name": "account",
+            "base": "",
+            "fields": [
+                {
+                    "name": "balance",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "accounts",
+            "base": "account",
+            "fields": []
+        },
         {
             "name": "claim",
             "base": "",
@@ -31,6 +46,24 @@
                 {
                     "name": "number",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "currency_stats",
+            "base": "",
+            "fields": [
+                {
+                    "name": "supply",
+                    "type": "asset"
+                },
+                {
+                    "name": "max_supply",
+                    "type": "asset"
+                },
+                {
+                    "name": "issuer",
+                    "type": "name"
                 }
             ]
         },
@@ -158,6 +191,37 @@
             ]
         },
         {
+            "name": "st_d_global",
+            "base": "",
+            "fields": [
+                {
+                    "name": "defer_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "earnings_per_share",
+                    "type": "uint128"
+                },
+                {
+                    "name": "earnings_for_buyback",
+                    "type": "uint64"
+                },
+                {
+                    "name": "earnings_for_collection",
+                    "type": "uint64"
+                },
+                {
+                    "name": "last",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "st_dividend",
+            "base": "st_d_global",
+            "fields": []
+        },
+        {
             "name": "st_global",
             "base": "",
             "fields": [
@@ -206,6 +270,11 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "stat",
+            "base": "currency_stats",
+            "fields": []
         },
         {
             "name": "takeorder",
@@ -322,8 +391,22 @@
     ],
     "tables": [
         {
+            "name": "accounts",
+            "type": "accounts",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
             "name": "coin",
             "type": "coin",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "dividend",
+            "type": "st_dividend",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
@@ -352,6 +435,13 @@
         {
             "name": "player",
             "type": "player",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "stat",
+            "type": "stat",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

@@ -23,9 +23,8 @@ const uint64_t K = 10000000000;
 
 class kyubey : public token {
     public:
-        kyubey( name receiver, name code, datastream<const char*> ds ) :
-            token( receiver, code, ds ),
-            _market(receiver, receiver.value) {}
+        using token::token ;
+
         /*
         void buy(name account, asset in) {    
             asset out;
@@ -56,7 +55,7 @@ class kyubey : public token {
         }
         */
 
-        TABLE market {
+        struct market {
             uint64_t id = 0;        
             asset supply;
             asset balance;
@@ -96,6 +95,5 @@ class kyubey : public token {
             EOSLIB_SERIALIZE(market, (id)(supply)(balance)(progress))
         };
 
-        typedef eosio::multi_index<"market"_n, market> market_t;
-        market_t _market;      
+        typedef eosio::multi_index<"market"_n, market> market_t;     
 };

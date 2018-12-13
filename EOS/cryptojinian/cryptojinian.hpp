@@ -28,7 +28,6 @@ CONTRACT cryptojinian : public eosio::contract {
         _players(receiver, receiver.value),
         _usedcoins(receiver, receiver.value) {}
 
-        
         ACTION init();
         ACTION transfer(name   from,
                                         name   to,
@@ -36,13 +35,10 @@ CONTRACT cryptojinian : public eosio::contract {
                                         string         memo);
         ACTION setcoin(const name owner, const uint64_t type, const uint64_t number);
 
-        uint64_t addcoincount(const uint64_t type);
-        uint64_t findcoinpos(const uint64_t input);
-        void newcoinbypos(const name owner, const uint64_t pos);
-        void exchange(const std::string inputs);
-        void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
-
-    private:
+        TABLE accounts : kyubey::account {};
+        TABLE stat : kyubey::currency_stats {};
+        struct [[eosio::table("dividend")]] st_dividend : kyubeytool::dividend::st_d_global {};
+    
         TABLE order {
             uint64_t id;
             capi_name account;
@@ -121,12 +117,6 @@ CONTRACT cryptojinian : public eosio::contract {
             EOSLIB_SERIALIZE(usedcoins, (key)(value)) 
         };
 
-        struct st_rec_takeOrder {
-            order matched_order ;
-            name buyer ; 
-            string message = "Order matched." ;
-        };
-
         typedef singleton<"global"_n, st_global> singleton_global_t;
         typedef eosio::multi_index<"miningqueue"_n, st_miningqueue> miningqueue_t;
         typedef eosio::multi_index<"order"_n, order> order_t;
@@ -141,9 +131,20 @@ CONTRACT cryptojinian : public eosio::contract {
         kyubey _contract_kyubey ;
         dividend _contract_dividend;
 
+        struct st_rec_takeOrder {
+            order matched_order ;
+            name buyer ; 
+            string message = "Order matched." ;
+        };
+        
     private:
-
         inline vector<uint64_t> merge_seed(const capi_checksum256 &s1) ;
+
+        uint64_t addcoincount(const uint64_t type);
+        uint64_t findcoinpos(const uint64_t input);
+        void newcoinbypos(const name owner, const uint64_t pos);
+        void exchange(const std::string inputs);
+        void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
 
         auto join_game_processing( const name &account ) {
             auto itr_players = _players.find( account.value ) ;
