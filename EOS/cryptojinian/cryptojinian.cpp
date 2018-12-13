@@ -158,7 +158,7 @@ void cryptojinian::exchange(const std::string inputstrs){
     uint64_t coincount = inputs.size();
     uint64_t type = 0;
     name coinowner;
-    auto onecoin = _coins.find(0);
+    auto onecoin = _coins.begin();
     for(int i=0;i<inputs.size();i++){
         onecoin = _coins.find(inputs[i]);
         require_auth(name(onecoin->owner));
@@ -268,17 +268,15 @@ void cryptojinian::ref_processing( const name &miner, const name &sponsor )
     } // else if
 } // ref_processing()
 
-void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, const asset &eos )
-{
+void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, const asset &eos ) {
     require_auth(buyer);
     
     order_t _orders( get_self(), get_self().value );
-    auto itr = _orders.get(order_id, "Trade id is not found" );
+    auto &itr = _orders.get(order_id, "Trade id is not found" );
     eosio_assert(itr.bid == eos, "Asset does not match");
 
     // 一個轉移 coin 的 move
-    for (auto &cid : itr.the_coins_for_sell)
-    {
+    for (auto &cid : itr.the_coins_for_sell) {
         _coins.modify(_coins.find(cid), get_self(), [&](auto &c) {
             c.owner = buyer.value;
         });

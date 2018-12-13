@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Dec 13 18:14:03 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 02:05:27 2018",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -46,6 +46,20 @@
                 {
                     "name": "number",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "collection_claim",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "type",
+                    "type": "uint8"
                 }
             ]
         },
@@ -153,6 +167,20 @@
             ]
         },
         {
+            "name": "reccollclaim",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "type",
+                    "type": "uint8"
+                }
+            ]
+        },
+        {
             "name": "receipt",
             "base": "",
             "fields": [
@@ -187,6 +215,16 @@
                 {
                     "name": "number",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "st_collection",
+            "base": "",
+            "fields": [
+                {
+                    "name": "records",
+                    "type": "uint64[]"
                 }
             ]
         },
@@ -344,6 +382,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "coll.claim",
+            "type": "collection_claim",
+            "ricardian_contract": ""
+        },
+        {
             "name": "init",
             "type": "init",
             "ricardian_contract": ""
@@ -356,6 +399,11 @@
         {
             "name": "pushorder",
             "type": "pushorder",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "rec.coll.c",
+            "type": "reccollclaim",
             "ricardian_contract": ""
         },
         {
@@ -435,6 +483,13 @@
         {
             "name": "player",
             "type": "player",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "st_collection",
+            "type": "st_collection",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
