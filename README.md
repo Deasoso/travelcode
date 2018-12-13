@@ -22,4 +22,9 @@
 - [ ] P0 於 kyubey.network 發佈
 
 ### 開發須知
-* .abi 需手動修改
+* 目前環境為 EOSIO.CDT Version 1.4.1 https://github.com/EOSIO/eosio.cdt/releases/tag/v1.4.1
+
+### 需求列表
+- [x] mining 打 log (用來記錄次數)
+* mining 挖的token 數量要跟項目方 check
+* add 交易手續費

@@ -1,14 +1,14 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Dec 10 19:20:36 2018",
-    "version": "eosio::abi/1.0",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Dec 13 05:24:37 2018",
+    "version": "eosio::abi/1.1",
     "structs": [
         {
-            "name": "account",
+            "name": "claim",
             "base": "",
             "fields": [
                 {
-                    "name": "balance",
-                    "type": "asset"
+                    "name": "from",
+                    "type": "name"
                 }
             ]
         },
@@ -35,49 +35,9 @@
             ]
         },
         {
-            "name": "currency_stats",
-            "base": "",
-            "fields": [
-                {
-                    "name": "supply",
-                    "type": "asset"
-                },
-                {
-                    "name": "max_supply",
-                    "type": "asset"
-                },
-                {
-                    "name": "issuer",
-                    "type": "name"
-                }
-            ]
-        },
-        {
             "name": "init",
             "base": "",
             "fields": []
-        },
-        {
-            "name": "market",
-            "base": "",
-            "fields": [
-                {
-                    "name": "id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "supply",
-                    "type": "asset"
-                },
-                {
-                    "name": "balance",
-                    "type": "asset"
-                },
-                {
-                    "name": "progress",
-                    "type": "uint64"
-                }
-            ]
         },
         {
             "name": "mining",
@@ -120,7 +80,7 @@
             "base": "",
             "fields": [
                 {
-                    "name": "name",
+                    "name": "playername",
                     "type": "name"
                 },
                 {
@@ -160,28 +120,22 @@
             ]
         },
         {
-            "name": "st_rec_takeOrder",
-            "base": "",
-            "fields": [
-                {
-                  "name": "matched_order",
-                  "type": "order"
-                },{
-                  "name": "buyer",
-                     "type": "name"
-            },{
-                "name": "message",
-                "type": "string"
-            }
-            ]
-        },
-        {
             "name": "receipt",
             "base": "",
             "fields": [
                 {
                     "name": "take_order_record",
                     "type": "st_rec_takeOrder"
+                }
+            ]
+        },
+        {
+            "name": "recmining",
+            "base": "",
+            "fields": [
+                {
+                    "name": "miner",
+                    "type": "name"
                 }
             ]
         },
@@ -232,6 +186,24 @@
                 {
                     "name": "miner",
                     "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "st_rec_takeOrder",
+            "base": "",
+            "fields": [
+                {
+                    "name": "matched_order",
+                    "type": "order"
+                },
+                {
+                    "name": "buyer",
+                    "type": "name"
+                },
+                {
+                    "name": "message",
+                    "type": "string"
                 }
             ]
         },
@@ -298,6 +270,11 @@
     "types": [],
     "actions": [
         {
+            "name": "claim",
+            "type": "claim",
+            "ricardian_contract": ""
+        },
+        {
             "name": "init",
             "type": "init",
             "ricardian_contract": ""
@@ -315,6 +292,11 @@
         {
             "name": "receipt",
             "type": "receipt",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "recmining",
+            "type": "recmining",
             "ricardian_contract": ""
         },
         {
@@ -340,43 +322,8 @@
     ],
     "tables": [
         {
-            "name": "accounts",
-            "type": "account",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
             "name": "coin",
             "type": "coin",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "stat",
-            "type": "currency_stats",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "market",
-            "type": "market",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "order",
-            "type": "order",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "player",
-            "type": "player",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
@@ -396,6 +343,20 @@
             "key_types": []
         },
         {
+            "name": "order",
+            "type": "order",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "player",
+            "type": "player",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
             "name": "usedcoins",
             "type": "usedcoins",
             "index_type": "i64",
@@ -404,5 +365,6 @@
         }
     ],
     "ricardian_clauses": [],
+    "variants": [],
     "abi_extensions": []
 }

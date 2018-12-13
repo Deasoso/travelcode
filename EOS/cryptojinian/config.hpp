@@ -3,11 +3,21 @@
 #include <eosiolib/asset.hpp>
 #include "utils.hpp"
 
-#define EOS_SYMBOL S(4, EOS)
-#define CCC_SYMBOL S(4, CCC)
+// typedef uint32_t time;
+
+const auto EOS_CONTRACT = "eosio.token"_n;
+const auto EOS_SYMBOL = eosio::symbol("EOS", 4);
+// const auto CCC_CONTRACT =
+const auto CCC_SYMBOL = eosio::symbol("CCC", 4);
+// const auto TOKEN_CONTRACT =
+const auto TOKEN_SYMBOL = CCC_SYMBOL ;
+
 #define CCC_MAX_SUPPLY 300000000000
 
-#define DEF_SPONSOR N(rukamoemoe51)
+#define DEF_SPONSOR "rukamoemoe51"_n
+
+static constexpr uint128_t MAGNITUDE = 1ll<<32;
+
 
 
 const asset cost_table( const uint64_t &n ) {
