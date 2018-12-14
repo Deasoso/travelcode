@@ -1,6 +1,6 @@
 #include "cryptojinian.hpp"
 
-void cryptojinian::setcoin(const name owner, const uint64_t type, const uint64_t number) {
+void cryptojinian::setcoin(const name &owner, const uint64_t type, const uint64_t number) {
     //two-way binding.
     uint64_t newcoinid = _coins.available_primary_key();
     auto itr_players = join_game_processing( owner );
@@ -46,11 +46,11 @@ uint64_t cryptojinian::findcoinpos(uint64_t input){
     auto usedspilt6400 = _usedcoins.begin();
     uint64_t s_finder = 1ULL<<63;
     input = (input % g.remainamount) + 1;
-    for(int i1 = 0;i1 < 100; i1++){ // for usedspilt6400, max640000 > 429600
+    for(uint64_t i1 = 0;i1 < 100; i1++){ // for usedspilt6400, max640000 > 429600
         usedspilt6400 = _usedcoins.find(i1 << 32);
         s6400 = ( usedspilt6400 == _usedcoins.end() ) ? 0 : usedspilt6400->value;
         if(addamount + (6400 - s6400) > input){ // no >=
-            for(int i2 = 0;i2 < 100; i2++){// for usedspilt64;
+            for(uint64_t i2 = 0;i2 < 100; i2++){// for usedspilt64;
                 usedspilt64 = _usedcoins.find(i2 << 16);
 
                 s64 = (usedspilt64 == _usedcoins.end()) ? 0 : usedspilt64->value;

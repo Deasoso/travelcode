@@ -221,7 +221,7 @@ CONTRACT cryptojinian : public eosio::contract {
     public:
         ACTION init();
         ACTION transfer(name from, name to, asset quantity, string memo);
-        ACTION setcoin(const name owner, const uint64_t type, const uint64_t number);
+        ACTION setcoin(const name &owner, const uint64_t type, const uint64_t number);
 
         ACTION mining( const capi_checksum256 &seed ) {
             require_auth(get_self());
@@ -280,7 +280,7 @@ CONTRACT cryptojinian : public eosio::contract {
             _contract_dividend.claim( from, _contract_kyubey.get_balance( from, TOKEN_SYMBOL ) );
         }
 
-        [[eosio::action("coll.claim")]] void collection_claim( const name &account, uint8_t &type ) {
+        [[eosio::action("coll.claim")]] void collclaim( const name &account, uint8_t &type ) {
             require_auth(account);
             eosio_assert( type < 23, "Type error");
 
@@ -304,12 +304,28 @@ CONTRACT cryptojinian : public eosio::contract {
             //print( findcoinpos( v_seed[0]) );
             //newcoinbypos( N(cccmining555), findcoinpos( v_seed[0] ) ) ;
         }
+        [[eosio::action("test.1")]] void test1( const name &tester ) {
+            require_auth(get_self());
+            vector<vector<uint64_t>> counter( _coinvalues.size() ) ;
+            uint8_t i = 0 ;
+            for ( uint64_t i = 0 ; i < counter.size() ; i++  ) {
+                counter[i] = vector<uint64_t>( _coinvalues[i].size(), 0 ) ;
+            }
+            for ( uint64_t yy = 0 ; yy < counter.size() ; yy++ ) {
+                for ( uint64_t xx = 0 ; xx < counter[yy].size(); xx++ ) {
+                    setcoin(tester, ( xx * 100 + ( yy + 1 ) ), 111) ;
+                    if ( xx % 2 == 1 )
+                        setcoin(tester, ( xx * 100 + ( yy + 1 ) ), 222) ;
+                }
+            }
+        }
+
 
         // rec
         ACTION receipt(const st_rec_takeOrder& take_order_record) {
             require_auth(get_self());
         }
-        ACTION recmining( name &miner ) {
+        ACTION recmining( const name &miner ) {
             require_auth(get_self());
         }
         [[eosio::action("rec.coll.c")]] void reccollclaim( const name &account, uint8_t &type ) {
@@ -354,9 +370,12 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (pushorder)
                   (takeorder)
                   (claim)
+                  (collclaim)
                   (test)
+                  (test1)
                   (receipt)
                   (recmining)
+                  (reccollclaim)
         )
     }
 }

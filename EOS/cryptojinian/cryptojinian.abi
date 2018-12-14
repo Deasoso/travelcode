@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 14:42:19 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 15:48:42 2018",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -50,7 +50,7 @@
             ]
         },
         {
-            "name": "collection_claim",
+            "name": "collclaim",
             "base": "",
             "fields": [
                 {
@@ -338,6 +338,16 @@
             "fields": []
         },
         {
+            "name": "test1",
+            "base": "",
+            "fields": [
+                {
+                    "name": "tester",
+                    "type": "name"
+                }
+            ]
+        },
+        {
             "name": "transfer",
             "base": "",
             "fields": [
@@ -383,7 +393,7 @@
         },
         {
             "name": "coll.claim",
-            "type": "collection_claim",
+            "type": "collclaim",
             "ricardian_contract": ""
         },
         {
@@ -429,6 +439,11 @@
         {
             "name": "test",
             "type": "test",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "test.1",
+            "type": "test1",
             "ricardian_contract": ""
         },
         {
