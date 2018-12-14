@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 02:05:27 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 14:42:19 2018",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -453,6 +453,13 @@
             "key_types": []
         },
         {
+            "name": "collection",
+            "type": "st_collection",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
             "name": "dividend",
             "type": "st_dividend",
             "index_type": "i64",
@@ -483,13 +490,6 @@
         {
             "name": "player",
             "type": "player",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "st_collection",
-            "type": "st_collection",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

@@ -110,7 +110,7 @@ CONTRACT cryptojinian : public eosio::contract {
             EOSLIB_SERIALIZE(order, (id)(account)(bid)(the_coins_for_sell)(timestamp))
         };
 
-       TABLE st_collection {
+        struct [[eosio::table("collection")]] st_collection {
             vector<uint64_t> records ;
 
             // auto primary_key() const { return id; }
