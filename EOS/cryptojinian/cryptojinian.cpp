@@ -293,8 +293,7 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, const 
            _self, "receipt"_n, _tor )
         .send();
 
-    // 刪了
-    _orders.erase(itr);
+    _orders.erase(itr); // 刪了
 
 } // take_order()
 

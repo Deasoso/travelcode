@@ -271,6 +271,16 @@ CONTRACT cryptojinian : public eosio::contract {
                 o.the_coins_for_sell = pcoins  ;// set coins
             });
         } // pushorder()
+        
+        ACTION cancelorder( const name &account, const uint64_t &order_id ) {
+            require_auth(account);
+
+            order_t _orders( get_self(), get_self().value );
+            auto &itr = _orders.get(order_id, "Trade id is not found" );
+            eosio_assert(itr.account == account.value, "Account does not match");
+            
+            _orders.erase(itr);
+        } // pushorder()
 
         ACTION takeorder( const name &buyer, const uint64_t &order_id, const asset &eos );
 
@@ -368,6 +378,7 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (setcoin)
                   (mining)
                   (pushorder)
+                  (cancelorder)
                   (takeorder)
                   (claim)
                   (collclaim)

@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 16:49:42 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 17:58:18 2018",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -16,6 +16,20 @@
             "name": "accounts",
             "base": "account",
             "fields": []
+        },
+        {
+            "name": "cancelorder",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "order_id",
+                    "type": "uint64"
+                }
+            ]
         },
         {
             "name": "claim",
@@ -386,6 +400,11 @@
     ],
     "types": [],
     "actions": [
+        {
+            "name": "cancelorder",
+            "type": "cancelorder",
+            "ricardian_contract": ""
+        },
         {
             "name": "claim",
             "type": "claim",
