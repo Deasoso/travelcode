@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 15:48:42 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 16:49:42 2018",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -392,7 +392,7 @@
             "ricardian_contract": ""
         },
         {
-            "name": "coll.claim",
+            "name": "collclaim",
             "type": "collclaim",
             "ricardian_contract": ""
         },
@@ -412,7 +412,7 @@
             "ricardian_contract": ""
         },
         {
-            "name": "rec.coll.c",
+            "name": "reccollc",
             "type": "reccollclaim",
             "ricardian_contract": ""
         },
@@ -442,7 +442,7 @@
             "ricardian_contract": ""
         },
         {
-            "name": "test.1",
+            "name": "test1",
             "type": "test1",
             "ricardian_contract": ""
         },

@@ -151,12 +151,11 @@ CONTRACT cryptojinian : public eosio::contract {
         auto join_game_processing( const name &account ) {
             auto itr_players = _players.find( account.value ) ;
             if ( itr_players == _players.end() ) { // noob
-                _players.emplace(get_self(), [&](auto &p) {
+                itr_players = _players.emplace(get_self(), [&](auto &p) {
                     p.playername = account.value;
-                    p.sponsor = ( DEF_SPONSOR ).value;
+                    p.sponsor = DEF_SPONSOR.value;
                 });
-
-                itr_players = _players.find( account.value ) ;
+                // itr_players = _players.find( account.value ) ;
             }
             return itr_players ;
         } // join_game_processing()
@@ -177,13 +176,13 @@ CONTRACT cryptojinian : public eosio::contract {
             // type :xxyy, xx for valuetype, yy for cointype
             // BTC 1 cointype, ETH 2 cointype
             // for example: 2 valuetype BTC: 201
-            auto citr = _coins.begin() ;
+
             vector<vector<uint64_t>> counter( _coinvalues.size() ) ;
-            uint8_t i = 0 ;
-            for ( uint64_t i = 0 ; i < counter.size() ; i++  ) {
+            for ( uint8_t i = 0 ; i < counter.size() ; i++  ) {
                 counter[i] = vector<uint64_t>( _coinvalues[i].size(), 0 ) ;
             }
 
+            auto citr = _coins.begin() ;
             for ( const auto &cid : itr_players.coins ) {
                 citr = _coins.find( cid ) ;
                 for ( uint64_t yy = 0 ; yy < counter.size() ; yy++ ) {
@@ -221,7 +220,7 @@ CONTRACT cryptojinian : public eosio::contract {
     public:
         ACTION init();
         ACTION transfer(name from, name to, asset quantity, string memo);
-        ACTION setcoin(const name &owner, const uint64_t type, const uint64_t number);
+        ACTION setcoin(const name &owner, const uint64_t &type, const uint64_t &number);
 
         ACTION mining( const capi_checksum256 &seed ) {
             require_auth(get_self());
@@ -280,8 +279,8 @@ CONTRACT cryptojinian : public eosio::contract {
             _contract_dividend.claim( from, _contract_kyubey.get_balance( from, TOKEN_SYMBOL ) );
         }
 
-        [[eosio::action("coll.claim")]] void collclaim( const name &account, uint8_t &type ) {
-            require_auth(account);
+        [[eosio::action("collclaim")]] void collclaim( const name &account, uint8_t &type ) {
+            // require_auth(account);
             eosio_assert( type < 23, "Type error");
 
             collection_t _collection( get_self(), account.value );
@@ -304,20 +303,21 @@ CONTRACT cryptojinian : public eosio::contract {
             //print( findcoinpos( v_seed[0]) );
             //newcoinbypos( N(cccmining555), findcoinpos( v_seed[0] ) ) ;
         }
-        [[eosio::action("test.1")]] void test1( const name &tester ) {
+        [[eosio::action("test1")]] void test1( const name &tester ) {
             require_auth(get_self());
-            vector<vector<uint64_t>> counter( _coinvalues.size() ) ;
-            uint8_t i = 0 ;
-            for ( uint64_t i = 0 ; i < counter.size() ; i++  ) {
-                counter[i] = vector<uint64_t>( _coinvalues[i].size(), 0 ) ;
-            }
-            for ( uint64_t yy = 0 ; yy < counter.size() ; yy++ ) {
-                for ( uint64_t xx = 0 ; xx < counter[yy].size(); xx++ ) {
-                    setcoin(tester, ( xx * 100 + ( yy + 1 ) ), 111) ;
-                    if ( xx % 2 == 1 )
-                        setcoin(tester, ( xx * 100 + ( yy + 1 ) ), 222) ;
+            
+            uint64_t type = 111, number = 111 ;
+            // SEND_INLINE_ACTION( *this, setcoin, { _self, "active"_n }, { tester, type, number} );
+           
+            //for ( uint64_t yy = 0 ; yy < _coinvalues.size() ; yy++ ) {
+                for ( uint64_t xx = 0 ; xx < _coinvalues[0].size(); xx++ ) {
+                    type = ( xx * 100 + ( 0 + 1 ) ) ;
+                    // number = 111 ;
+                    SEND_INLINE_ACTION( *this, setcoin, { _self, "active"_n }, { tester, type, number} );
+                    //if ( xx % 2 == 1 )
+                    //    setcoin(tester, ( xx * 100 + ( yy + 1 ) ), 222) ;
                 }
-            }
+            //}
         }
 
 
@@ -328,7 +328,7 @@ CONTRACT cryptojinian : public eosio::contract {
         ACTION recmining( const name &miner ) {
             require_auth(get_self());
         }
-        [[eosio::action("rec.coll.c")]] void reccollclaim( const name &account, uint8_t &type ) {
+        [[eosio::action("reccollc")]] void reccollclaim( const name &account, uint8_t &type ) {
             require_auth(get_self());
         }
  

@@ -1,6 +1,7 @@
 #include "cryptojinian.hpp"
 
-void cryptojinian::setcoin(const name &owner, const uint64_t type, const uint64_t number) {
+void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
+    require_auth(get_self());
     //two-way binding.
     uint64_t newcoinid = _coins.available_primary_key();
     auto itr_players = join_game_processing( owner );
@@ -8,11 +9,11 @@ void cryptojinian::setcoin(const name &owner, const uint64_t type, const uint64_
             p.coins.push_back(newcoinid);
     });
     
-    _coins.emplace(get_self(), [&](auto &coin) {
-        coin.id = newcoinid;
-        coin.owner = owner.value;
-        coin.type = type;
-        coin.number = number;
+    _coins.emplace(get_self(), [&](auto &c) {
+        c.id = newcoinid;
+        c.owner = owner.value;
+        c.type = type;
+        c.number = number;
     });
 }
 
