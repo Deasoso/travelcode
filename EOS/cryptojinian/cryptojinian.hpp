@@ -237,7 +237,7 @@ CONTRACT cryptojinian : public eosio::contract {
             while( itr != _miningqueue.end() && n != v_seed.size() ) {
                 miner = name(itr->miner) ;
                 newcoinbypos( miner, findcoinpos( v_seed[n] ) ) ;
-                token_mining( miner, asset( string_to_price("1.0000"), CCC_SYMBOL ), "Mining 1 CCC" );
+                token_mining( miner, asset( string_to_price("10.0000"), CCC_SYMBOL ), "Mining 10 CCC" );
                 
                 SEND_INLINE_ACTION( *this, recmining, { _self, "active"_n }, { miner } );
                 _miningqueue.erase( itr );
