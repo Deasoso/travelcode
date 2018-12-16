@@ -47,7 +47,7 @@ cleos -u https://api-kylin.eosasia.one set account permission ccctest22222 activ
 
 # push action eosio.token transfer '[ "eosotcbackup", "cryptomeetup", "0.0330 EOS", "buy 0" ]' -p eosotcbackup@active
 
-#cleos -u http://api.eosbeijing.one push action cryptomeetup newbag '[ "minakokojima", "0.0100 EOS" ]' -p cryptomeetup@active minakokojima@active
+#cleos -u http://api.eosbeijing.one push action dacincubator transfer '[ "rukamoemoe51", "cryptomeetup", "100 CMU", "stake" ]' -p rukamoemoe51@active
 
 
 #cleos -u http://api.eosbeijing.one push action cryptomeetup newbag '[ "cryptomeetup", "0.0100 EOS" ]' -p cryptomeetup@active cryptomeetup@active

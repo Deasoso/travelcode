@@ -171,6 +171,11 @@ CONTRACT cryptojinian : public eosio::contract {
             _contract_kyubey.issue( miner, quantity, memo);
         }
 
+        inline const asset fee_processing( asset &quantity ) { 
+            quantity.set_amount( quantity.amount * TRADE_COEF ) ;
+            return quantity;
+        }
+
         auto collection_counter( const name &account ) {
             auto &itr_players = _players.get( account.value, "Player not found." ) ;
             // type :xxyy, xx for valuetype, yy for cointype
@@ -282,7 +287,7 @@ CONTRACT cryptojinian : public eosio::contract {
             _orders.erase(itr);
         } // pushorder()
 
-        ACTION takeorder( const name &buyer, const uint64_t &order_id, const asset &eos );
+        ACTION takeorder( const name &buyer, const uint64_t &order_id, asset &eos );
 
         ACTION claim( name &from ) {
             require_auth(get_self());

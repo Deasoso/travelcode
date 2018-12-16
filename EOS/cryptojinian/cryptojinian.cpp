@@ -269,7 +269,7 @@ void cryptojinian::ref_processing( const name &miner, const name &sponsor )
     } // else if
 } // ref_processing()
 
-void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, const asset &eos ) {
+void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset &eos ) {
     require_auth(buyer);
     
     order_t _orders( get_self(), get_self().value );
@@ -282,6 +282,13 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, const 
             c.owner = buyer.value;
         });
     }
+
+    action(permission_level{ _self, "active"_n},
+            "eosio.token"_n, "transfer"_n,
+            make_tuple( _self, name(itr.account), fee_processing( eos ),
+                string("Trade ") + to_string(order_id) + string(" be took")
+            )
+    ).send();
 
     // 打 log
     const st_rec_takeOrder _tor{
