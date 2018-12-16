@@ -274,6 +274,7 @@ CONTRACT cryptojinian : public eosio::contract {
                 o.account = account.value ;
                 o.bid = eos ;
                 o.the_coins_for_sell = pcoins  ;// set coins
+                o.timestamp = current_time();
             });
         } // pushorder()
         
