@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 17:58:18 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Dec 16 22:50:25 2018",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -329,6 +329,16 @@
             "fields": []
         },
         {
+            "name": "syscxlorder",
+            "base": "",
+            "fields": [
+                {
+                    "name": "order_id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
             "name": "takeorder",
             "base": "",
             "fields": [
@@ -448,6 +458,11 @@
         {
             "name": "setcoin",
             "type": "setcoin",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "syscxlorder",
+            "type": "syscxlorder",
             "ricardian_contract": ""
         },
         {

@@ -287,6 +287,15 @@ CONTRACT cryptojinian : public eosio::contract {
             _orders.erase(itr);
         } // cancelorder()
 
+        ACTION syscxlorder( const uint64_t &order_id ) {
+            require_auth(get_self());
+
+            order_t _orders( get_self(), get_self().value );
+            auto &itr = _orders.get(order_id, "Trade id is not found" );
+            
+            _orders.erase(itr);
+        } // syscxlorder()
+
         ACTION takeorder( const name &buyer, const uint64_t &order_id, asset &eos );
 
         ACTION claim( name &from ) {
@@ -384,6 +393,7 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (mining)
                   (pushorder)
                   (cancelorder)
+                  (syscxlorder)
                   (takeorder)
                   (claim)
                   (collclaim)
