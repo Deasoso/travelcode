@@ -285,7 +285,7 @@ CONTRACT cryptojinian : public eosio::contract {
             eosio_assert(itr.account == account.value, "Account does not match");
             
             _orders.erase(itr);
-        } // pushorder()
+        } // cancelorder()
 
         ACTION takeorder( const name &buyer, const uint64_t &order_id, asset &eos );
 
