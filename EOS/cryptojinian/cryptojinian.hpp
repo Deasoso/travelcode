@@ -139,11 +139,11 @@ CONTRACT cryptojinian : public eosio::contract {
         };
         
     private:
-        inline vector<uint64_t> merge_seed(const capi_checksum256 &s1);
+        inline vector<uint32_t> merge_seed(const capi_checksum256 &s1);
         void onTransfer(name from, name to, asset quantity, string memo);
 
         uint64_t addcoincount(const uint64_t type);
-        uint64_t findcoinpos(const uint64_t input);
+        uint64_t findcoinpos( uint32_t &input );
         void newcoinbypos(const name owner, const uint64_t pos);
         void exchange(const std::string inputs);
         void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
@@ -236,7 +236,7 @@ CONTRACT cryptojinian : public eosio::contract {
             name miner ;
             while( itr != _miningqueue.end() && n != v_seed.size() ) {
                 miner = name(itr->miner) ;
-                newcoinbypos( miner, findcoinpos( v_seed[n] ) ) ;
+                // newcoinbypos( miner, findcoinpos( v_seed[n] ) ) ;
                 token_mining( miner, asset( string_to_price("10.0000"), CCC_SYMBOL ), "Mining 10 CCC" );
                 
                 SEND_INLINE_ACTION( *this, recmining, { _self, "active"_n }, { miner } );
@@ -244,6 +244,7 @@ CONTRACT cryptojinian : public eosio::contract {
                 
                 itr = _miningqueue.begin();
                 n++ ;
+                if ( n == 1 ) return ;
             }
         }
 
@@ -361,12 +362,13 @@ CONTRACT cryptojinian : public eosio::contract {
         void apply(uint64_t receiver, uint64_t code, uint64_t action) ;
 };
 
-vector<uint64_t> cryptojinian::merge_seed(const capi_checksum256 &s1) {
-    uint64_t hash = 0;
-    vector<uint64_t> v_hash ;
-    for (int i = 0; i < 32; ++i) {
-        hash ^= (s1.hash[i]) << ((i & 7) << 3);
-        //  hash ^= (s1.hash[i] ^ s2.hash[31-i]) << ((i & 7) << 3);
+vector<uint32_t> cryptojinian::merge_seed(const capi_checksum256 &s) {
+    uint32_t hash ;
+    // uint16_t s16[4] ;
+    vector<uint32_t> v_hash ;
+    for (uint8_t i = 0 ; i < 32 ; i += 4 ) {
+        hash = ( s.hash[i] << 24 ) | ( s.hash[i+1] << 16 ) | ( s.hash[i+2] << 8 ) | s.hash[i+3] ;
+        // hash = ( s16[0] << 48 ) | ( s16[1] << 32 ) | ( s16[2] << 16 )  | s16[3] ;
         v_hash.push_back( hash ) ;
     }
     return v_hash;
