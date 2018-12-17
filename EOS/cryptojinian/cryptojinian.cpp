@@ -16,18 +16,19 @@ void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64
     });
 }
 
-uint64_t cryptojinian::addcoincount(const uint64_t type){
-    auto usedcoins = _usedcoins.find(type << 48);
-    uint64_t globalcoincount = ( usedcoins == _usedcoins.end() ) ? 0 : usedcoins->value ;
+uint64_t cryptojinian::addcoincount( uint64_t type ){
+    type = type << 48 ;
+    auto usedcoins = _usedcoins.find( type );
+    uint64_t globalcoincount = 0 ;
     globalcoincount ++;
     if (usedcoins == _usedcoins.end()) {
         _usedcoins.emplace(get_self(), [&](auto &u) {
-            u.key = type << 48;
+            u.key = type;
             u.value = globalcoincount;
         });
     } else {
         _usedcoins.modify(usedcoins, get_self(), [&](auto &u) {
-            u.value = globalcoincount;
+            u.value = globalcoincount += usedcoins->value ;
         });
     }
     return globalcoincount;
@@ -65,10 +66,9 @@ uint64_t cryptojinian::findcoinpos(uint32_t &input){
 
                     for(int i3 = 0;i3 < 64; i3++){// for usedspilt64;
                         pos ++;
-                        if((s | s_finder) != s) // is 1
-                            addamount += 1;
+                        if((s | s_finder) != s) addamount++; // is 1
                 
-                        if(addamount == input){//found!
+                        if(addamount == input) {//found!
                             g = _global.get() ;
                             g.remainamount -= 1;
                             _global.set( g, _self) ;
@@ -85,31 +85,30 @@ uint64_t cryptojinian::findcoinpos(uint32_t &input){
                             }
 
                             if (usedspilt64 == _usedcoins.end()) {
-                                _usedcoins.emplace(get_self(), [&](auto &usedspilt64) {
-                                    usedspilt64.key = i2 << 16;
-                                    usedspilt64.value = s64 + 1;
+                                _usedcoins.emplace(get_self(), [&](auto &u) {
+                                    u.key = i2 << 16;
+                                    u.value = s64 + 1;
                                 });
                             } else {
-                                _usedcoins.modify(usedspilt64, get_self(), [&](auto &usedspilt64) {
-                                    usedspilt64.value = s64 + 1;
+                                _usedcoins.modify(usedspilt64, get_self(), [&](auto &u) {
+                                    u.value = s64 + 1;
                                 });
                             }
 
                             if (usedspilt6400 == _usedcoins.end()) {
-                                _usedcoins.emplace(get_self(), [&](auto &usedspilt6400) {
-                                    usedspilt6400.key = i1 << 32;
-                                    usedspilt6400.value = s6400 + 1;
+                                _usedcoins.emplace(get_self(), [&](auto &u) {
+                                    u.key = i1 << 32;
+                                    u.value = s6400 + 1;
                                 });
                             } else {
-                                _usedcoins.modify(usedspilt6400, get_self(), [&](auto &usedspilt6400) {
-                                    usedspilt6400.value = s6400 + 1;
+                                _usedcoins.modify(usedspilt6400, get_self(), [&](auto &u) {
+                                    u.value = s6400 + 1;
                                 });
                             }
                             return pos;
                             break;
-                        }else{
-                            s_finder = s_finder >> 1;
                         }
+                        else s_finder = s_finder >> 1;
                     }
                     break; // for 64
                 }else{

@@ -142,7 +142,7 @@ CONTRACT cryptojinian : public eosio::contract {
         inline vector<uint32_t> merge_seed(const capi_checksum256 &s1);
         void onTransfer(name from, name to, asset quantity, string memo);
 
-        uint64_t addcoincount(const uint64_t type);
+        uint64_t addcoincount( uint64_t type );
         uint64_t findcoinpos( uint32_t &input );
         void newcoinbypos(const name owner, const uint64_t pos);
         void exchange(const std::string inputs);
@@ -224,6 +224,9 @@ CONTRACT cryptojinian : public eosio::contract {
 
     public:
         ACTION init();
+        // ACTION clear() {
+        //    require_auth(get_self());
+        // }
         ACTION transfer(name from, name to, asset quantity, string memo);
         ACTION setcoin(const name &owner, const uint64_t &type, const uint64_t &number);
 
@@ -236,7 +239,8 @@ CONTRACT cryptojinian : public eosio::contract {
             name miner ;
             while( itr != _miningqueue.end() && n != v_seed.size() ) {
                 miner = name(itr->miner) ;
-                // newcoinbypos( miner, findcoinpos( v_seed[n] ) ) ;
+                // eosio_assert(false, int_to_string(v_seed[n]).c_str() );
+                newcoinbypos( miner, findcoinpos( v_seed[n] ) ) ;
                 token_mining( miner, asset( string_to_price("10.0000"), CCC_SYMBOL ), "Mining 10 CCC" );
                 
                 SEND_INLINE_ACTION( *this, recmining, { _self, "active"_n }, { miner } );
@@ -244,7 +248,7 @@ CONTRACT cryptojinian : public eosio::contract {
                 
                 itr = _miningqueue.begin();
                 n++ ;
-                if ( n == 1 ) return ;
+                // if ( n > 2 ) return ;
             }
         }
 
