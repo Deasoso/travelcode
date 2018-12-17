@@ -249,15 +249,20 @@ CONTRACT cryptojinian : public eosio::contract {
         }
 
         ACTION pushorder( const name &account, asset &eos, string &straddorder ) {
+            // straddorder = type_order type_coin n_coin
+            // type_order: 1 or 2
+            // type_coin:  coin's type
+            // n_coin:     coin's number
             require_auth(account);
 
             auto itr_players = join_game_processing( account ) ;
 
             auto v_str = explode( straddorder, ' ' ) ;
-            eosio_assert(v_str.size() == 2, "Error memo");
+            eosio_assert(v_str.size() == 3, "Error memo");
 
-            auto type_coin = coin::str_to_coin_type( v_str[0] ) ;
-            auto n_coin = string_to_int( v_str[1] ) ;
+            uint8_t type_order = string_to_int( v_str[0] ) ;
+            auto type_coin = coin::str_to_coin_type( v_str[1] ) ;
+            auto n_coin = string_to_int( v_str[2] ) ;
             vector<uint64_t> pcoins ;
             auto citr = _coins.begin() ;
             for ( auto cid : itr_players->coins ) {
@@ -271,7 +276,7 @@ CONTRACT cryptojinian : public eosio::contract {
 
             order_t _orders( get_self(), get_self().value );
             _orders.emplace( account, [&](auto &o) {
-                o.id = _orders.available_primary_key();
+                o.id = _orders.available_primary_key() + type_order * 1000000 ;
                 o.account = account.value ;
                 o.bid = eos ;
                 o.the_coins_for_sell = pcoins  ;// set coins
