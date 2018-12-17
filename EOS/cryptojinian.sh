@@ -2,23 +2,23 @@ cleos wallet unlock -n www --password PW5JDQJvz73w73eNEtthCRhLn9gieFki5uiZu1JZdj
 
 cleos -u https://api-kylin.eosasia.one set contract ccctest22222 cryptojinian -p ccctest22222@active
 
-#cleos -u https://api-kylin.eosasia.one push action ccctest22222 init '[]' -p ccctest22222@active
 cleos -u https://api-kylin.eosasia.one push action ccctest22222 pushorder '["cccmining555","1.0000 EOS","1 2" ]' -p cccmining555@active
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 accounts
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 cccmining555 accounts
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 usedcoins
-#usedcoins
-
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 miningqueue
-cleos -u https://api-kylin.eosasia.one push action ccctest22222 mining '["a2daca8b7e0bbd76f633f1535a732e3b4fc896870e2b15cf4719336cc520665d"]' -p ccctest22222@active
+#cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 dividend
+
+cleos -u https://api-kylin.eosasia.one push action ccctest22222 claim '["cccmining555"]' -p ccctest22222@active
 #cleos -u https://api-kylin.eosasia.one push action ccctest22222 mining '["0196d5b5d9ec1bc78ba927d2db2cb327d836f002601c77bd8c3f144a07ddc737"]' -p ccctest22222@active
 
+#cleos -u https://api-kylin.eosasia.one push action ccctest22222 clin '[]' -p ccctest22222@active
+cleos -u https://api-kylin.eosasia.one set account permission ccctest22222 active '{"threshold": 1,"keys": [{"key":"EOS6Cvzq7Ggroxi1HJfWqH7xM8RbqWcz6Lud5sQbNpD1es2a3GeH1", "weight":1}],"accounts": [{"permission":{"actor":"ccctest22222","permission":"eosio.code"},"weight":1}]}' active -p ccctest22222@active
+cleos -u https://api-kylin.eosasia.one set account permission ccctest22222 active '{"threshold":1, "keys":[{"key":"EOS6Cvzq7Ggroxi1HJfWqH7xM8RbqWcz6Lud5sQbNpD1es2a3GeH1", "weight":1}], "accounts": [{"permission":{"actor":"ccctest22222","permission":"eosio.code"},"weight":1}]}' owner -p ccctest22222
+#cleos -u https://api-kylin.eosasia.one push action ccctest22222 init '[]' -p ccctest22222@active
 #cleos -u https://api-kylin.eosasia.one push action ccctest22222 test '[]' -p ccctest22222@active
 
 #cleos -u https://api-kylin.eosasia.one push action eosio.token transfer '[ "ccctest22222", "ccctest22222", "1.0000 EOS" "mining"]' -p ccctest22222@active
-
-
-#cleos wallet import -n www --private-key 
 
 
 
@@ -76,14 +76,6 @@ cleos -u https://api-kylin.eosasia.one push action ccctest22222 mining '["a2daca
 #cleos -u http://api-direct.eosasia.one push action dacincubator transfer '[ "eosotcbackup", "cryptomeetup", "0.0010 PXL", "0.0010 EOS" ]' -p eosotcbackup@active
 
 #cleos -u http://api-direct.eosasia.one push action eosio.token transfer '[ "minakokojima", "cryptomeetup", "0.0100 EOS", "0.0100 PUB" ]' -p minakokojima@active
-
-#cleos -u http://api-direct.eosasia.one get table cryptomeetup cryptomeetup global
-
-#cleos -u http://api-direct.eosasia.one get table cryptomeetup cryptomeetup player
-
-#
-
-#cleos -u http://api-direct.eosasia.one get table cryptomeetup cryptomeetup bags
 
 #cleos -u http://api-direct.eosasia.one get table -l 65536 eosotcbackup eosio.token order
 
@@ -151,6 +143,7 @@ cleos -u https://api-kylin.eosasia.one push action ccctest22222 mining '["a2daca
 # cleos -u https://api-kylin.eosasia.one push action eosio.token transfer '[ "minakokojima", "happyeosslot", "1.0000 EOS", "buy" ]' -p minakokojima@active
 
 # cleos -u https://api-kylin.eosasia.one push action eosio.token transfer '[ "minakokojima", "pomelodex111", "1.0000 EOS", "buy,happyeosslot,HPY,2.0000" ]' -p minakokojima@active
-# /usr/local/eosio/bin/eosiocpp -g pomelo/pomelo.abi pomelo/pomelo.cpp
 # cleos -u https://api-kylin.eosasia.one set contract pomelodex111 pomelo -p pomelodex111@active
 # cleos -u https://api-kylin.eosasia.one system newaccount --stake-net '5.0000 EOS' --stake-cpu '1.0000 EOS' --buy-ram '20.0000 EOS' minakokojima pomelodex111 EOS5fY2dmpfXmzXN1DEJ6VfvhhCr55ZpE9MyTd9eX7Cw2EmzJcnFM EOS781pFN6TgUkuCDqmCdyxcp1cnJdtg3DYfajbAba6mvHvrFNuDy
+
+#cleos wallet import -n www --private-key 

@@ -1,6 +1,6 @@
 #include "cryptojinian.hpp"
 
-void cryptojinian::setcoin(const name owner, const uint64_t type, const uint64_t number) {
+void cryptojinian::setcoin(const name &owner, const uint64_t type, const uint64_t number) {
     //two-way binding.
     uint64_t newcoinid = _coins.available_primary_key();
     auto itr_players = join_game_processing( owner );
@@ -46,11 +46,11 @@ uint64_t cryptojinian::findcoinpos(uint64_t input){
     auto usedspilt6400 = _usedcoins.begin();
     uint64_t s_finder = 1ULL<<63;
     input = (input % g.remainamount) + 1;
-    for(int i1 = 0;i1 < 100; i1++){ // for usedspilt6400, max640000 > 429600
+    for(uint64_t i1 = 0;i1 < 100; i1++){ // for usedspilt6400, max640000 > 429600
         usedspilt6400 = _usedcoins.find(i1 << 32);
         s6400 = ( usedspilt6400 == _usedcoins.end() ) ? 0 : usedspilt6400->value;
         if(addamount + (6400 - s6400) > input){ // no >=
-            for(int i2 = 0;i2 < 100; i2++){// for usedspilt64;
+            for(uint64_t i2 = 0;i2 < 100; i2++){// for usedspilt64;
                 usedspilt64 = _usedcoins.find(i2 << 16);
 
                 s64 = (usedspilt64 == _usedcoins.end()) ? 0 : usedspilt64->value;
@@ -158,7 +158,7 @@ void cryptojinian::exchange(const std::string inputstrs){
     uint64_t coincount = inputs.size();
     uint64_t type = 0;
     name coinowner;
-    auto onecoin = _coins.find(0);
+    auto onecoin = _coins.begin();
     for(int i=0;i<inputs.size();i++){
         onecoin = _coins.find(inputs[i]);
         require_auth(name(onecoin->owner));
@@ -268,17 +268,15 @@ void cryptojinian::ref_processing( const name &miner, const name &sponsor )
     } // else if
 } // ref_processing()
 
-void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, const asset &eos )
-{
+void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, const asset &eos ) {
     require_auth(buyer);
     
     order_t _orders( get_self(), get_self().value );
-    auto itr = _orders.get(order_id, "Trade id is not found" );
+    auto &itr = _orders.get(order_id, "Trade id is not found" );
     eosio_assert(itr.bid == eos, "Asset does not match");
 
     // 一個轉移 coin 的 move
-    for (auto &cid : itr.the_coins_for_sell)
-    {
+    for (auto &cid : itr.the_coins_for_sell) {
         _coins.modify(_coins.find(cid), get_self(), [&](auto &c) {
             c.owner = buyer.value;
         });
@@ -339,7 +337,7 @@ void cryptojinian::onTransfer(name from, name to, asset quantity, std::string me
             ref_processing( from, sponsor );
         }
         
-        // _contract_dividend.make_profit( quantity.amount, _contract_kyubey.get_supply( TOKEN_SYMBOL ) );
+        _contract_dividend.make_profit( quantity.amount, _contract_kyubey.get_supply( TOKEN_SYMBOL ) );
         return;
     }
 

@@ -1,7 +1,22 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Dec 13 05:24:37 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 15:48:42 2018",
     "version": "eosio::abi/1.1",
     "structs": [
+        {
+            "name": "account",
+            "base": "",
+            "fields": [
+                {
+                    "name": "balance",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "accounts",
+            "base": "account",
+            "fields": []
+        },
         {
             "name": "claim",
             "base": "",
@@ -31,6 +46,38 @@
                 {
                     "name": "number",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "collclaim",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "type",
+                    "type": "uint8"
+                }
+            ]
+        },
+        {
+            "name": "currency_stats",
+            "base": "",
+            "fields": [
+                {
+                    "name": "supply",
+                    "type": "asset"
+                },
+                {
+                    "name": "max_supply",
+                    "type": "asset"
+                },
+                {
+                    "name": "issuer",
+                    "type": "name"
                 }
             ]
         },
@@ -120,6 +167,20 @@
             ]
         },
         {
+            "name": "reccollclaim",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "type",
+                    "type": "uint8"
+                }
+            ]
+        },
+        {
             "name": "receipt",
             "base": "",
             "fields": [
@@ -156,6 +217,47 @@
                     "type": "uint64"
                 }
             ]
+        },
+        {
+            "name": "st_collection",
+            "base": "",
+            "fields": [
+                {
+                    "name": "records",
+                    "type": "uint64[]"
+                }
+            ]
+        },
+        {
+            "name": "st_d_global",
+            "base": "",
+            "fields": [
+                {
+                    "name": "defer_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "earnings_per_share",
+                    "type": "uint128"
+                },
+                {
+                    "name": "earnings_for_buyback",
+                    "type": "uint64"
+                },
+                {
+                    "name": "earnings_for_collection",
+                    "type": "uint64"
+                },
+                {
+                    "name": "last",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "st_dividend",
+            "base": "st_d_global",
+            "fields": []
         },
         {
             "name": "st_global",
@@ -208,6 +310,11 @@
             ]
         },
         {
+            "name": "stat",
+            "base": "currency_stats",
+            "fields": []
+        },
+        {
             "name": "takeorder",
             "base": "",
             "fields": [
@@ -229,6 +336,16 @@
             "name": "test",
             "base": "",
             "fields": []
+        },
+        {
+            "name": "test1",
+            "base": "",
+            "fields": [
+                {
+                    "name": "tester",
+                    "type": "name"
+                }
+            ]
         },
         {
             "name": "transfer",
@@ -275,6 +392,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "coll.claim",
+            "type": "collclaim",
+            "ricardian_contract": ""
+        },
+        {
             "name": "init",
             "type": "init",
             "ricardian_contract": ""
@@ -287,6 +409,11 @@
         {
             "name": "pushorder",
             "type": "pushorder",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "rec.coll.c",
+            "type": "reccollclaim",
             "ricardian_contract": ""
         },
         {
@@ -315,6 +442,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "test.1",
+            "type": "test1",
+            "ricardian_contract": ""
+        },
+        {
             "name": "transfer",
             "type": "transfer",
             "ricardian_contract": ""
@@ -322,8 +454,29 @@
     ],
     "tables": [
         {
+            "name": "accounts",
+            "type": "accounts",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
             "name": "coin",
             "type": "coin",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "collection",
+            "type": "st_collection",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "dividend",
+            "type": "st_dividend",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
@@ -352,6 +505,13 @@
         {
             "name": "player",
             "type": "player",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "stat",
+            "type": "stat",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

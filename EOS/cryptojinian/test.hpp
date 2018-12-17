@@ -1,12 +1,6 @@
 /**
- *  @dev minakokojima
- *  @copyleft ／人◕ ‿‿ ◕人＼
- *  Want to make a Contract with me?
- *  I am the linear version of kyubey protocol.
+ *  @dev yukiexe
  */
-
-// dacincubator
-
 #pragma once
 
 #include "eosio.token.hpp"
@@ -18,8 +12,6 @@
 typedef double real_type;
 
 using namespace eosio ;
-
-const uint64_t K = 10000000000;
 
 class kyubey : public token {
     public:
