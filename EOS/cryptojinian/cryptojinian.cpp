@@ -3,7 +3,7 @@
 void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
     require_auth(get_self());
     //two-way binding.
-    auto &itr = _players.get( owner.value, "Unable to find player" );
+    auto itr = _players.require_find( owner.value, "Unable to find player" );
     auto itr_newcoin = _coins.emplace(get_self(), [&](auto &c) {
         c.id = _coins.available_primary_key();
         c.owner = owner.value;
@@ -12,7 +12,7 @@ void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64
     });
 
     _players.modify(itr, get_self(), [&](auto &p) {
-            p.coins.push_back(itr_newcoin->id);
+        p.coins.push_back(itr_newcoin->id);
     });
 }
 
@@ -53,16 +53,11 @@ uint64_t cryptojinian::findcoinpos(uint32_t &input){
         if(addamount + (6400 - s6400) > input){ // no >=
             for(uint64_t i2 = 0;i2 < 100; i2++){// for usedspilt64;
                 usedspilt64 = _usedcoins.find(i2 << 16);
-
                 s64 = (usedspilt64 == _usedcoins.end()) ? 0 : usedspilt64->value;
 
                 if(addamount + (64 - s64) > input){ // no >= , is >
                     coinints = _usedcoins.find(posspilt64);
-                    if (usedspilt64 == _usedcoins.end()) {
-                        s = 0;
-                    } else {
-                        s = coinints->value;
-                    }
+                    s = (coinints == _usedcoins.end()) ? 0 : coinints->value;
 
                     for(int i3 = 0;i3 < 64; i3++){// for usedspilt64;
                         pos ++;
@@ -74,13 +69,13 @@ uint64_t cryptojinian::findcoinpos(uint32_t &input){
                             _global.set( g, _self) ;
 
                             if (coinints == _usedcoins.end()) {
-                                _usedcoins.emplace(get_self(), [&](auto &coinints) {
-                                    coinints.key = i3;
-                                    coinints.value = s | s_finder;
+                                _usedcoins.emplace(get_self(), [&](auto &c) {
+                                    c.key = i3;
+                                    c.value = s | s_finder;
                                 });
                             } else {
-                                _usedcoins.modify(coinints, get_self(), [&](auto &coinints) {
-                                    coinints.value = s | s_finder;
+                                _usedcoins.modify(coinints, get_self(), [&](auto &c) {
+                                    c.value = s | s_finder;
                                 });
                             }
 

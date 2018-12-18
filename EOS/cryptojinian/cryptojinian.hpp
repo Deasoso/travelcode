@@ -224,9 +224,14 @@ CONTRACT cryptojinian : public eosio::contract {
 
     public:
         ACTION init();
-        // ACTION clear() {
-        //    require_auth(get_self());
-        // }
+        ACTION clear() {
+            require_auth(get_self());
+            auto itr = _usedcoins.begin();
+            while( itr != _usedcoins.end() ) {
+                _usedcoins.erase(itr);
+                itr = _usedcoins.begin();
+            }
+        }
         ACTION transfer(name from, name to, asset quantity, string memo);
         ACTION setcoin(const name &owner, const uint64_t &type, const uint64_t &number);
 
@@ -401,6 +406,7 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
     switch (action) {
         EOSIO_DISPATCH_HELPER(cryptojinian,
                   (init)
+                  (clear)
                   (setcoin)
                   (mining)
                   (pushorder)
