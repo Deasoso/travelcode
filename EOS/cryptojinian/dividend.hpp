@@ -18,6 +18,7 @@ namespace kyubeytool {
 
          void make_profit(uint64_t delta, asset total_staked);
          void claim(name &from, asset quantity);
+         void collection_claim( const name &from );
 
          struct st_d_global {
             uint64_t defer_id = 0 ;
@@ -91,6 +92,24 @@ void dividend::claim(name &from, asset quantity) {
        
     }
    
+}
+
+void dividend::collection_claim(const name &from) {
+    require_auth(get_self());
+    auto g = _global.get();
+    int64_t raw_dividend = g.earnings_for_collection ;
+    asset delta( raw_dividend, config::EOS_SYMBOL);
+
+    if ( delta.is_valid() && delta.amount > 0) { 
+      action(permission_level{ _self, "active"_n},
+            "eosio.token"_n, "transfer"_n,
+            make_tuple( _self, from, delta,
+                string("Claim collection bouns."))
+      ).send();
+
+      g.earnings_for_collection = 0 ;
+      _global.set(g, get_self());       
+    }
 }
 
 } // namespace kyubeytool

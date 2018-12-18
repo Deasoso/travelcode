@@ -379,7 +379,11 @@ CONTRACT cryptojinian : public eosio::contract {
             }
 
             if ( r > itr.records[type] ) {
-                token_mining( account, config::bouns_table(type), string("Bouns from collection claim.") );
+                if ( type == 28 )
+                    _contract_dividend.collection_claim( account );   
+                else
+                    token_mining( account, config::bouns_table(type), string("Bouns from collection claim.") );
+                                
                 SEND_INLINE_ACTION( *this, reccollclaim, { _self, "active"_n }, { account, type } );
                 itr.records[type] = r ;
                 _collection.set( itr, get_self() ) ;
