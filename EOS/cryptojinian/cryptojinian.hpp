@@ -139,11 +139,11 @@ CONTRACT cryptojinian : public eosio::contract {
         };
         
     private:
-        inline vector<uint64_t> merge_seed(const capi_checksum256 &s1);
+        inline vector<uint32_t> merge_seed(const capi_checksum256 &s1);
         void onTransfer(name from, name to, asset quantity, string memo);
 
-        uint64_t addcoincount(const uint64_t type);
-        uint64_t findcoinpos(const uint64_t input);
+        uint64_t addcoincount( uint64_t type );
+        uint64_t findcoinpos( uint32_t &input );
         void newcoinbypos(const name owner, const uint64_t pos);
         void exchange(const std::string inputs);
         void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
@@ -151,12 +151,11 @@ CONTRACT cryptojinian : public eosio::contract {
         auto join_game_processing( const name &account ) {
             auto itr_players = _players.find( account.value ) ;
             if ( itr_players == _players.end() ) { // noob
-                _players.emplace(get_self(), [&](auto &p) {
+                itr_players = _players.emplace(get_self(), [&](auto &p) {
                     p.playername = account.value;
-                    p.sponsor = ( DEF_SPONSOR ).value;
+                    p.sponsor = DEF_SPONSOR.value;
                 });
-
-                itr_players = _players.find( account.value ) ;
+                // itr_players = _players.find( account.value ) ;
             }
             return itr_players ;
         } // join_game_processing()
@@ -172,18 +171,23 @@ CONTRACT cryptojinian : public eosio::contract {
             _contract_kyubey.issue( miner, quantity, memo);
         }
 
+        inline const asset fee_processing( asset &quantity ) { 
+            quantity.set_amount( quantity.amount * TRADE_COEF ) ;
+            return quantity;
+        }
+
         auto collection_counter( const name &account ) {
             auto &itr_players = _players.get( account.value, "Player not found." ) ;
             // type :xxyy, xx for valuetype, yy for cointype
             // BTC 1 cointype, ETH 2 cointype
             // for example: 2 valuetype BTC: 201
-            auto citr = _coins.begin() ;
+
             vector<vector<uint64_t>> counter( _coinvalues.size() ) ;
-            uint8_t i = 0 ;
-            for ( uint64_t i = 0 ; i < counter.size() ; i++  ) {
+            for ( uint8_t i = 0 ; i < counter.size() ; i++  ) {
                 counter[i] = vector<uint64_t>( _coinvalues[i].size(), 0 ) ;
             }
 
+            auto citr = _coins.begin() ;
             for ( const auto &cid : itr_players.coins ) {
                 citr = _coins.find( cid ) ;
                 for ( uint64_t yy = 0 ; yy < counter.size() ; yy++ ) {
@@ -220,8 +224,11 @@ CONTRACT cryptojinian : public eosio::contract {
 
     public:
         ACTION init();
+        // ACTION clear() {
+        //    require_auth(get_self());
+        // }
         ACTION transfer(name from, name to, asset quantity, string memo);
-        ACTION setcoin(const name &owner, const uint64_t type, const uint64_t number);
+        ACTION setcoin(const name &owner, const uint64_t &type, const uint64_t &number);
 
         ACTION mining( const capi_checksum256 &seed ) {
             require_auth(get_self());
@@ -232,27 +239,34 @@ CONTRACT cryptojinian : public eosio::contract {
             name miner ;
             while( itr != _miningqueue.end() && n != v_seed.size() ) {
                 miner = name(itr->miner) ;
+                // eosio_assert(false, int_to_string(v_seed[n]).c_str() );
                 newcoinbypos( miner, findcoinpos( v_seed[n] ) ) ;
-                token_mining( miner, asset( string_to_price("1.0000"), CCC_SYMBOL ), "Mining 1 CCC" );
+                token_mining( miner, asset( string_to_price("10.0000"), CCC_SYMBOL ), "Mining 10 CCC" );
                 
                 SEND_INLINE_ACTION( *this, recmining, { _self, "active"_n }, { miner } );
                 _miningqueue.erase( itr );
                 
                 itr = _miningqueue.begin();
                 n++ ;
+                // if ( n > 2 ) return ;
             }
         }
 
         ACTION pushorder( const name &account, asset &eos, string &straddorder ) {
+            // straddorder = type_order type_coin n_coin
+            // type_order: 1 or 2
+            // type_coin:  coin's type
+            // n_coin:     coin's number
             require_auth(account);
 
             auto itr_players = join_game_processing( account ) ;
 
             auto v_str = explode( straddorder, ' ' ) ;
-            eosio_assert(v_str.size() == 2, "Error memo");
+            eosio_assert(v_str.size() == 3, "Error memo");
 
-            auto type_coin = coin::str_to_coin_type( v_str[0] ) ;
-            auto n_coin = string_to_int( v_str[1] ) ;
+            uint8_t type_order = string_to_int( v_str[0] ) ;
+            auto type_coin = coin::str_to_coin_type( v_str[1] ) ;
+            auto n_coin = string_to_int( v_str[2] ) ;
             vector<uint64_t> pcoins ;
             auto citr = _coins.begin() ;
             for ( auto cid : itr_players->coins ) {
@@ -266,22 +280,42 @@ CONTRACT cryptojinian : public eosio::contract {
 
             order_t _orders( get_self(), get_self().value );
             _orders.emplace( account, [&](auto &o) {
-                o.id = _orders.available_primary_key();
+                o.id = _orders.available_primary_key() + type_order * 1000000 ;
                 o.account = account.value ;
                 o.bid = eos ;
                 o.the_coins_for_sell = pcoins  ;// set coins
+                o.timestamp = current_time();
             });
         } // pushorder()
+        
+        ACTION cancelorder( const name &account, const uint64_t &order_id ) {
+            require_auth(account);
 
-        ACTION takeorder( const name &buyer, const uint64_t &order_id, const asset &eos );
+            order_t _orders( get_self(), get_self().value );
+            auto &itr = _orders.get(order_id, "Trade id is not found" );
+            eosio_assert(itr.account == account.value, "Account does not match");
+            
+            _orders.erase(itr);
+        } // cancelorder()
+
+        ACTION syscxlorder( const uint64_t &order_id ) {
+            require_auth(get_self());
+
+            order_t _orders( get_self(), get_self().value );
+            auto &itr = _orders.get(order_id, "Trade id is not found" );
+            
+            _orders.erase(itr);
+        } // syscxlorder()
+
+        ACTION takeorder( const name &buyer, const uint64_t &order_id, asset &eos );
 
         ACTION claim( name &from ) {
             require_auth(get_self());
             _contract_dividend.claim( from, _contract_kyubey.get_balance( from, TOKEN_SYMBOL ) );
         }
 
-        [[eosio::action("coll.claim")]] void collclaim( const name &account, uint8_t &type ) {
-            require_auth(account);
+        [[eosio::action("collclaim")]] void collclaim( const name &account, uint8_t &type ) {
+            // require_auth(account);
             eosio_assert( type < 23, "Type error");
 
             collection_t _collection( get_self(), account.value );
@@ -304,20 +338,21 @@ CONTRACT cryptojinian : public eosio::contract {
             //print( findcoinpos( v_seed[0]) );
             //newcoinbypos( N(cccmining555), findcoinpos( v_seed[0] ) ) ;
         }
-        [[eosio::action("test.1")]] void test1( const name &tester ) {
+        [[eosio::action("test1")]] void test1( const name &tester ) {
             require_auth(get_self());
-            vector<vector<uint64_t>> counter( _coinvalues.size() ) ;
-            uint8_t i = 0 ;
-            for ( uint64_t i = 0 ; i < counter.size() ; i++  ) {
-                counter[i] = vector<uint64_t>( _coinvalues[i].size(), 0 ) ;
-            }
-            for ( uint64_t yy = 0 ; yy < counter.size() ; yy++ ) {
-                for ( uint64_t xx = 0 ; xx < counter[yy].size(); xx++ ) {
-                    setcoin(tester, ( xx * 100 + ( yy + 1 ) ), 111) ;
-                    if ( xx % 2 == 1 )
-                        setcoin(tester, ( xx * 100 + ( yy + 1 ) ), 222) ;
+            
+            uint64_t type = 111, number = 111 ;
+            // SEND_INLINE_ACTION( *this, setcoin, { _self, "active"_n }, { tester, type, number} );
+           
+            //for ( uint64_t yy = 0 ; yy < _coinvalues.size() ; yy++ ) {
+                for ( uint64_t xx = 0 ; xx < _coinvalues[0].size(); xx++ ) {
+                    type = ( xx * 100 + ( 0 + 1 ) ) ;
+                    // number = 111 ;
+                    SEND_INLINE_ACTION( *this, setcoin, { _self, "active"_n }, { tester, type, number} );
+                    //if ( xx % 2 == 1 )
+                    //    setcoin(tester, ( xx * 100 + ( yy + 1 ) ), 222) ;
                 }
-            }
+            //}
         }
 
 
@@ -328,7 +363,7 @@ CONTRACT cryptojinian : public eosio::contract {
         ACTION recmining( const name &miner ) {
             require_auth(get_self());
         }
-        [[eosio::action("rec.coll.c")]] void reccollclaim( const name &account, uint8_t &type ) {
+        [[eosio::action("reccollc")]] void reccollclaim( const name &account, uint8_t &type ) {
             require_auth(get_self());
         }
  
@@ -336,12 +371,13 @@ CONTRACT cryptojinian : public eosio::contract {
         void apply(uint64_t receiver, uint64_t code, uint64_t action) ;
 };
 
-vector<uint64_t> cryptojinian::merge_seed(const capi_checksum256 &s1) {
-    uint64_t hash = 0;
-    vector<uint64_t> v_hash ;
-    for (int i = 0; i < 32; ++i) {
-        hash ^= (s1.hash[i]) << ((i & 7) << 3);
-        //  hash ^= (s1.hash[i] ^ s2.hash[31-i]) << ((i & 7) << 3);
+vector<uint32_t> cryptojinian::merge_seed(const capi_checksum256 &s) {
+    uint32_t hash ;
+    // uint16_t s16[4] ;
+    vector<uint32_t> v_hash ;
+    for (uint8_t i = 0 ; i < 32 ; i += 4 ) {
+        hash = ( s.hash[i] << 24 ) | ( s.hash[i+1] << 16 ) | ( s.hash[i+2] << 8 ) | s.hash[i+3] ;
+        // hash = ( s16[0] << 48 ) | ( s16[1] << 32 ) | ( s16[2] << 16 )  | s16[3] ;
         v_hash.push_back( hash ) ;
     }
     return v_hash;
@@ -368,6 +404,8 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (setcoin)
                   (mining)
                   (pushorder)
+                  (cancelorder)
+                  (syscxlorder)
                   (takeorder)
                   (claim)
                   (collclaim)

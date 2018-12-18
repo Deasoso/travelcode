@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 14 15:48:42 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Dec 16 22:50:25 2018",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -16,6 +16,20 @@
             "name": "accounts",
             "base": "account",
             "fields": []
+        },
+        {
+            "name": "cancelorder",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "order_id",
+                    "type": "uint64"
+                }
+            ]
         },
         {
             "name": "claim",
@@ -315,6 +329,16 @@
             "fields": []
         },
         {
+            "name": "syscxlorder",
+            "base": "",
+            "fields": [
+                {
+                    "name": "order_id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
             "name": "takeorder",
             "base": "",
             "fields": [
@@ -387,12 +411,17 @@
     "types": [],
     "actions": [
         {
+            "name": "cancelorder",
+            "type": "cancelorder",
+            "ricardian_contract": ""
+        },
+        {
             "name": "claim",
             "type": "claim",
             "ricardian_contract": ""
         },
         {
-            "name": "coll.claim",
+            "name": "collclaim",
             "type": "collclaim",
             "ricardian_contract": ""
         },
@@ -412,7 +441,7 @@
             "ricardian_contract": ""
         },
         {
-            "name": "rec.coll.c",
+            "name": "reccollc",
             "type": "reccollclaim",
             "ricardian_contract": ""
         },
@@ -432,6 +461,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "syscxlorder",
+            "type": "syscxlorder",
+            "ricardian_contract": ""
+        },
+        {
             "name": "takeorder",
             "type": "takeorder",
             "ricardian_contract": ""
@@ -442,7 +476,7 @@
             "ricardian_contract": ""
         },
         {
-            "name": "test.1",
+            "name": "test1",
             "type": "test1",
             "ricardian_contract": ""
         },

@@ -1,39 +1,40 @@
 #include "cryptojinian.hpp"
 
-void cryptojinian::setcoin(const name &owner, const uint64_t type, const uint64_t number) {
+void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
+    require_auth(get_self());
     //two-way binding.
-    uint64_t newcoinid = _coins.available_primary_key();
-    auto itr_players = join_game_processing( owner );
-    _players.modify(itr_players, get_self(), [&](auto &p) {
-            p.coins.push_back(newcoinid);
+    auto &itr = _players.get( owner.value, "Unable to find player" );
+    auto itr_newcoin = _coins.emplace(get_self(), [&](auto &c) {
+        c.id = _coins.available_primary_key();
+        c.owner = owner.value;
+        c.type = type;
+        c.number = number;
     });
-    
-    _coins.emplace(get_self(), [&](auto &coin) {
-        coin.id = newcoinid;
-        coin.owner = owner.value;
-        coin.type = type;
-        coin.number = number;
+
+    _players.modify(itr, get_self(), [&](auto &p) {
+            p.coins.push_back(itr_newcoin->id);
     });
 }
 
-uint64_t cryptojinian::addcoincount(const uint64_t type){
-    auto usedcoins = _usedcoins.find(type << 48);
-    uint64_t globalcoincount = ( usedcoins == _usedcoins.end() ) ? 0 : usedcoins->value ;
+uint64_t cryptojinian::addcoincount( uint64_t type ){
+    type = type << 48 ;
+    auto usedcoins = _usedcoins.find( type );
+    uint64_t globalcoincount = 0 ;
     globalcoincount ++;
     if (usedcoins == _usedcoins.end()) {
         _usedcoins.emplace(get_self(), [&](auto &u) {
-            u.key = type << 48;
+            u.key = type;
             u.value = globalcoincount;
         });
     } else {
         _usedcoins.modify(usedcoins, get_self(), [&](auto &u) {
-            u.value = globalcoincount;
+            u.value = globalcoincount += usedcoins->value ;
         });
     }
     return globalcoincount;
 }
 
-uint64_t cryptojinian::findcoinpos(uint64_t input){
+uint64_t cryptojinian::findcoinpos(uint32_t &input){
     // inputrandom: 1 ~ remain coins
     // return 1 ~ all coins
     uint64_t addamount = 0;
@@ -65,10 +66,9 @@ uint64_t cryptojinian::findcoinpos(uint64_t input){
 
                     for(int i3 = 0;i3 < 64; i3++){// for usedspilt64;
                         pos ++;
-                        if((s | s_finder) != s) // is 1
-                            addamount += 1;
+                        if((s | s_finder) != s) addamount++; // is 1
                 
-                        if(addamount == input){//found!
+                        if(addamount == input) {//found!
                             g = _global.get() ;
                             g.remainamount -= 1;
                             _global.set( g, _self) ;
@@ -85,31 +85,30 @@ uint64_t cryptojinian::findcoinpos(uint64_t input){
                             }
 
                             if (usedspilt64 == _usedcoins.end()) {
-                                _usedcoins.emplace(get_self(), [&](auto &usedspilt64) {
-                                    usedspilt64.key = i2 << 16;
-                                    usedspilt64.value = s64 + 1;
+                                _usedcoins.emplace(get_self(), [&](auto &u) {
+                                    u.key = i2 << 16;
+                                    u.value = s64 + 1;
                                 });
                             } else {
-                                _usedcoins.modify(usedspilt64, get_self(), [&](auto &usedspilt64) {
-                                    usedspilt64.value = s64 + 1;
+                                _usedcoins.modify(usedspilt64, get_self(), [&](auto &u) {
+                                    u.value = s64 + 1;
                                 });
                             }
 
                             if (usedspilt6400 == _usedcoins.end()) {
-                                _usedcoins.emplace(get_self(), [&](auto &usedspilt6400) {
-                                    usedspilt6400.key = i1 << 32;
-                                    usedspilt6400.value = s6400 + 1;
+                                _usedcoins.emplace(get_self(), [&](auto &u) {
+                                    u.key = i1 << 32;
+                                    u.value = s6400 + 1;
                                 });
                             } else {
-                                _usedcoins.modify(usedspilt6400, get_self(), [&](auto &usedspilt6400) {
-                                    usedspilt6400.value = s6400 + 1;
+                                _usedcoins.modify(usedspilt6400, get_self(), [&](auto &u) {
+                                    u.value = s6400 + 1;
                                 });
                             }
                             return pos;
                             break;
-                        }else{
-                            s_finder = s_finder >> 1;
                         }
+                        else s_finder = s_finder >> 1;
                     }
                     break; // for 64
                 }else{
@@ -268,7 +267,7 @@ void cryptojinian::ref_processing( const name &miner, const name &sponsor )
     } // else if
 } // ref_processing()
 
-void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, const asset &eos ) {
+void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset &eos ) {
     require_auth(buyer);
     
     order_t _orders( get_self(), get_self().value );
@@ -282,6 +281,13 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, const 
         });
     }
 
+    action(permission_level{ _self, "active"_n},
+            "eosio.token"_n, "transfer"_n,
+            make_tuple( _self, name(itr.account), fee_processing( eos ),
+                string("Trade ") + to_string(order_id) + string(" be took")
+            )
+    ).send();
+
     // 打 log
     const st_rec_takeOrder _tor{
         .matched_order = itr,
@@ -292,8 +298,7 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, const 
            _self, "receipt"_n, _tor )
         .send();
 
-    // 刪了
-    _orders.erase(itr);
+    _orders.erase(itr); // 刪了
 
 } // take_order()
 

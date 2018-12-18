@@ -14,10 +14,12 @@ const auto TOKEN_SYMBOL = CCC_SYMBOL ;
 
 #define CCC_MAX_SUPPLY 300000000000
 
-#define DEF_SPONSOR "rukamoemoe51"_n
+const auto DEF_SPONSOR = "rukamoemoe51"_n;
 
-static constexpr uint128_t MAGNITUDE = 1ll<<32;
-
+constexpr double_t TRADE_FEE = 0.35 ;
+constexpr double_t TRADE_COEF = 1 - TRADE_FEE ;
+static constexpr uint128_t MAGNITUDE = 1ll<<32; 
+    
 
 
 const asset cost_table( const uint64_t &n ) {

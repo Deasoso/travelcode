@@ -1,16 +1,23 @@
 cleos wallet unlock -n www --password PW5JDQJvz73w73eNEtthCRhLn9gieFki5uiZu1JZdjwMftVA3f4cG
 
 cleos -u https://api-kylin.eosasia.one set contract ccctest22222 cryptojinian -p ccctest22222@active
-
+https://kylin.eoscanada.com/
 cleos -u https://api-kylin.eosasia.one push action ccctest22222 pushorder '["cccmining555","1.0000 EOS","1 2" ]' -p cccmining555@active
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 accounts
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 cccmining555 accounts
+#cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 player
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 usedcoins
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 miningqueue
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 dividend
 
 cleos -u https://api-kylin.eosasia.one push action ccctest22222 claim '["cccmining555"]' -p ccctest22222@active
-#cleos -u https://api-kylin.eosasia.one push action ccctest22222 mining '["0196d5b5d9ec1bc78ba927d2db2cb327d836f002601c77bd8c3f144a07ddc737"]' -p ccctest22222@active
+#cleos -u https://kylin.eoscanada.com/ push action ccctest22222 mining '["0196d5b5d9ec1bc78ba927d2db2cb327d836f002601c77bd8c3f144a07ddc737"]' -p ccctest22222@active
+
+cleos -u https://api-kylin.eosasia.one push action ccctest22222 mining '["55ccc226a1875a08c94284c26bf56e712612da2e9c41133bc4baf02df81459e3"]' -p ccctest22222@active
+
+
+cleos -u https://api-kylin.eosasia.one push action ccctest22222 test.1 '["cccmining555"]' -p ccctest22222@active
+
 
 #cleos -u https://api-kylin.eosasia.one push action ccctest22222 clin '[]' -p ccctest22222@active
 cleos -u https://api-kylin.eosasia.one set account permission ccctest22222 active '{"threshold": 1,"keys": [{"key":"EOS6Cvzq7Ggroxi1HJfWqH7xM8RbqWcz6Lud5sQbNpD1es2a3GeH1", "weight":1}],"accounts": [{"permission":{"actor":"ccctest22222","permission":"eosio.code"},"weight":1}]}' active -p ccctest22222@active
@@ -43,7 +50,7 @@ cleos -u https://api-kylin.eosasia.one set account permission ccctest22222 activ
 
 # push action eosio.token transfer '[ "eosotcbackup", "cryptomeetup", "0.0330 EOS", "buy 0" ]' -p eosotcbackup@active
 
-#cleos -u http://api.eosbeijing.one push action cryptomeetup newbag '[ "minakokojima", "0.0100 EOS" ]' -p cryptomeetup@active minakokojima@active
+#cleos -u http://api.eosbeijing.one push action dacincubator transfer '[ "rukamoemoe51", "cryptomeetup", "100 CMU", "stake" ]' -p rukamoemoe51@active
 
 
 #cleos -u http://api.eosbeijing.one push action cryptomeetup newbag '[ "cryptomeetup", "0.0100 EOS" ]' -p cryptomeetup@active cryptomeetup@active
