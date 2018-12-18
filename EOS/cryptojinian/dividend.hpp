@@ -14,6 +14,8 @@ namespace kyubeytool {
             contract( receiver, code, ds ),
             _global( receiver, receiver.value ){}
 
+         static constexpr uint128_t MAGNITUDE = 1ll<<32;
+
          void make_profit(uint64_t delta, asset total_staked);
          void claim(name &from, asset quantity);
 
@@ -74,7 +76,7 @@ void dividend::claim(name &from, asset quantity) {
     require_auth(get_self());
     auto g = _global.get();
     int64_t raw_dividend = g.earnings_per_share * quantity.amount / MAGNITUDE;
-    asset delta( raw_dividend, EOS_SYMBOL);
+    asset delta( raw_dividend, config::EOS_SYMBOL);
 
     if ( delta.is_valid() && delta.amount > 0) {
        

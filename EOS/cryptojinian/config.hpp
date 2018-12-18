@@ -4,6 +4,7 @@
 #include "utils.hpp"
 
 // typedef uint32_t time;
+namespace config {
 
 const auto EOS_CONTRACT = "eosio.token"_n;
 const auto EOS_SYMBOL = eosio::symbol("EOS", 4);
@@ -18,9 +19,6 @@ const auto DEF_SPONSOR = "rukamoemoe51"_n;
 
 constexpr double_t TRADE_FEE = 0.35 ;
 constexpr double_t TRADE_COEF = 1 - TRADE_FEE ;
-static constexpr uint128_t MAGNITUDE = 1ll<<32; 
-    
-
 
 const asset cost_table( const uint64_t &n ) {
     if ( n > 408120 ) return asset( string_to_price("1.0000"), EOS_SYMBOL ) * 2 ;
@@ -102,14 +100,40 @@ for ( i = 0 ; i < 20 ; i++ )
 剩余总量为 64,440张时	挖矿成本增加到5.054EOS进行一次挖矿
 剩余总量为 42,960张时	挖矿成本增加到5.560EOS进行一次挖矿
 剩余总量为 21,480张时	挖矿成本增加到6.116EOS进行一次挖矿
-
+*/
+/*
 集齐整版比特币是金、莱特币是银、门罗币是铜大额转账类整版纪念币（包括比特币整版、莱特币整版、门罗币整版）可获得20000 TOKEN奖励，即领即取；
                                                                 0           2         10
 集齐整版智能合约平台类纪念币（包括以太币整版、柚子币整版、小蚁币整版、量子币整版、比原币整版、阿姨币整版、埃欧塔币整版、艾达币整版、波场币整版）可获得14000 TOKEN奖励，即领即取；
-                                 1        14         
+                                 1        14         7           11        12          6         15           18           21     
 集齐整版交易平台类纪念币（包括币安币整版、火币通证整版、中币整版）可获得12000 TOKEN奖励，即领即取；
+                            3          13             16 
 集齐整版支付类纪念币（包括恒星币整版、嫩模币整版、瑞波币整版）可获得4500 TOKEN奖励，即领即取；
+                        17         5             20
 即齐整版实物和法币锚定类纪念币（包括石油币整版、泰达币整版）可获得4000 TOKEN奖励，即领即取；
+                                 9           8
 即齐整版幽默类纪念币（包括狗币整版、韭菜币整版）可获得2500 TOKEN奖励，即领即取；
-                        19
+                        19       4
 */
+const asset bouns_table( const uint8_t &type ) {
+    switch( type ) {
+        case 22 :
+            return asset( string_to_price("20000.0000"), TOKEN_SYMBOL ) ;
+        case 23 :
+            return asset( string_to_price("14000.0000"), TOKEN_SYMBOL ) ;
+        case 24 :
+            return asset( string_to_price("12000.0000"), TOKEN_SYMBOL ) ;
+        case 25 :
+            return asset( string_to_price("4500.0000"), TOKEN_SYMBOL ) ;
+        case 26 :
+            return asset( string_to_price("4000.0000"), TOKEN_SYMBOL ) ;
+        case 27 :
+            return asset( string_to_price("2500.0000"), TOKEN_SYMBOL ) ;
+        case 28 :
+            return asset( string_to_price("0.0000"), EOS_SYMBOL ) ;
+        default :
+            return asset( string_to_price("0.0000"), TOKEN_SYMBOL ) ;
+    }
+}
+
+} // namespace config

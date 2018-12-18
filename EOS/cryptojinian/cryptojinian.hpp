@@ -15,6 +15,7 @@
 #include "dividend.hpp"
 
 using namespace eosio ;
+using namespace config ;
 using namespace kyubeytool ;
 
 CONTRACT cryptojinian : public eosio::contract {
@@ -190,23 +191,20 @@ CONTRACT cryptojinian : public eosio::contract {
             auto citr = _coins.begin() ;
             for ( const auto &cid : itr_players.coins ) {
                 citr = _coins.find( cid ) ;
-                for ( uint64_t yy = 0 ; yy < counter.size() ; yy++ ) {
-                    for ( uint64_t xx = 0 ; xx < counter[yy].size(); xx++ ) {
+                for ( uint8_t yy = 0 ; yy < counter.size() ; yy++ ) {
+                    for ( uint8_t xx = 0 ; xx < counter[yy].size(); xx++ ) {
                         if ( citr->type == ( xx * 100 + ( yy + 1 ) ) )
                             counter[yy][xx]++;
                     }
                 }
             }
             
-            vector<uint64_t> v_r(22,0) ;
-            for ( uint64_t yy = 0 ; yy < counter.size() ; yy++ ) {
-                v_r[yy] = counter[yy][0] ;
-                for ( uint64_t xx = 0 ; xx < counter[yy].size(); xx++ ) {
-                   if ( v_r[yy] > counter[yy][xx] ) v_r[yy] = counter[yy][xx] ;
-                }   
-            }
+            return counter ;
+        }
 
-            return v_r ;
+        void collection_checker( uint64_t &r, const vector<uint64_t> &v ) {
+            for ( uint8_t xx = 0 ; xx < v.size(); xx++ )
+                if ( r > v[xx] ) r = v[xx] ;
         }
 
         // onTransfer() ->
@@ -253,7 +251,7 @@ CONTRACT cryptojinian : public eosio::contract {
                 
                 itr = _miningqueue.begin();
                 n++ ;
-                // if ( n > 2 ) return ;
+                if ( n > 2 ) return ;
             }
         }
 
@@ -320,32 +318,82 @@ CONTRACT cryptojinian : public eosio::contract {
         }
 
         [[eosio::action("collclaim")]] void collclaim( const name &account, uint8_t &type ) {
-            // require_auth(account);
-            eosio_assert( type < 23, "Type error");
-
-            collection_t _collection( get_self(), account.value );
-            auto itr = _collection.get_or_create( get_self(), st_collection { .records = vector<uint64_t> (22,0) } );
-            auto v_r( collection_counter( account ) );
+            require_auth(account);
+            eosio_assert( type < 23 + 6 + 1, "Type error");
             type --;
-            // for( const auto& ritr : itr.records ) 
-            if ( v_r[type] > itr.records[type] ) {
-                SEND_INLINE_ACTION( *this, reccollclaim, { _self, "active"_n }, { account, type } );
-                itr.records[type] = v_r[type] ;
-                _collection.set( itr, get_self() ) ;
-            }
             
-        }
+            collection_t _collection( get_self(), account.value );
+            auto itr = _collection.get_or_create( get_self(), st_collection { .records = vector<uint64_t> (22 + 6 + 1,0) } );
+            auto vv_cc = collection_counter( account ) ;
+
+            uint64_t r ;
+            if ( type < 22 ) {
+                r = vv_cc[type][0] ;
+                collection_checker( r, vv_cc[type] );
+
+            } else if ( type == 22 ) { // 0, 2, 10
+                r = vv_cc[0][0];
+                collection_checker( r, vv_cc[0] ); 
+                collection_checker( r, vv_cc[2] );
+                collection_checker( r, vv_cc[10] );
+               
+            } else if ( type == 23 ) { // 1, 14, 7, 11, 12, 6, 15, 18, 21
+                r = vv_cc[1][0] ;
+                collection_checker( r, vv_cc[ 1] ); 
+                collection_checker( r, vv_cc[14] );
+                collection_checker( r, vv_cc[ 7] );
+                collection_checker( r, vv_cc[11] );
+                collection_checker( r, vv_cc[12] );
+                collection_checker( r, vv_cc[ 6] );
+                collection_checker( r, vv_cc[15] );
+                collection_checker( r, vv_cc[18] );
+                collection_checker( r, vv_cc[21] );
+
+            } else if ( type == 24 ) { // 3, 13, 16 
+                r = vv_cc[3][0] ;
+                collection_checker( r, vv_cc[ 3] );
+                collection_checker( r, vv_cc[13] );
+                collection_checker( r, vv_cc[16] );
+            
+            } else if ( type == 25 ) { // 17, 5, 20
+                r = vv_cc[17][0] ;
+                collection_checker( r, vv_cc[17] );
+                collection_checker( r, vv_cc[ 5] );
+                collection_checker( r, vv_cc[20] );
+
+            } else if ( type == 26 ) { // 9, 8
+                r = vv_cc[9][0] ;
+                collection_checker( r, vv_cc[ 9] );
+                collection_checker( r, vv_cc[ 8] );
+
+            } else if ( type == 27 ) { // 19, 4
+                r = vv_cc[19][0] ;
+                collection_checker( r, vv_cc[19] );
+                collection_checker( r, vv_cc[ 4] );
+
+            } else if ( type == 28 ) {
+                r = vv_cc[0][0] ;
+                for ( uint8_t yy = 0 ; yy < vv_cc.size() ; yy++ ) {
+                    collection_checker( r, vv_cc[yy] );
+                }
+            }
+
+            if ( r > itr.records[type] ) {
+                token_mining( account, config::bouns_table(type), string("Bouns from collection claim.") );
+                SEND_INLINE_ACTION( *this, reccollclaim, { _self, "active"_n }, { account, type } );
+                itr.records[type] = r ;
+                _collection.set( itr, get_self() ) ;
+            }        
+        } // collclaim()
 
         ACTION test() {
             require_auth(get_self());
-            //auto v_seed = merge_seed( seed ) ;
-            //token_mining(get_self(), asset( string_to_price("1.0000"), CCC_SYMBOL ), "test mining 1 CCC");
-            //print( findcoinpos( v_seed[0]) );
-            //newcoinbypos( N(cccmining555), findcoinpos( v_seed[0] ) ) ;
+            uint32_t x = 428600 ;
+            findcoinpos( x ) ;
         }
         [[eosio::action("test1")]] void test1( const name &tester ) {
             require_auth(get_self());
-            
+            /*
             uint64_t type = 111, number = 111 ;
             // SEND_INLINE_ACTION( *this, setcoin, { _self, "active"_n }, { tester, type, number} );
            
@@ -358,6 +406,7 @@ CONTRACT cryptojinian : public eosio::contract {
                     //    setcoin(tester, ( xx * 100 + ( yy + 1 ) ), 222) ;
                 }
             //}
+            */
         }
 
 
