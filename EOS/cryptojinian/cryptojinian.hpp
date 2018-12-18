@@ -202,7 +202,7 @@ CONTRACT cryptojinian : public eosio::contract {
             return counter ;
         }
 
-        void collection_checker( uint64_t &r, const vector<uint64_t> &v ) {
+        inline void collection_checker( uint64_t &r, const vector<uint64_t> &v ) {
             for ( uint8_t xx = 0 ; xx < v.size(); xx++ )
                 if ( r > v[xx] ) r = v[xx] ;
         }
