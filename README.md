@@ -8,7 +8,7 @@
 - [x] P1 交易所
 - [ ] P2 排行表
 - [x] P2 組合獎勵
-- [ ] P2 token 回購機制
+- [x] P2 token 回購機制
 - [x] P1 分紅
 - [x] P1 推薦
 - [ ] P1 ibo
@@ -28,6 +28,6 @@
 - [x] mining 打 log (用來記錄次數)
 - [x] mining 挖, 挖矿支出的EOS数量1:10获得数量相对应的TOKEN
 - [x] 交易 - add 交易手續費 3.5% 給賣方，takeorder 的時候收
-- [ ] 推薦 - 有效推薦人的設定
+- [x] 推薦 - 有效推薦人的設定
 - [x] 交易 - 取消訂單的action
-- [ ] mining test
+- [x] mining test

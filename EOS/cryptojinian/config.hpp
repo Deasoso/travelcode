@@ -4,6 +4,7 @@
 #include "utils.hpp"
 
 // typedef uint32_t time;
+namespace config {
 
 const auto EOS_CONTRACT = "eosio.token"_n;
 const auto EOS_SYMBOL = eosio::symbol("EOS", 4);
@@ -18,57 +19,54 @@ const auto DEF_SPONSOR = "rukamoemoe51"_n;
 
 constexpr double_t TRADE_FEE = 0.35 ;
 constexpr double_t TRADE_COEF = 1 - TRADE_FEE ;
-static constexpr uint128_t MAGNITUDE = 1ll<<32; 
-    
-
 
 const asset cost_table( const uint64_t &n ) {
-    if ( n > 408120 ) return asset( string_to_price("1.0000"), EOS_SYMBOL ) ;
-    else if ( n > 386640 ) return asset( string_to_price("1.1000"), EOS_SYMBOL ) ;
-    else if ( n > 365160 ) return asset( string_to_price("1.2100"), EOS_SYMBOL ) ;
-    else if ( n > 343680 ) return asset( string_to_price("1.3310"), EOS_SYMBOL ) ;
-    else if ( n > 322200 ) return asset( string_to_price("1.4640"), EOS_SYMBOL ) ;
-    else if ( n > 300720 ) return asset( string_to_price("1.6110"), EOS_SYMBOL ) ;
-    else if ( n > 279240 ) return asset( string_to_price("1.7720"), EOS_SYMBOL ) ;
-    else if ( n > 257760 ) return asset( string_to_price("1.9490"), EOS_SYMBOL ) ;
-    else if ( n > 236280 ) return asset( string_to_price("2.1440"), EOS_SYMBOL ) ;
-    else if ( n > 214800 ) return asset( string_to_price("2.3580"), EOS_SYMBOL ) ;
-    else if ( n > 193320 ) return asset( string_to_price("2.5940"), EOS_SYMBOL ) ;
-    else if ( n > 171840 ) return asset( string_to_price("2.8530"), EOS_SYMBOL ) ;
-    else if ( n > 150360 ) return asset( string_to_price("3.1380"), EOS_SYMBOL ) ;
-    else if ( n > 128880 ) return asset( string_to_price("3.4520"), EOS_SYMBOL ) ;
-    else if ( n > 107400 ) return asset( string_to_price("3.7970"), EOS_SYMBOL ) ;
-    else if ( n > 85920 ) return asset( string_to_price("4.1770"), EOS_SYMBOL ) ;
-    else if ( n > 64440 ) return asset( string_to_price("4.5950"), EOS_SYMBOL ) ;
-    else if ( n > 42960 ) return asset( string_to_price("5.0540"), EOS_SYMBOL ) ;
-    else if ( n > 21480 ) return asset( string_to_price("5.5600"), EOS_SYMBOL ) ;
-    else return asset( string_to_price("6.1160"), EOS_SYMBOL ) ;
+    if ( n > 408120 ) return asset( string_to_price("1.0000"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 386640 ) return asset( string_to_price("1.1000"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 365160 ) return asset( string_to_price("1.2100"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 343680 ) return asset( string_to_price("1.3310"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 322200 ) return asset( string_to_price("1.4640"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 300720 ) return asset( string_to_price("1.6110"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 279240 ) return asset( string_to_price("1.7720"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 257760 ) return asset( string_to_price("1.9490"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 236280 ) return asset( string_to_price("2.1440"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 214800 ) return asset( string_to_price("2.3580"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 193320 ) return asset( string_to_price("2.5940"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 171840 ) return asset( string_to_price("2.8530"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 150360 ) return asset( string_to_price("3.1380"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 128880 ) return asset( string_to_price("3.4520"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 107400 ) return asset( string_to_price("3.7970"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 85920 ) return asset( string_to_price("4.1770"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 64440 ) return asset( string_to_price("4.5950"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 42960 ) return asset( string_to_price("5.0540"), EOS_SYMBOL ) * 2 ;
+    else if ( n > 21480 ) return asset( string_to_price("5.5600"), EOS_SYMBOL ) * 2 ;
+    else return asset( string_to_price("6.1160"), EOS_SYMBOL ) * 2 ;
 
 }
 
 const vector<vector<uint64_t>> _coinvalues = { // [][+1]
-        {1,1,2,5,10},   //btc
-        {1,1,2,5,10},   //eth
-        {1,1,2,5,10},   //lt
-        {1,1,5,10,50,100},   //ba
-        {1,1,5,10,20,50},   //ri
-        {1,1,2,5,10},   //og
-        {1,1,2,5,10,20},   //ae
-        {1,1,2,5,10},   //as
-        {1,1,2,5,10,20,50,100},   //ud
-        {1,1,2,5,10},   //pt
-        {1,1,2,5,10},   //mo
-        {1,1,2,5,10},   //qt
-        {5,5,10,20,50,100},   //bt
-        {5,5,10,20,50},   //ht
-        {5,5,10,20,50,100},   //eos
-        {10,10,20,50,100},   //io
-        {10,10,20,50,100},   //zb
-        {50,50,100,200,500,1000},   //xlma
-        {100,100,200,500,1000},   //ada
-        {500,500,1000,2000,5000},   //dg
-        {500,500,1000,2000,5000},   //rp
-        {500,500,1000,2000,5000}    //tr
+        {1,1,2,5,10},   //btc 0
+        {1,1,2,5,10},   //eth 1
+        {1,1,2,5,10},   //lt 2
+        {1,1,5,10,50,100},   //ba 3
+        {1,1,5,10,20,50},   //ri 4
+        {1,1,2,5,10},   //og 5
+        {1,1,2,5,10,20},   //ae 6
+        {1,1,2,5,10},   //as 7
+        {1,1,2,5,10,20,50,100},   //ud 8
+        {1,1,2,5,10},   //pt 9
+        {1,1,2,5,10},   //mo 10
+        {1,1,2,5,10},   //qt 11
+        {5,5,10,20,50,100},   //bt 12
+        {5,5,10,20,50},   //ht 13
+        {5,5,10,20,50,100},   //eos 14
+        {10,10,20,50,100},   //io 15
+        {10,10,20,50,100},   //zb 16
+        {50,50,100,200,500,1000},   //xlma 17
+        {100,100,200,500,1000},   //ada 18
+        {500,500,1000,2000,5000},   //dg 19
+        {500,500,1000,2000,5000},   //rp 20
+        {500,500,1000,2000,5000}    //tr 21
 };
 
 #endif
@@ -103,3 +101,106 @@ for ( i = 0 ; i < 20 ; i++ )
 剩余总量为 42,960张时	挖矿成本增加到5.560EOS进行一次挖矿
 剩余总量为 21,480张时	挖矿成本增加到6.116EOS进行一次挖矿
 */
+/*
+集齐整版比特币纪念币可获得 10000 通证奖励，即领即取
+集齐整版以太币纪念币可获得 2200 通证奖励，即领即取
+集齐整版莱特币纪念币可获得 2500 通证奖励，即领即取
+集齐整版币安币纪念币可获得 10000 通证奖励，即领即取
+集齐整版韭菜币纪念币可获得 2000 通证奖励，即领即取
+集齐整版嫩模币纪念币可获得 1500 通证奖励，即领即取
+集齐整版阿姨币纪念币可获得 1000 通证奖励，即领即取
+集齐整版小蚁币纪念币可获得 1800 通证奖励，即领即取
+集齐整版泰达币纪念币可获得 3000  通证奖励，即领即取
+集齐整版石油币纪念币可获得 1800  通证奖励，即领即取
+集齐整版门罗币纪念币可获得 10000 通证奖励，即领即取
+集齐整版量子币纪念币可获得 1800  通证奖励，即领即取
+集齐整版比原币纪念币可获得 1500  通证奖励，即领即取
+集齐整版火币纪念币可获得   1800    通证奖励，即领即取
+集齐整版EOS币纪念币可获得  2800  通证奖励，即领即取
+集齐整版埃欧塔纪念币可获得 1400 通证奖励，即领即取
+集齐整版中币纪念币可获得   1200    通证奖励，即领即取
+集齐整版恒星币纪念币可获得 1000 通证奖励，即领即取
+集齐整版艾达币纪念币可获得 1000 通证奖励，即领即取
+集齐整版狗币纪念币可获得   1000   通证奖励，即领即取
+集齐整版瑞波币纪念币可获得 1000 通证奖励，即领即取
+集齐整版波场币纪念币可获得 1000  通证奖励，即领即取
+
+集齐整版比特币是金、莱特币是银、门罗币是铜大额转账类整版纪念币（包括比特币整版、莱特币整版、门罗币整版）可获得20000 TOKEN奖励，即领即取；
+                                                                0           2         10
+集齐整版智能合约平台类纪念币（包括以太币整版、柚子币整版、小蚁币整版、量子币整版、比原币整版、阿姨币整版、埃欧塔币整版、艾达币整版、波场币整版）可获得14000 TOKEN奖励，即领即取；
+                                 1        14         7           11        12          6         15           18           21     
+集齐整版交易平台类纪念币（包括币安币整版、火币通证整版、中币整版）可获得12000 TOKEN奖励，即领即取；
+                            3          13             16 
+集齐整版支付类纪念币（包括恒星币整版、嫩模币整版、瑞波币整版）可获得4500 TOKEN奖励，即领即取；
+                        17         5             20
+即齐整版实物和法币锚定类纪念币（包括石油币整版、泰达币整版）可获得4000 TOKEN奖励，即领即取；
+                                 9           8
+即齐整版幽默类纪念币（包括狗币整版、韭菜币整版）可获得2500 TOKEN奖励，即领即取；
+                        19       4
+*/
+const asset bouns_table( const uint8_t &type ) {
+    switch( type ) {
+        case 0 :
+            return asset( string_to_price("10000.0000"), TOKEN_SYMBOL ) ;
+        case 1 :
+            return asset( string_to_price("2200.0000"), TOKEN_SYMBOL ) ;
+        case 2 :
+            return asset( string_to_price("2500.0000"), TOKEN_SYMBOL ) ;
+        case 3 :
+            return asset( string_to_price("10000.0000"), TOKEN_SYMBOL ) ;
+        case 4 :
+            return asset( string_to_price("2000.0000"), TOKEN_SYMBOL ) ;
+        case 5 :
+            return asset( string_to_price("1500.0000"), TOKEN_SYMBOL ) ;
+        case 6 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 7 :
+            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
+        case 8 :
+            return asset( string_to_price("3000.0000"), TOKEN_SYMBOL ) ;
+        case 9 :
+            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
+        case 10 :
+            return asset( string_to_price("10000.0000"), TOKEN_SYMBOL ) ;
+        case 11 :
+            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
+        case 12 :
+            return asset( string_to_price("1500.0000"), TOKEN_SYMBOL ) ;
+        case 13 :
+            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
+        case 14 :
+            return asset( string_to_price("2800.0000"), TOKEN_SYMBOL ) ;
+        case 15 :
+            return asset( string_to_price("1400.0000"), TOKEN_SYMBOL ) ;
+        case 16 :
+            return asset( string_to_price("1200.0000"), TOKEN_SYMBOL ) ;
+        case 17 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 18 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 19 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 20 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 21 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 22 :
+            return asset( string_to_price("20000.0000"), TOKEN_SYMBOL ) ;
+        case 23 :
+            return asset( string_to_price("14000.0000"), TOKEN_SYMBOL ) ;
+        case 24 :
+            return asset( string_to_price("12000.0000"), TOKEN_SYMBOL ) ;
+        case 25 :
+            return asset( string_to_price("4500.0000"), TOKEN_SYMBOL ) ;
+        case 26 :
+            return asset( string_to_price("4000.0000"), TOKEN_SYMBOL ) ;
+        case 27 :
+            return asset( string_to_price("2500.0000"), TOKEN_SYMBOL ) ;
+        case 28 :
+            return asset( string_to_price("0.0000"), EOS_SYMBOL ) ;
+        default :
+            return asset( string_to_price("0.0000"), TOKEN_SYMBOL ) ;
+    }
+}
+
+} // namespace config

@@ -80,24 +80,24 @@ uint64_t cryptojinian::findcoinpos(uint32_t &input){
                             }
 
                             if (usedspilt64 == _usedcoins.end()) {
-                                _usedcoins.emplace(get_self(), [&](auto &u) {
-                                    u.key = i2 << 16;
-                                    u.value = s64 + 1;
+                                _usedcoins.emplace(get_self(), [&](auto &u1) {
+                                    u1.key = i2 << 16;
+                                    u1.value = s64 + 1;
                                 });
                             } else {
-                                _usedcoins.modify(usedspilt64, get_self(), [&](auto &u) {
-                                    u.value = s64 + 1;
+                                _usedcoins.modify(usedspilt64, get_self(), [&](auto &u1) {
+                                    u1.value = s64 + 1;
                                 });
                             }
 
                             if (usedspilt6400 == _usedcoins.end()) {
-                                _usedcoins.emplace(get_self(), [&](auto &u) {
-                                    u.key = i1 << 32;
-                                    u.value = s6400 + 1;
+                                _usedcoins.emplace(get_self(), [&](auto &u2) {
+                                    u2.key = i1 << 32;
+                                    u2.value = s6400 + 1;
                                 });
                             } else {
-                                _usedcoins.modify(usedspilt6400, get_self(), [&](auto &u) {
-                                    u.value = s6400 + 1;
+                                _usedcoins.modify(usedspilt6400, get_self(), [&](auto &u2) {
+                                    u2.value = s6400 + 1;
                                 });
                             }
                             return pos;
@@ -159,40 +159,15 @@ void cryptojinian::exchange(const std::string inputstrs){
         if (type == 0) {
             type = onecoin->type;
             coinowner = name(onecoin->owner);
-        } else {
-            eosio_assert(type == onecoin->type, "Not Equal Type");  
-        }
+        } else eosio_assert(type == onecoin->type, "Not Equal Type");  
     }
-    vector<vector<uint64_t>> coinvalues = { // [][+1]
-        {1,1,2,5,10},   //btc
-        {1,1,2,5,10},   //eth
-        {1,1,2,5,10},   //lt
-        {1,1,5,10,50,100},   //ba
-        {1,1,5,10,20,50},   //ri
-        {1,1,2,5,10},   //og
-        {1,1,2,5,10,20},   //ae
-        {1,1,2,5,10},   //as
-        {1,1,2,5,10,20,50,100},   //ud
-        {1,1,2,5,10},   //pt
-        {1,1,2,5,10},   //mo
-        {1,1,2,5,10},   //qt
-        {5,5,10,20,50,100},   //bt
-        {5,5,10,20,50},   //ht
-        {5,5,10,20,50,100},   //eos
-        {10,10,20,50,100},   //io
-        {10,10,20,50,100},   //zb
-        {50,50,100,200,500,1000},   //xlma
-        {100,100,200,500,1000},   //ada
-        {500,500,1000,2000,5000},   //dg
-        {500,500,1000,2000,5000},   //rp
-        {500,500,1000,2000,5000}    //tr
-    };
+
     uint64_t inputtype = type % 100;
     uint64_t inputvalue = type / 100;
-    uint64_t coinvalue = coinvalues[inputtype][inputvalue];
+    uint64_t coinvalue = _coinvalues[inputtype][inputvalue];
     uint64_t newcointype = 0;
-    for(int i1=0;i1<coinvalues[inputtype].size();i1++){
-        if ((coincount * coinvalue == coinvalues[inputtype][i1]) && (i1 > inputvalue)){
+    for(int i1=0 ; i1 < _coinvalues[inputtype].size() ; i1++){
+        if ((coincount * coinvalue == _coinvalues[inputtype][i1]) && (i1 > inputvalue)){
             for(int i2=0;i2<inputs.size();i2++){
                 onecoin = _coins.find(inputs[i2]);
                 _coins.modify(onecoin, get_self(), [&](auto &onecoin) {

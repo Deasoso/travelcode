@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Dec 18 14:07:09 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Dec 19 23:49:07 2018",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -16,6 +16,20 @@
             "name": "accounts",
             "base": "account",
             "fields": []
+        },
+        {
+            "name": "buyback",
+            "base": "",
+            "fields": [
+                {
+                    "name": "buyer",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                }
+            ]
         },
         {
             "name": "cancelorder",
@@ -106,6 +120,20 @@
             "fields": []
         },
         {
+            "name": "joinbuybackq",
+            "base": "",
+            "fields": [
+                {
+                    "name": "buyer",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
             "name": "mining",
             "base": "",
             "fields": [
@@ -138,6 +166,16 @@
                 {
                     "name": "timestamp",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "outbuybackq",
+            "base": "",
+            "fields": [
+                {
+                    "name": "buyer",
+                    "type": "name"
                 }
             ]
         },
@@ -234,6 +272,20 @@
                 {
                     "name": "number",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "st_buybackqueue",
+            "base": "",
+            "fields": [
+                {
+                    "name": "limit",
+                    "type": "asset"
+                },
+                {
+                    "name": "price",
+                    "type": "asset"
                 }
             ]
         },
@@ -416,6 +468,11 @@
     "types": [],
     "actions": [
         {
+            "name": "buyback",
+            "type": "buyback",
+            "ricardian_contract": ""
+        },
+        {
             "name": "cancelorder",
             "type": "cancelorder",
             "ricardian_contract": ""
@@ -441,8 +498,18 @@
             "ricardian_contract": ""
         },
         {
+            "name": "joinbuybackq",
+            "type": "joinbuybackq",
+            "ricardian_contract": ""
+        },
+        {
             "name": "mining",
             "type": "mining",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "outbuybackq",
+            "type": "outbuybackq",
             "ricardian_contract": ""
         },
         {
@@ -500,6 +567,13 @@
         {
             "name": "accounts",
             "type": "accounts",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "buybackqueue",
+            "type": "st_buybackqueue",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

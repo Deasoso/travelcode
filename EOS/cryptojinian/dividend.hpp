@@ -1,211 +1,24 @@
 #pragma once
-<<<<<<< HEAD
-
-#include <eosiolib/asset.hpp>
-#include <eosiolib/eosio.hpp>
-
-#include <string>
-
-namespace eosiosystem {
-   class system_contract;
-}
-
-=======
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 
 #include <string>
 
->>>>>>> b186e1526be65009a0243be138c4bcbeb7cda0c5
 namespace kyubeytool {
 
    using std::string;
 
    class dividend : public contract {
       public:
-<<<<<<< HEAD
-         dividend( account_name self ):contract(self){}
-
-
-         ACTION init();
-
-
-         void transfer( account_name from,
-                        account_name to,
-                        asset        quantity,
-                        string       memo );
-      
-      
-         //inline asset get_supply( symbol_name sym )const;
-         
-         //inline asset get_balance( account_name owner, symbol_name sym )const;
-
-      protected:
-         // @abi table accounts i64  
-         struct [[eosio::table]] account {
-            asset    balance;
-
-            uint64_t primary_key()const { return balance.symbol.name(); }
-         };
-
-          // @abi table stats i64
-         struct [[eosio::table]] currency_stats {
-            asset          supply;
-            asset          max_supply;
-            account_name   issuer;
-
-            uint64_t primary_key()const { return supply.symbol.name(); }
-         };
-
-         typedef eosio::multi_index<N(accounts), account> accounts;
-         typedef eosio::multi_index<N(stat), currency_stats> stats;
-
-         void sub_balance( account_name owner, asset value );
-         void add_balance( account_name owner, asset value, account_name ram_payer );
-
-      public:
-         struct transfer_args {
-            account_name  from;
-            account_name  to;
-            asset         quantity;
-            string        memo;
-         };
-   };
-/*
-   asset dividend::get_supply( symbol_name sym )const
-   {
-      stats statstable( _self, sym );
-      const auto& st = statstable.get( sym );
-      return st.supply;
-   }
-
-   asset dividend::get_balance( account_name owner, symbol_name sym )const
-   {
-      accounts accountstable( _self, owner );
-      const auto& ac = accountstable.get( sym );
-      return ac.balance;
-   }
-*/
-
-void dividend::create( account_name issuer,
-                    asset        maximum_supply )
-{
-    require_auth( _self );
-
-    auto sym = maximum_supply.symbol;
-    eosio_assert( sym.is_valid(), "invalid symbol name" );
-    eosio_assert( maximum_supply.is_valid(), "invalid supply");
-    eosio_assert( maximum_supply.amount > 0, "max-supply must be positive");
-
-    stats statstable( _self, sym.name() );
-    auto existing = statstable.find( sym.name() );
-    eosio_assert( existing == statstable.end(), "token with symbol already exists" );
-
-    statstable.emplace( _self, [&]( auto& s ) {
-       s.supply.symbol = maximum_supply.symbol;
-       s.max_supply    = maximum_supply;
-       s.issuer        = issuer;
-    });
-}
-
-
-void dividend::issue( account_name to, asset quantity, string memo )
-{
-    auto sym = quantity.symbol;
-    eosio_assert( sym.is_valid(), "invalid symbol name" );
-    eosio_assert( memo.size() <= 256, "memo has more than 256 bytes" );
-
-    auto sym_name = sym.name();
-    stats statstable( _self, sym_name );
-    auto existing = statstable.find( sym_name );
-    eosio_assert( existing != statstable.end(), "token with symbol does not exist, create token before issue" );
-    const auto& st = *existing;
-
-    require_auth( st.issuer );
-    eosio_assert( quantity.is_valid(), "invalid quantity" );
-    eosio_assert( quantity.amount > 0, "must issue positive quantity" );
-
-    eosio_assert( quantity.symbol == st.supply.symbol, "symbol precision mismatch" );
-    eosio_assert( quantity.amount <= st.max_supply.amount - st.supply.amount, "quantity exceeds available supply");
-
-    statstable.modify( st, 0, [&]( auto& s ) {
-       s.supply += quantity;
-    });
-
-    add_balance( st.issuer, quantity, st.issuer );
-
-    if( to != st.issuer ) {
-       // SEND_INLINE_ACTION( *this, transfer, {st.issuer,N(active)}, {st.issuer, to, quantity, memo} );
-       transfer(st.issuer, to, quantity, memo);
-    }
-}
-
-void dividend::transfer( account_name from,
-                      account_name to,
-                      asset        quantity,
-                      string       memo )
-{
-    eosio_assert( from != to, "cannot transfer to self" );
-    require_auth( from );
-    eosio_assert( is_account( to ), "to account does not exist");
-    auto sym = quantity.symbol.name();
-    stats statstable( _self, sym );
-    const auto& st = statstable.get( sym );
-
-    require_recipient( from );
-    require_recipient( to );
-
-    eosio_assert( quantity.is_valid(), "invalid quantity" );
-    eosio_assert( quantity.amount > 0, "must transfer positive quantity" );
-    eosio_assert( quantity.symbol == st.supply.symbol, "symbol precision mismatch" );
-    eosio_assert( memo.size() <= 256, "memo has more than 256 bytes" );
-
-
-    sub_balance( from, quantity );
-    add_balance( to, quantity, from );
-}
-
-void dividend::sub_balance( account_name owner, asset value ) {
-   accounts from_acnts( _self, owner );
-
-   const auto& from = from_acnts.get( value.symbol.name(), "no balance object found" );
-   eosio_assert( from.balance.amount >= value.amount, "overdrawn balance" );
-
-
-   if( from.balance.amount == value.amount ) {
-      from_acnts.erase( from );
-   } else {
-      from_acnts.modify( from, owner, [&]( auto& a ) {
-          a.balance -= value;
-      });
-   }
-}
-
-void dividend::add_balance( account_name owner, asset value, account_name ram_payer )
-{
-   accounts to_acnts( _self, owner );
-   auto to = to_acnts.find( value.symbol.name() );
-   if( to == to_acnts.end() ) {
-      to_acnts.emplace( ram_payer, [&]( auto& a ){
-        a.balance = value;
-      });
-   } else {
-      to_acnts.modify( to, 0, [&]( auto& a ) {
-        a.balance += value;
-      });
-   }
-}
-
-} /// namespace eosio
-
-// EOSIO_ABI( eosio::dividend, (create)(issue)(transfer) )
-=======
          dividend( name receiver, name code, datastream<const char*> ds ) :
             contract( receiver, code, ds ),
             _global( receiver, receiver.value ){}
 
+         static constexpr uint128_t MAGNITUDE = 1ll<<32;
+
          void make_profit(uint64_t delta, asset total_staked);
          void claim(name &from, asset quantity);
+         void collection_claim( const name &from );
 
          struct st_d_global {
             uint64_t defer_id = 0 ;
@@ -264,7 +77,7 @@ void dividend::claim(name &from, asset quantity) {
     require_auth(get_self());
     auto g = _global.get();
     int64_t raw_dividend = g.earnings_per_share * quantity.amount / MAGNITUDE;
-    asset delta( raw_dividend, EOS_SYMBOL);
+    asset delta( raw_dividend, config::EOS_SYMBOL);
 
     if ( delta.is_valid() && delta.amount > 0) {
        
@@ -281,5 +94,23 @@ void dividend::claim(name &from, asset quantity) {
    
 }
 
+
+void dividend::collection_claim(const name &from) {
+    require_auth(get_self());
+    auto g = _global.get();
+    int64_t raw_dividend = g.earnings_for_collection ;
+    asset delta( raw_dividend, config::EOS_SYMBOL);
+
+    if ( delta.is_valid() && delta.amount > 0) { 
+      action(permission_level{ _self, "active"_n},
+            "eosio.token"_n, "transfer"_n,
+            make_tuple( _self, from, delta,
+                string("Claim collection bouns."))
+      ).send();
+
+      g.earnings_for_collection = 0 ;
+      _global.set(g, get_self());       
+    }
+}
+
 } // namespace kyubeytool
->>>>>>> b186e1526be65009a0243be138c4bcbeb7cda0c5
