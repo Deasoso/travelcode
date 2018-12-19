@@ -94,6 +94,7 @@ void dividend::claim(name &from, asset quantity) {
    
 }
 
+
 void dividend::collection_claim(const name &from) {
     require_auth(get_self());
     auto g = _global.get();
