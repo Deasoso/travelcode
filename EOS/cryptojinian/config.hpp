@@ -102,6 +102,29 @@ for ( i = 0 ; i < 20 ; i++ )
 剩余总量为 21,480张时	挖矿成本增加到6.116EOS进行一次挖矿
 */
 /*
+集齐整版比特币纪念币可获得 10000 通证奖励，即领即取
+集齐整版以太币纪念币可获得 2200 通证奖励，即领即取
+集齐整版莱特币纪念币可获得 2500 通证奖励，即领即取
+集齐整版币安币纪念币可获得 10000 通证奖励，即领即取
+集齐整版韭菜币纪念币可获得 2000 通证奖励，即领即取
+集齐整版嫩模币纪念币可获得 1500 通证奖励，即领即取
+集齐整版阿姨币纪念币可获得 1000 通证奖励，即领即取
+集齐整版小蚁币纪念币可获得 1800 通证奖励，即领即取
+集齐整版泰达币纪念币可获得 3000  通证奖励，即领即取
+集齐整版石油币纪念币可获得 1800  通证奖励，即领即取
+集齐整版门罗币纪念币可获得 10000 通证奖励，即领即取
+集齐整版量子币纪念币可获得 1800  通证奖励，即领即取
+集齐整版比原币纪念币可获得 1500  通证奖励，即领即取
+集齐整版火币纪念币可获得   1800    通证奖励，即领即取
+集齐整版EOS币纪念币可获得  2800  通证奖励，即领即取
+集齐整版埃欧塔纪念币可获得 1400 通证奖励，即领即取
+集齐整版中币纪念币可获得   1200    通证奖励，即领即取
+集齐整版恒星币纪念币可获得 1000 通证奖励，即领即取
+集齐整版艾达币纪念币可获得 1000 通证奖励，即领即取
+集齐整版狗币纪念币可获得   1000   通证奖励，即领即取
+集齐整版瑞波币纪念币可获得 1000 通证奖励，即领即取
+集齐整版波场币纪念币可获得 1000  通证奖励，即领即取
+
 集齐整版比特币是金、莱特币是银、门罗币是铜大额转账类整版纪念币（包括比特币整版、莱特币整版、门罗币整版）可获得20000 TOKEN奖励，即领即取；
                                                                 0           2         10
 集齐整版智能合约平台类纪念币（包括以太币整版、柚子币整版、小蚁币整版、量子币整版、比原币整版、阿姨币整版、埃欧塔币整版、艾达币整版、波场币整版）可获得14000 TOKEN奖励，即领即取；
@@ -117,6 +140,50 @@ for ( i = 0 ; i < 20 ; i++ )
 */
 const asset bouns_table( const uint8_t &type ) {
     switch( type ) {
+        case 0 :
+            return asset( string_to_price("10000.0000"), TOKEN_SYMBOL ) ;
+        case 1 :
+            return asset( string_to_price("2200.0000"), TOKEN_SYMBOL ) ;
+        case 2 :
+            return asset( string_to_price("2500.0000"), TOKEN_SYMBOL ) ;
+        case 3 :
+            return asset( string_to_price("10000.0000"), TOKEN_SYMBOL ) ;
+        case 4 :
+            return asset( string_to_price("2000.0000"), TOKEN_SYMBOL ) ;
+        case 5 :
+            return asset( string_to_price("1500.0000"), TOKEN_SYMBOL ) ;
+        case 6 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 7 :
+            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
+        case 8 :
+            return asset( string_to_price("3000.0000"), TOKEN_SYMBOL ) ;
+        case 9 :
+            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
+        case 10 :
+            return asset( string_to_price("10000.0000"), TOKEN_SYMBOL ) ;
+        case 11 :
+            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
+        case 12 :
+            return asset( string_to_price("1500.0000"), TOKEN_SYMBOL ) ;
+        case 13 :
+            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
+        case 14 :
+            return asset( string_to_price("2800.0000"), TOKEN_SYMBOL ) ;
+        case 15 :
+            return asset( string_to_price("1400.0000"), TOKEN_SYMBOL ) ;
+        case 16 :
+            return asset( string_to_price("1200.0000"), TOKEN_SYMBOL ) ;
+        case 17 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 18 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 19 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 20 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 21 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
         case 22 :
             return asset( string_to_price("20000.0000"), TOKEN_SYMBOL ) ;
         case 23 :
