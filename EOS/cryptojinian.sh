@@ -9,7 +9,8 @@ cleos -u https://api-kylin.eosasia.one push action ccctest22222 pushorder '["ccc
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 usedcoins
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 miningqueue
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 dividend
-
+cleos get table contract contract accounts
+cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 player -L lower -U upper cccmining555
 cleos -u https://api-kylin.eosasia.one push action ccctest22222 claim '["cccmining555"]' -p ccctest22222@active
 #cleos -u https://kylin.eoscanada.com/ push action ccctest22222 mining '["0196d5b5d9ec1bc78ba927d2db2cb327d836f002601c77bd8c3f144a07ddc737"]' -p ccctest22222@active
 
