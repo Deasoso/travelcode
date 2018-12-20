@@ -435,7 +435,7 @@ CONTRACT cryptojinian : public eosio::contract {
         } // outbuybackq
 
         ACTION buyback( const name &buyer, asset &quantity ) {
-            require_auth(buyer);
+            require_auth(get_self());
             eosio_assert(quantity.is_valid(), "invalid token transfer");
             eosio_assert(quantity.symbol == TOKEN_SYMBOL, "Only CCC token is allowed");
             eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
