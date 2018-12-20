@@ -69,8 +69,6 @@ const vector<vector<uint64_t>> _coinvalues = { // [][+1]
         {500,500,1000,2000,5000}    //tr 21
 };
 
-#endif
-
 /*
 int i = 0 ;
 for ( i = 0 ; i < 20 ; i++ )
@@ -204,3 +202,4 @@ const asset bouns_table( const uint8_t &type ) {
 }
 
 } // namespace config
+#endif
