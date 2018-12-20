@@ -435,7 +435,7 @@ CONTRACT cryptojinian : public eosio::contract {
         } // outbuybackq
 
         ACTION buyback( const name &buyer, asset &quantity ) {
-            require_auth(buyer);
+            require_auth(get_self());
             eosio_assert(quantity.is_valid(), "invalid token transfer");
             eosio_assert(quantity.symbol == TOKEN_SYMBOL, "Only CCC token is allowed");
             eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
@@ -446,6 +446,35 @@ CONTRACT cryptojinian : public eosio::contract {
             eosio_assert( buybackqueue.exists(), "Did not entered buybackqueue before." ); 
             auto bbq_buyer = buybackqueue.get();
             eosio_assert( bbq_buyer.limit >= quantity, "Must have enough token limit.");
+            
+            singleton_buybackqueue_t bbq_self( get_self(), get_self().value);
+            quantity /= bbq_self.get().price.amount ;
+            asset delta( quantity.amount, EOS_SYMBOL ) ;
+            if ( delta.is_valid() && delta.amount > 0) { 
+                action(permission_level{ _self, "active"_n},
+                    "eosio.token"_n, "transfer"_n,
+                    make_tuple( _self, buyer, delta,
+                    string("Claim buyback."))
+                ).send();
+
+                bbq_buyer.limit -= quantity ;
+                buybackqueue.set( bbq_buyer, get_self() );
+            }
+        } // buyback
+
+        ACTION autobuyback(  const name &buyer ) {
+            require_auth(get_self());
+            //eosio_assert(quantity.is_valid(), "invalid token transfer");
+            //eosio_assert(quantity.symbol == TOKEN_SYMBOL, "Only CCC token is allowed");
+            //eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
+            auto buyer_balance = _contract_kyubey.get_balance( buyer, TOKEN_SYMBOL );
+            
+            singleton_buybackqueue_t buybackqueue( get_self(), buyer.value);
+            eosio_assert( buybackqueue.exists(), "Did not entered buybackqueue before." ); 
+            auto bbq_buyer = buybackqueue.get();
+            // eosio_assert( bbq_buyer.limit >= quantity, "Must have enough token limit.");
+            auto quantity = bbq_buyer.limit;
+            eosio_assert(buyer_balance > quantity, "Must have enough token.");
             
             singleton_buybackqueue_t bbq_self( get_self(), get_self().value);
             quantity /= bbq_self.get().price.amount ;
@@ -543,6 +572,7 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (joinbuybackq)
                   (outbuybackq)
                   (buyback)
+                  (autobuyback)
                   (test)
                   (test1)
                   (receipt)

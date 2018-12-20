@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Dec 19 23:49:07 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Dec 20 16:12:42 2018",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -16,6 +16,16 @@
             "name": "accounts",
             "base": "account",
             "fields": []
+        },
+        {
+            "name": "autobuyback",
+            "base": "",
+            "fields": [
+                {
+                    "name": "buyer",
+                    "type": "name"
+                }
+            ]
         },
         {
             "name": "buyback",
@@ -467,6 +477,11 @@
     ],
     "types": [],
     "actions": [
+        {
+            "name": "autobuyback",
+            "type": "autobuyback",
+            "ricardian_contract": ""
+        },
         {
             "name": "buyback",
             "type": "buyback",
