@@ -236,7 +236,9 @@ CONTRACT cryptojinian : public eosio::contract {
                 itr = _usedcoins.begin();
             }
         }
-        ACTION transfer(name from, name to, asset quantity, string memo);
+        ACTION transfer(name from, name to, asset quantity, string memo) {
+            _contract_kyubey.transfer(from, to, quantity, memo);
+        }
         ACTION setcoin(const name &owner, const uint64_t &type, const uint64_t &number);
 
         ACTION mining( const capi_checksum256 &seed ) {
@@ -550,7 +552,7 @@ void cryptojinian::init() {
 
 void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
     auto &thiscontract = *this;
-    if (action == ( "transfer"_n ).value && code == ( "eosio.token"_n ).value ) {
+    if ( code == ( "eosio.token"_n ).value && action == ( "transfer"_n ).value ) {
         auto transfer_data = unpack_action_data<st_transfer>();
         onTransfer(transfer_data.from, transfer_data.to, transfer_data.quantity, transfer_data.memo);
         return;
@@ -561,6 +563,7 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
         EOSIO_DISPATCH_HELPER(cryptojinian,
                   (init)
                   (clear)
+                  (transfer)
                   (setcoin)
                   (mining)
                   (pushorder)
