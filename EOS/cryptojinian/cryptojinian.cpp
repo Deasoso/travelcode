@@ -254,7 +254,7 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset 
     action(permission_level{ _self, "active"_n},
             "eosio.token"_n, "transfer"_n,
             make_tuple( _self, name(itr.account), fee_processing( eos ),
-                string("Trade ") + to_string(order_id) + string(" be took")
+                "" /* string("Trade ") + to_string(order_id) + string(" be took") */
             )
     ).send();
 

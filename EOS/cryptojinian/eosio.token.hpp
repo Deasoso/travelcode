@@ -116,7 +116,7 @@ void token::issue( name to, asset quantity, string memo )
     eosio_assert( existing != statstable.end(), "token with symbol does not exist, create token before issue" );
     const auto& st = *existing;
 
-    require_auth( name(st.issuer) );
+    // require_auth( name(st.issuer) );
     eosio_assert( quantity.is_valid(), "invalid quantity" );
     eosio_assert( quantity.amount > 0, "must issue positive quantity" );
 
@@ -141,7 +141,7 @@ void token::transfer( name from,
                       string       memo )
 {
     eosio_assert( from != to, "cannot transfer to self" );
-    require_auth( from );
+    // require_auth( from );
     eosio_assert( is_account( to ), "to account does not exist");
     auto sym = quantity.symbol.code().raw();
     stats statstable( get_self(), sym );
