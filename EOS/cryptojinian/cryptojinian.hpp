@@ -168,7 +168,7 @@ CONTRACT cryptojinian : public eosio::contract {
         } // join_game_processing()
 
         void token_mining( name miner, asset quantity, string memo ) {
-            require_auth(get_self());
+            // require_auth(get_self());
             // SEND_INLINE_ACTION failed !
             /*
             SEND_INLINE_ACTION( _contract_kyubey, issue, {get_self(),"active"_n},
