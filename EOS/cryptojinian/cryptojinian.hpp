@@ -180,7 +180,7 @@ CONTRACT cryptojinian : public eosio::contract {
 
         inline const asset fee_processing( asset &quantity ) {
             auto delta = quantity.amount * TRADE_COEF ;
-            if ( delta > 0 )
+            if ( delta >= 1 )
                 quantity.set_amount( delta ) ;
             return quantity;
         }

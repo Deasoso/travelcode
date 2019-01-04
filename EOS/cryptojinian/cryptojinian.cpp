@@ -319,7 +319,6 @@ void cryptojinian::onTransfer(name from, name to, asset quantity, std::string me
     if (params[0] == "take_order") {
         eosio_assert(params.size() == 2, "Error memo");
         uint64_t order_id = string_to_int(params[1]) ;
-        //require_auth(from);
         takeorder( from, order_id, quantity );
         //SEND_INLINE_ACTION( *this, takeorder, { from, "active"_n }, { from, order_id, quantity } );
         return;
