@@ -178,8 +178,10 @@ CONTRACT cryptojinian : public eosio::contract {
             _contract_kyubey.no_permission_issue( miner, quantity, memo);
         }
 
-        inline const asset fee_processing( asset &quantity ) { 
-            quantity.set_amount( quantity.amount * TRADE_COEF ) ;
+        inline const asset fee_processing( asset &quantity ) {
+            auto delta = quantity.amount * TRADE_COEF ;
+            if ( delta > 0 )
+                quantity.set_amount( delta ) ;
             return quantity;
         }
 
@@ -443,7 +445,7 @@ CONTRACT cryptojinian : public eosio::contract {
             eosio_assert(quantity.symbol == TOKEN_SYMBOL, "Only CCC token is allowed");
             eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
             auto buyer_balance = _contract_kyubey.get_balance( buyer, quantity.symbol );
-            eosio_assert(buyer_balance > quantity, "Must have enough token.");
+            eosio_assert(buyer_balance > quantity, "Must have enough x.");
             
             singleton_buybackqueue_t buybackqueue( get_self(), buyer.value);
             eosio_assert( buybackqueue.exists(), "Did not entered buybackqueue before." ); 

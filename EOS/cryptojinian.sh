@@ -30,6 +30,14 @@ cleos -u https://api-kylin.eosasia.one set account permission ccctest22222 activ
 
 #cleos -u https://api-kylin.eosasia.one push action eosio.token transfer '[ "ccctest22222", "ccctest22222", "1.0000 EOS" "mining"]' -p ccctest22222@active
 
+#
+#
+#
+
+cleos -u http://api-direct.eosasia.one get table chainbankeos chainbankeos order
+
+
+cleos -u http://api-direct.eosasia.one push action eosio.token transfer '["rukamoemoe51", "chainbankeos", "0.0001 EOS", "take_order 3000001"]' -p rukamoemoe51@active
 
 
 #cleos -u http://api-direct.eosasia.one get table eosio minakokojima delband
