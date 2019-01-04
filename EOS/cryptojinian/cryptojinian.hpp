@@ -520,7 +520,7 @@ CONTRACT cryptojinian : public eosio::contract {
 
         // rec
         ACTION receipt(const st_rec_takeOrder& take_order_record) {
-            require_auth(get_self());
+            //require_auth(get_self());
         }
         ACTION recmining( const name &miner ) {
             require_auth(get_self());
