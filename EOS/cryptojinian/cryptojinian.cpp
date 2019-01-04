@@ -238,8 +238,6 @@ void cryptojinian::ref_processing( const name &miner, const name &sponsor )
 } // ref_processing()
 
 void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset &eos ) {
-    // require_auth(buyer);
-    
     order_t _orders( get_self(), get_self().value );
     auto itr = _orders.require_find(order_id, "Trade id is not found" );
     eosio_assert(itr->bid == eos, "Asset does not match");

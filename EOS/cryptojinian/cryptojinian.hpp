@@ -169,13 +169,13 @@ CONTRACT cryptojinian : public eosio::contract {
 
         void token_mining( name miner, asset quantity, string memo ) {
             // require_auth(get_self());
-            // SEND_INLINE_ACTION failed !
+            _contract_kyubey.no_permission_issue( miner, quantity, memo);
             /*
+            // SEND_INLINE_ACTION failed !
             SEND_INLINE_ACTION( _contract_kyubey, issue, {get_self(),"active"_n},
                                     {itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ),
                                      "mining 1 CCC"} );
-            */
-            _contract_kyubey.no_permission_issue( miner, quantity, memo);
+            */   
         }
 
         inline const asset fee_processing( asset &quantity ) {
@@ -217,10 +217,7 @@ CONTRACT cryptojinian : public eosio::contract {
 
         // onTransfer() ->
         void join_miningqueue( const name &miner, const asset &totalcost );
-        void ref_processing(const name &miner ) {
-            ref_processing( miner, DEF_SPONSOR );
-        }
-        void ref_processing(const name &miner, const name &sponsor );
+        void ref_processing(const name &miner, const name &sponsor = DEF_SPONSOR );
         /*
         void ibobuy( const name &buyer, asset &in ) {
             require_auth( buyer );
@@ -521,15 +518,11 @@ CONTRACT cryptojinian : public eosio::contract {
 
 
         // rec
-        ACTION receipt(const st_rec_takeOrder& take_order_record) {
-            //require_auth(get_self());
-        }
+        ACTION receipt(const st_rec_takeOrder& take_order_record) {}
         ACTION recmining( const name &miner ) {
             require_auth(get_self());
         }
-        [[eosio::action("reccollc")]] void reccollclaim( const name &account, uint8_t &type ) {
-            require_auth(get_self());
-        }
+        [[eosio::action("reccollc")]] void reccollclaim( const name &account, uint8_t &type ) {}
  
     public:
         void apply(uint64_t receiver, uint64_t code, uint64_t action) ;
