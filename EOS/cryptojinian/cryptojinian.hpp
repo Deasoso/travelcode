@@ -168,13 +168,14 @@ CONTRACT cryptojinian : public eosio::contract {
         } // join_game_processing()
 
         void token_mining( name miner, asset quantity, string memo ) {
+            // require_auth(get_self());
             // SEND_INLINE_ACTION failed !
             /*
             SEND_INLINE_ACTION( _contract_kyubey, issue, {get_self(),"active"_n},
                                     {itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ),
                                      "mining 1 CCC"} );
             */
-            _contract_kyubey.issue( miner, quantity, memo);
+            _contract_kyubey.no_permission_issue( miner, quantity, memo);
         }
 
         inline const asset fee_processing( asset &quantity ) { 
