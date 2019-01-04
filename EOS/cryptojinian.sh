@@ -2,13 +2,15 @@ cleos wallet unlock -n www --password PW5JDQJvz73w73eNEtthCRhLn9gieFki5uiZu1JZdj
 
 cleos -u https://api-kylin.eosasia.one set contract ccctest22222 cryptojinian -p ccctest22222@active
 https://kylin.eoscanada.com/
-cleos -u https://api-kylin.eosasia.one push action ccctest22222 pushorder '["cccmining555","1.0000 EOS","1 2" ]' -p cccmining555@active
+cleos -u https://api-kylin.eosasia.one push action ccctest22222 pushorder '["cccmining555","1.0000 EOS","1 1 3" ]' -p cccmining555@active
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 accounts
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 cccmining555 accounts
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 player
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 usedcoins
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 miningqueue
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 dividend
+#cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 order
+
 cleos get table contract contract accounts
 cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 player -L lower -U upper cccmining555
 cleos -u https://api-kylin.eosasia.one push action ccctest22222 claim '["cccmining555"]' -p ccctest22222@active

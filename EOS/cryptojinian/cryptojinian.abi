@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Jan  2 15:10:59 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Jan  4 16:43:50 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -406,24 +406,6 @@
             ]
         },
         {
-            "name": "takeorder",
-            "base": "",
-            "fields": [
-                {
-                    "name": "buyer",
-                    "type": "name"
-                },
-                {
-                    "name": "order_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "eos",
-                    "type": "asset"
-                }
-            ]
-        },
-        {
             "name": "test",
             "base": "",
             "fields": []
@@ -555,11 +537,6 @@
         {
             "name": "syscxlorder",
             "type": "syscxlorder",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "takeorder",
-            "type": "takeorder",
             "ricardian_contract": ""
         },
         {

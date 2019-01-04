@@ -238,35 +238,37 @@ void cryptojinian::ref_processing( const name &miner, const name &sponsor )
 } // ref_processing()
 
 void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset &eos ) {
-    require_auth(buyer);
+    // require_auth(buyer);
     
     order_t _orders( get_self(), get_self().value );
-    auto &itr = _orders.get(order_id, "Trade id is not found" );
-    eosio_assert(itr.bid == eos, "Asset does not match");
+    auto itr = _orders.require_find(order_id, "Trade id is not found" );
+    eosio_assert(itr->bid == eos, "Asset does not match");
 
     // 一個轉移 coin 的 move
-    for (auto &cid : itr.the_coins_for_sell) {
+    for (auto &cid : itr->the_coins_for_sell) {
         _coins.modify(_coins.find(cid), get_self(), [&](auto &c) {
             c.owner = buyer.value;
         });
     }
-
+    
+    /* string("Trade ") + to_string(order_id) + string(" be took") */
     action(permission_level{ _self, "active"_n},
             "eosio.token"_n, "transfer"_n,
-            make_tuple( _self, name(itr.account), fee_processing( eos ),
-                "" /* string("Trade ") + to_string(order_id) + string(" be took") */
+            make_tuple( get_self(), name(itr->account), fee_processing( eos ), std::string("")
             )
     ).send();
 
     // 打 log
     const st_rec_takeOrder _tor{
-        .matched_order = itr,
+        .matched_order = *itr,
         .buyer = buyer,
     };
+    // eosio_assert(false, "x");
 
     action(permission_level{_self, "active"_n},
-           _self, "receipt"_n, _tor )
+           get_self(), "receipt"_n, _tor )
         .send();
+    // eosio_assert(false, "x");
 
     _orders.erase(itr); // 刪了
 
@@ -319,8 +321,9 @@ void cryptojinian::onTransfer(name from, name to, asset quantity, std::string me
     if (params[0] == "take_order") {
         eosio_assert(params.size() == 2, "Error memo");
         uint64_t order_id = string_to_int(params[1]) ;
-        require_auth(from);
-        SEND_INLINE_ACTION( *this, takeorder, { from, "active"_n }, { from, order_id, quantity } );
+        //require_auth(from);
+        takeorder( from, order_id, quantity );
+        //SEND_INLINE_ACTION( *this, takeorder, { from, "active"_n }, { from, order_id, quantity } );
         return;
     }
 }

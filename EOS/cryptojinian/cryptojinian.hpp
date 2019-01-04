@@ -318,7 +318,7 @@ CONTRACT cryptojinian : public eosio::contract {
             _orders.erase(itr);
         } // syscxlorder()
 
-        ACTION takeorder( const name &buyer, const uint64_t &order_id, asset &eos );
+        void takeorder( const name &buyer, const uint64_t &order_id, asset &eos );
 
         ACTION claim( name &from ) {
             require_auth(get_self());
@@ -569,7 +569,7 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (pushorder)
                   (cancelorder)
                   (syscxlorder)
-                  (takeorder)
+                  /*(takeorder)*/
                   (claim)
                   (collclaim)
                   (joinbuybackq)
