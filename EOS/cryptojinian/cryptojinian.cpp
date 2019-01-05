@@ -173,12 +173,25 @@ void cryptojinian::exchange(const std::string inputstrs){
                 _coins.modify(onecoin, get_self(), [&](auto &onecoin) {
                     onecoin.owner = get_self().value;
                 });
+                auto itr_player = _players.find(coinowner.value);
+                for(int i3=0;i3<itr_player->coins.size();i3++){
+                    if(itr_player->coins[i3] == inputs[i2]){
+                        _players.modify(itr, get_self(), [&](auto &p) {
+                            p.coins.erase(i3);
+                        });
+                    }
+                }
             }
             newcointype = (i1 * 100) + inputtype;
             uint64_t globalcoincount = addcoincount(newcointype);
             setcoin(coinowner,newcointype,globalcoincount);
         }
     }
+}
+
+void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goaltype){
+    onecoin = _coins.find(inputid);
+        require_auth(name(onecoin->owner));
 }
 
 void cryptojinian::join_miningqueue(const name &miner, const asset &totalcost)
@@ -238,6 +251,8 @@ void cryptojinian::ref_processing( const name &miner, const name &sponsor )
 } // ref_processing()
 
 void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset &eos ) {
+    // require_auth(buyer);
+    
     order_t _orders( get_self(), get_self().value );
     auto itr = _orders.require_find(order_id, "Trade id is not found" );
     eosio_assert(itr->bid == eos, "Asset does not match");
@@ -250,12 +265,13 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset 
     }
     
     /* string("Trade ") + to_string(order_id) + string(" be took") */
-    action(permission_level{ _self, "active"_n},
+    if (fee_processing( eos ).amount > 0){
+        action(permission_level{ _self, "active"_n},
             "eosio.token"_n, "transfer"_n,
             make_tuple( get_self(), name(itr->account), fee_processing( eos ), std::string("")
-            )
-    ).send();
-
+        )
+        ).send();
+    }
     // 打 log
     const st_rec_takeOrder _tor{
         .matched_order = *itr,
@@ -319,6 +335,7 @@ void cryptojinian::onTransfer(name from, name to, asset quantity, std::string me
     if (params[0] == "take_order") {
         eosio_assert(params.size() == 2, "Error memo");
         uint64_t order_id = string_to_int(params[1]) ;
+        //require_auth(from);
         takeorder( from, order_id, quantity );
         //SEND_INLINE_ACTION( *this, takeorder, { from, "active"_n }, { from, order_id, quantity } );
         return;
