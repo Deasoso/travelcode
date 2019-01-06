@@ -1,7 +1,7 @@
 #include "cryptojinian.hpp"
 
 void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
-    require_auth(get_self());
+    // require_auth(get_self());
     //two-way binding.
     auto itr = _players.require_find( owner.value, "Unable to find player" );
     auto itr_newcoin = _coins.emplace(get_self(), [&](auto &c) {
@@ -13,6 +13,37 @@ void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64
 
     _players.modify(itr, get_self(), [&](auto &p) {
         p.coins.push_back(itr_newcoin->id);
+    });
+}
+
+void cryptojinian::deletecoin(const uint64_t &id) {
+    auto onecoin = _coins.find(id);
+    _coins.modify(onecoin, get_self(), [&](auto &onecoin) {
+        onecoin.owner = get_self().value;
+    });
+    auto itr_player = _players.find(onecoin->owner);
+    for(int i3=0;i3<itr_player->coins.size();i3++){
+        if(itr_player->coins[i3] == id){
+            _players.modify(itr_player, get_self(), [&](auto &p) {
+                p.coins.erase(p.coins.begin()+i3);
+            });
+            break;
+        }
+    }
+}
+
+void cryptojinian::exchangecoin(const name &owner, const uint64_t &id) {
+    // require_auth(get_self());
+    //two-way binding.
+    auto onecoin = _coins.find(id);
+    auto itr = _players.require_find( owner.value, "Unable to find player" );
+
+    _coins.modify(onecoin, get_self(), [&](auto &onecoin) {
+        onecoin.owner = owner.value;
+    });
+
+    _players.modify(itr, owner, [&](auto &p) {
+        p.coins.push_back(id);
     });
 }
 
@@ -169,18 +200,7 @@ void cryptojinian::exchange(const std::string inputstrs){
     for(int i1=0 ; i1 < _coinvalues[inputtype].size() ; i1++){
         if ((coincount * coinvalue == _coinvalues[inputtype][i1]) && (i1 > inputvalue)){
             for(int i2=0;i2<inputs.size();i2++){
-                onecoin = _coins.find(inputs[i2]);
-                _coins.modify(onecoin, get_self(), [&](auto &onecoin) {
-                    onecoin.owner = get_self().value;
-                });
-                auto itr_player = _players.find(coinowner.value);
-                for(int i3=0;i3<itr_player->coins.size();i3++){
-                    if(itr_player->coins[i3] == inputs[i2]){
-                        _players.modify(itr, get_self(), [&](auto &p) {
-                            p.coins.erase(i3);
-                        });
-                    }
-                }
+                deletecoin(inputs[i2]);
             }
             newcointype = (i1 * 100) + inputtype;
             uint64_t globalcoincount = addcoincount(newcointype);
@@ -189,9 +209,32 @@ void cryptojinian::exchange(const std::string inputstrs){
     }
 }
 
-void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goaltype){
+void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goal){
+    auto onecoin = _coins.begin();
     onecoin = _coins.find(inputid);
-        require_auth(name(onecoin->owner));
+    require_auth(name(onecoin->owner));
+    uint64_t goaltype = goal % 100;
+    uint64_t goalvalue = goal / 100;
+    uint64_t inputtype = onecoin->type%100;
+    uint64_t inputvalue = onecoin->type/100;
+    eosio_assert(inputtype == goaltype, "Not Equal Type");  
+    eosio_assert(goalvalue > inputvalue, "Goal Is Gearter Than Input");
+    uint64_t amount = _coinvalues[inputtype][inputvalue]/_coinvalues[goaltype][goalvalue];
+    for(int i1 = 0; i1 < amount; i1++){
+        if(goalvalue == 1){
+            for(int i2 = 0; i2 < _coins.available_primary_key(); i2++){
+                onecoin = _coins.find(i2);
+                if(onecoin == _coins.end()) continue;
+                if(onecoin->owner != get_self().value) continue;
+                if(onecoin->type != goal) continue;
+                exchangecoin(name(onecoin->owner),i2);
+                break;
+            }
+        }else{
+            uint64_t globalcoincount = addcoincount(goaltype);
+            setcoin(name(onecoin->owner),goaltype,globalcoincount);
+        }
+    }
 }
 
 void cryptojinian::join_miningqueue(const name &miner, const asset &totalcost)
