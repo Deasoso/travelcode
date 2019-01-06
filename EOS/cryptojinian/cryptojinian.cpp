@@ -218,7 +218,7 @@ void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goal){
     uint64_t inputtype = onecoin->type%100;
     uint64_t inputvalue = onecoin->type/100;
     eosio_assert(inputtype == goaltype, "Not Equal Type");  
-    eosio_assert(goalvalue > inputvalue, "Goal Is Gearter Than Input");
+    eosio_assert(goalvalue < inputvalue, "Goal Is Gearter Than Input");
     uint64_t amount = _coinvalues[inputtype][inputvalue]/_coinvalues[goaltype][goalvalue];
     for(int i1 = 0; i1 < amount; i1++){
         if(goalvalue == 1){
