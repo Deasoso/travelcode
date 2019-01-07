@@ -24,7 +24,7 @@ namespace eosio {
          void create( name issuer,
                       asset        maximum_supply);
 
-         ACTION issue( name to, asset quantity, string memo );
+         void issue( name to, asset quantity, string memo );
 
          void no_permission_issue( name to, asset quantity, string memo );
 

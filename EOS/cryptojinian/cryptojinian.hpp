@@ -523,6 +523,11 @@ CONTRACT cryptojinian : public eosio::contract {
 
         // rec
         ACTION receipt(const st_rec_takeOrder& take_order_record) {}
+
+        ACTION issue( name to, asset quantity, string memo ){
+            _contract_kyubey.issue(to, quantity, memo);
+        }
+        
         ACTION recmining( const name &miner ) {
             require_auth(get_self());
         }
