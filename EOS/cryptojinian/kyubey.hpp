@@ -14,7 +14,7 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 #include <eosiolib/transaction.hpp>
-
+#include <cmath>
 typedef double real_type;
 
 using namespace eosio ;

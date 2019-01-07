@@ -6,7 +6,6 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 #include <eosiolib/singleton.hpp>
-#include <cmath>
 #include <algorithm>
 
 #include "config.hpp"
