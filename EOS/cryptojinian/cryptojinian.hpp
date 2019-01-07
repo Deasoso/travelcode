@@ -152,7 +152,8 @@ CONTRACT cryptojinian : public eosio::contract {
         uint64_t addcoincount( uint64_t type );
         uint64_t findcoinpos( uint32_t &input );
         void newcoinbypos(const name owner, const uint64_t pos);
-        void exchange(const std::string inputs);
+        ACTION exchange(const std::string inputs);
+        ACTION exchangedown(const uint64_t inputid, const uint64_t goal);
         void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
         
         auto join_game_processing( const name &account ) {
@@ -240,6 +241,8 @@ CONTRACT cryptojinian : public eosio::contract {
             _contract_kyubey.transfer(from, to, quantity, memo);
         }
         ACTION setcoin(const name &owner, const uint64_t &type, const uint64_t &number);
+        void deletecoin(const uint64_t &id);
+        void exchangecoin(const name &owner, const uint64_t &id);
 
         ACTION mining( const capi_checksum256 &seed ) {
             require_auth(get_self());
@@ -565,6 +568,8 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (pushorder)
                   (cancelorder)
                   (syscxlorder)
+                  (exchange)
+                  (exchangedown)
                   /*(takeorder)*/
                   (claim)
                   (collclaim)
