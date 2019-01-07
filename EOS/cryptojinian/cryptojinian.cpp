@@ -315,6 +315,9 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset 
         )
         ).send();
     }
+
+    token_mining( buyer, asset( eos.amount, CCC_SYMBOL ), "CCC bouns" );
+
     // 打 log
     const st_rec_takeOrder _tor{
         .matched_order = *itr,
