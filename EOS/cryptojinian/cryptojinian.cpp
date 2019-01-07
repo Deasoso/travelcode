@@ -235,46 +235,53 @@ inline const asset cryptojinian::fee_processing(asset &quantity) {
     return quantity;
 }
 
+// check trade id & paid EOS
+// transfer coin 所有权
+// issue CCC bouns to buyer
+// transfer EOS to seller
+// make log
+// del order
 void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset &eos ) {
-    // require_auth(buyer);
-    
     order_t _orders( get_self(), get_self().value );
+
+    // check trade id & paid EOS
     auto itr = _orders.require_find(order_id, "Trade id is not found" );
     eosio_assert(itr->bid == eos, "Asset does not match");
+    
+    const auto seller = name(itr->account);
 
-    // 一個轉移 coin 的 move
+    // transfer coin 所有权
     for (auto &cid : itr->the_coins_for_sell) {
         _coins.modify(_coins.find(cid), get_self(), [&](auto &c) {
             c.owner = buyer.value;
         });
     }
     
-    /* string("Trade ") + to_string(order_id) + string(" be took") */
-    auto delta = fee_processing( eos ) ;
-    if ( delta.amount > 0){
-        action(permission_level{ _self, "active"_n},
-            "eosio.token"_n, "transfer"_n,
-            make_tuple( get_self(), name(itr->account), delta, std::string("")
-        )
-        ).send();
-    }
-
+    // issue CCC bouns to buyer
     token_mining( buyer, asset( eos.amount, CCC_SYMBOL ), "CCC bouns" );
 
-    // 打 log
+    // transfer EOS to seller
+    auto delta = fee_processing( eos ) ;
+    if ( delta.amount > 0){
+        action(permission_level{_self, "active"_n},
+               "eosio.token"_n, "transfer"_n,
+               make_tuple(get_self(), seller, delta, std::string("")))
+            .send();
+        /* string("Trade ") + to_string(order_id) + string(" be took") */
+    }
+
+    // make log
     const st_rec_takeOrder _tor{
         .matched_order = *itr,
         .buyer = buyer,
     };
-    // eosio_assert(false, "x");
 
     action(permission_level{_self, "active"_n},
-           get_self(), "receipt"_n, _tor )
+           get_self(), "receipt"_n, _tor)
         .send();
-    // eosio_assert(false, "x");
 
-    _orders.erase(itr); // 刪了
-
+    // del order
+    _orders.erase(itr);
 } // take_order()
 
 void cryptojinian::SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c)
