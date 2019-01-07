@@ -1,5 +1,21 @@
 #include "cryptojinian.hpp"
 
+void cryptojinian::ownersetcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
+    require_auth(get_self());
+    //two-way binding.
+    auto itr = _players.require_find( owner.value, "Unable to find player" );
+    auto itr_newcoin = _coins.emplace(get_self(), [&](auto &c) {
+        c.id = _coins.available_primary_key();
+        c.owner = owner.value;
+        c.type = type;
+        c.number = number;
+    });
+
+    _players.modify(itr, get_self(), [&](auto &p) {
+        p.coins.push_back(itr_newcoin->id);
+    });
+}
+
 void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
     // require_auth(get_self());
     //two-way binding.
@@ -150,7 +166,8 @@ uint64_t cryptojinian::findcoinpos(uint32_t &input){
             posspilt64 += 100;
         }
     }
-    eosio_assert(false, "Not Found Coin Pos");  
+    return 0;
+    // eosio_assert(false, "Not Found Coin Pos");  
 }
 
 void cryptojinian::newcoinbypos(const name owner, const uint64_t pos){
@@ -195,10 +212,10 @@ void cryptojinian::exchange(const std::string inputstrs){
 
     uint64_t inputtype = type % 100;
     uint64_t inputvalue = type / 100;
-    uint64_t coinvalue = _coinvalues[inputtype][inputvalue];
+    uint64_t coinvalue = _coinvalues[inputtype-1][inputvalue];
     uint64_t newcointype = 0;
-    for(int i1=0 ; i1 < _coinvalues[inputtype].size() ; i1++){
-        if ((coincount * coinvalue == _coinvalues[inputtype][i1]) && (i1 > inputvalue)){
+    for(int i1=0 ; i1 < _coinvalues[inputtype-1].size() ; i1++){
+        if ((coincount * coinvalue == _coinvalues[inputtype-1][i1]) && (i1 > inputvalue)){
             for(int i2=0;i2<inputs.size();i2++){
                 deletecoin(inputs[i2]);
             }
@@ -219,7 +236,8 @@ void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goal){
     uint64_t inputvalue = onecoin->type/100;
     eosio_assert(inputtype == goaltype, "Not Equal Type");  
     eosio_assert(goalvalue < inputvalue, "Goal Is Gearter Than Input");
-    uint64_t amount = _coinvalues[inputtype][inputvalue]/_coinvalues[goaltype][goalvalue];
+    uint64_t amount = _coinvalues[inputtype-1][inputvalue]/_coinvalues[goaltype-1][goalvalue];
+    eosio_assert(_coinvalues[inputtype-1][inputvalue]%_coinvalues[goaltype-1][goalvalue] == 0, "Cant't exactly divided.");
     for(int i1 = 0; i1 < amount; i1++){
         if(goalvalue == 1){
             for(int i2 = 0; i2 < _coins.available_primary_key(); i2++){
@@ -235,6 +253,7 @@ void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goal){
             setcoin(name(onecoin->owner),goaltype,globalcoincount);
         }
     }
+    deletecoin(inputid);
 }
 
 void cryptojinian::join_miningqueue(const name &miner, const asset &totalcost)
