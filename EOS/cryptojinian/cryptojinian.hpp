@@ -179,12 +179,7 @@ CONTRACT cryptojinian : public eosio::contract {
             */   
         }
 
-        inline const asset fee_processing( asset &quantity ) {
-            auto delta = quantity.amount * TRADE_COEF ;
-            if ( delta >= 1 )
-                quantity.set_amount( delta ) ;
-            return quantity;
-        }
+        inline const asset fee_processing( asset &quantity ) ;
 
         auto collection_counter( const name &account ) {
             auto &itr_players = _players.get( account.value, "Player not found." ) ;

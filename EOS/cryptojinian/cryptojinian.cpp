@@ -293,6 +293,15 @@ void cryptojinian::ref_processing( const name &miner, const name &sponsor )
     } // else if
 } // ref_processing()
 
+inline const asset cryptojinian::fee_processing(asset &quantity) {
+    auto delta = quantity.amount * TRADE_COEF;
+    if (delta >= 1) {
+        quantity.set_amount(delta);
+        _contract_dividend.make_profit( quantity.amount - delta, _contract_kyubey.get_supply(TOKEN_SYMBOL));
+    }
+    return quantity;
+}
+
 void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset &eos ) {
     // require_auth(buyer);
     
@@ -308,10 +317,11 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset 
     }
     
     /* string("Trade ") + to_string(order_id) + string(" be took") */
-    if (fee_processing( eos ).amount > 0){
+    auto delta = fee_processing( eos ) ;
+    if ( delta.amount > 0){
         action(permission_level{ _self, "active"_n},
             "eosio.token"_n, "transfer"_n,
-            make_tuple( get_self(), name(itr->account), fee_processing( eos ), std::string("")
+            make_tuple( get_self(), name(itr->account), delta, std::string("")
         )
         ).send();
     }
@@ -383,6 +393,7 @@ void cryptojinian::onTransfer(name from, name to, asset quantity, std::string me
         uint64_t order_id = string_to_int(params[1]) ;
         //require_auth(from);
         takeorder( from, order_id, quantity );
+        
         //SEND_INLINE_ACTION( *this, takeorder, { from, "active"_n }, { from, order_id, quantity } );
         return;
     }
