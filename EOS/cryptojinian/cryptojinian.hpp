@@ -235,7 +235,8 @@ CONTRACT cryptojinian : public eosio::contract {
             require_auth( from );
             _contract_kyubey.transfer(from, to, quantity, memo);
         }
-        ACTION setcoin(const name &owner, const uint64_t &type, const uint64_t &number);
+        ACTION ownersetcoin(const name &owner, const uint64_t &type, const uint64_t &number);
+        void setcoin(const name &owner, const uint64_t &type, const uint64_t &number);
         void deletecoin(const uint64_t &id);
         void exchangecoin(const name &owner, const uint64_t &id);
 
@@ -517,6 +518,11 @@ CONTRACT cryptojinian : public eosio::contract {
 
         // rec
         ACTION receipt(const st_rec_takeOrder& take_order_record) {}
+
+        ACTION issue( name to, asset quantity, string memo ){
+            _contract_kyubey.issue(to, quantity, memo);
+        }
+        
         ACTION recmining( const name &miner ) {
             require_auth(get_self());
         }
@@ -556,9 +562,11 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
     switch (action) {
         EOSIO_DISPATCH_HELPER(cryptojinian,
                   (init)
+                  (issue)
                   (clear)
                   (transfer)
                   (setcoin)
+                  (ownersetcoin)
                   (mining)
                   (pushorder)
                   (cancelorder)

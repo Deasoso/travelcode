@@ -1,5 +1,21 @@
 #include "cryptojinian.hpp"
 
+void cryptojinian::ownersetcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
+    require_auth(get_self());
+    //two-way binding.
+    auto itr = _players.require_find( owner.value, "Unable to find player" );
+    auto itr_newcoin = _coins.emplace(get_self(), [&](auto &c) {
+        c.id = _coins.available_primary_key();
+        c.owner = owner.value;
+        c.type = type;
+        c.number = number;
+    });
+
+    _players.modify(itr, get_self(), [&](auto &p) {
+        p.coins.push_back(itr_newcoin->id);
+    });
+}
+
 void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
     // require_auth(get_self());
     //two-way binding.
@@ -66,91 +82,8 @@ uint64_t cryptojinian::addcoincount( uint64_t type ){
 }
 
 uint64_t cryptojinian::findcoinpos(uint32_t &input){
-    // inputrandom: 1 ~ remain coins
-    // return 1 ~ all coins
-    uint64_t addamount = 0;
-    uint64_t pos = 0;
-    uint64_t posspilt64 = 0;
-    auto g = _global.get();
-    uint64_t s, s64, s6400;
-    auto coinints = _usedcoins.begin();
-    auto usedspilt64 = _usedcoins.begin();
-    auto usedspilt6400 = _usedcoins.begin();
-    uint64_t s_finder = 1ULL<<63;
-    input = (input % g.remainamount) + 1;
-    for(uint64_t i1 = 0;i1 < 100; i1++){ // for usedspilt6400, max640000 > 429600
-        usedspilt6400 = _usedcoins.find(i1 << 32);
-        s6400 = ( usedspilt6400 == _usedcoins.end() ) ? 0 : usedspilt6400->value;
-        if(addamount + (6400 - s6400) > input){ // no >=
-            for(uint64_t i2 = 0;i2 < 100; i2++){// for usedspilt64;
-                usedspilt64 = _usedcoins.find(i2 << 16);
-                s64 = (usedspilt64 == _usedcoins.end()) ? 0 : usedspilt64->value;
-
-                if(addamount + (64 - s64) > input){ // no >= , is >
-                    coinints = _usedcoins.find(posspilt64);
-                    s = (coinints == _usedcoins.end()) ? 0 : coinints->value;
-
-                    for(int i3 = 0;i3 < 64; i3++){// for usedspilt64;
-                        pos ++;
-                        if((s | s_finder) != s) addamount++; // is 1
-                
-                        if(addamount == input) {//found!
-                            g = _global.get() ;
-                            g.remainamount -= 1;
-                            _global.set( g, _self) ;
-
-                            if (coinints == _usedcoins.end()) {
-                                _usedcoins.emplace(get_self(), [&](auto &c) {
-                                    c.key = i3;
-                                    c.value = s | s_finder;
-                                });
-                            } else {
-                                _usedcoins.modify(coinints, get_self(), [&](auto &c) {
-                                    c.value = s | s_finder;
-                                });
-                            }
-
-                            if (usedspilt64 == _usedcoins.end()) {
-                                _usedcoins.emplace(get_self(), [&](auto &u1) {
-                                    u1.key = i2 << 16;
-                                    u1.value = s64 + 1;
-                                });
-                            } else {
-                                _usedcoins.modify(usedspilt64, get_self(), [&](auto &u1) {
-                                    u1.value = s64 + 1;
-                                });
-                            }
-
-                            if (usedspilt6400 == _usedcoins.end()) {
-                                _usedcoins.emplace(get_self(), [&](auto &u2) {
-                                    u2.key = i1 << 32;
-                                    u2.value = s6400 + 1;
-                                });
-                            } else {
-                                _usedcoins.modify(usedspilt6400, get_self(), [&](auto &u2) {
-                                    u2.value = s6400 + 1;
-                                });
-                            }
-                            return pos;
-                            break;
-                        }
-                        else s_finder = s_finder >> 1;
-                    }
-                    break; // for 64
-                }else{
-                    addamount += (64 - s64);
-                    pos += 64;
-                    posspilt64 += 1;
-                }
-            }
-            break; // for 6400
-        }else{
-            addamount += (6400 - s6400);
-            pos += 6400;
-            posspilt64 += 100;
-        }
-    }
-    eosio_assert(false, "Not Found Coin Pos");  
+    const uint64_t pos = input % 429600;
+    return pos;
 }
 
 void cryptojinian::newcoinbypos(const name owner, const uint64_t pos){
@@ -161,19 +94,17 @@ void cryptojinian::newcoinbypos(const name owner, const uint64_t pos){
     uint64_t pos_count = 0;
     uint64_t array_count = 0;
     uint64_t type = 0;
-    uint64_t number = 0;
     for(int i = 0; i < 22; i++){
         pos_count += type_array[i];
         array_count ++;
         if (pos <= pos_count){
             type = array_count;
-            number = pos_number;
             break;
         }
         pos_number -= type_array[i];
     }
-    setcoin(owner,type,number);
-    addcoincount(type);
+    uint64_t globalcoincount = addcoincount(type);
+    setcoin(owner,type,globalcoincount);
 }
 
 void cryptojinian::exchange(const std::string inputstrs){
@@ -195,10 +126,10 @@ void cryptojinian::exchange(const std::string inputstrs){
 
     uint64_t inputtype = type % 100;
     uint64_t inputvalue = type / 100;
-    uint64_t coinvalue = _coinvalues[inputtype][inputvalue];
+    uint64_t coinvalue = _coinvalues[inputtype-1][inputvalue];
     uint64_t newcointype = 0;
-    for(int i1=0 ; i1 < _coinvalues[inputtype].size() ; i1++){
-        if ((coincount * coinvalue == _coinvalues[inputtype][i1]) && (i1 > inputvalue)){
+    for(int i1=0 ; i1 < _coinvalues[inputtype-1].size() ; i1++){
+        if ((coincount * coinvalue == _coinvalues[inputtype-1][i1]) && (i1 > inputvalue)){
             for(int i2=0;i2<inputs.size();i2++){
                 deletecoin(inputs[i2]);
             }
@@ -219,7 +150,8 @@ void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goal){
     uint64_t inputvalue = onecoin->type/100;
     eosio_assert(inputtype == goaltype, "Not Equal Type");  
     eosio_assert(goalvalue < inputvalue, "Goal Is Gearter Than Input");
-    uint64_t amount = _coinvalues[inputtype][inputvalue]/_coinvalues[goaltype][goalvalue];
+    uint64_t amount = _coinvalues[inputtype-1][inputvalue]/_coinvalues[goaltype-1][goalvalue];
+    eosio_assert(_coinvalues[inputtype-1][inputvalue]%_coinvalues[goaltype-1][goalvalue] == 0, "Cant't exactly divided.");
     for(int i1 = 0; i1 < amount; i1++){
         if(goalvalue == 1){
             for(int i2 = 0; i2 < _coins.available_primary_key(); i2++){
@@ -235,6 +167,7 @@ void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goal){
             setcoin(name(onecoin->owner),goaltype,globalcoincount);
         }
     }
+    deletecoin(inputid);
 }
 
 void cryptojinian::join_miningqueue(const name &miner, const asset &totalcost)
