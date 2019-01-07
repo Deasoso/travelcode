@@ -3,89 +3,63 @@
  */
 #pragma once
 
-#include "eosio.token.hpp"
-
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 #include <eosiolib/transaction.hpp>
 
-typedef double real_type;
-
 using namespace eosio ;
 
-class kyubey : public token {
-    public:
-        using token::token ;
+namespace unit_test {
 
-        /*
-        void buy(name account, asset in) {    
-            asset out;
-            _market.modify(_market.begin(), 0, [&](auto &m) {
-                out = m.buy(in.amount);
-            }); 
+#include <iostream>
+#include <vector>
+#include <string>
 
-           // static char msg[20];
-           // sprintf(msg, "delta: %llu", out.amount);
-           // eosio_assert(false, msg);
+using namespace std;
 
-            issue(account, out, "");
-        }
-        
-        void sell(name account, asset in) {
-            
-            sub_balance(account, in);          
-            asset out;
-            _market.modify(_market.begin(), 0, [&](auto &m) {
-                out = m.sell(in.amount);
-            });    
-            
-            action(
-                permission_level{_self, "active"_n},
-                N(eosio.token), "transfer"_n,
-                make_tuple(_self, account, out, std::string(""))
-            ).send();
-        }
-        */
+vector<uint32_t> merge_seed(const uint8_t s[]) {
+    uint32_t hash ;
+    // uint16_t s16[4] ;
+    vector<uint32_t> v_hash ;
+    for (uint8_t i = 0 ; i < 32 ; i += 4 ) {
+        hash = ( s[i] << 24 ) | ( s[i+1] << 16 ) | ( s[i+2] << 8 ) | s[i+3] ;
+        // hash = ( s16[0] << 48 ) | ( s16[1] << 32 ) | ( s16[2] << 16 )  | s16[3] ;
+        v_hash.push_back( hash ) ;
+    }
+    return v_hash;
+}
 
-        struct market {
-            uint64_t id = 0;        
-            asset supply;
-            asset balance;
-            uint64_t progress;                         
-            uint64_t primary_key() const { return id; }
-            
-            uint64_t fee(uint64_t x) {
-                return x * progress / 10000;
-            }
+int test()
+{                        
+    uint8_t hash[32];// f2 35 66 7e a7 c6 3e 96 b6 72 8b 95 bd 88 79bc1a6c7a297212df53e8c8a4b0c9bfc731
+    
+    hash[0] = 0xf2 ;
+    hash[1] = 0x35 ;
+    hash[2] = 0x66 ;
+    hash[3] = 0x7e ;
+    
+    hash[4] = 0xa7 ;
+    hash[5] = 0xc6 ;
+    hash[6] = 0x3e ;
+    hash[7] = 0x96 ;
+    
+    hash[8] = 0xb6 ;
+    hash[9] = 0x72 ;
+    hash[10] = 0x8b ;
+    hash[11] = 0x95 ;
+    
+    hash[12] = 0xbd ;
+    hash[13] = 0x88 ;
+    hash[14] = 0x79 ;
+    hash[15] = 0xbc ;
+    
+    
+    auto seed = merge_seed( hash );
 
-            void update_progress(uint64_t new_progress) {
-                eosio_assert(new_progress <= 10000, "out of range");                                
-                progress = new_progress;
-            }
+    for ( int i = 0 ; i < seed.size(); ++i )
+    cout << seed[i] << endl ;
 
-            asset buy(uint64_t in) {
-                in -= fee(in);
-                balance.amount += in;
-                uint64_t new_supply = sqrt((real_type)balance.amount * 2 * K) * 100;
-                uint64_t delta_supply = new_supply - supply.amount;
+    return 0;
+}
 
-                supply.amount = new_supply;
-                balance.amount = ((real_type)supply.amount * supply.amount) / 2 / K / 10000;
-                return asset(delta_supply, supply.symbol);
-            } 
-
-            asset sell(uint64_t in) {
-                supply.amount -= in;
-                uint64_t new_balance = ((real_type)supply.amount * supply.amount) / 2 / K / 10000;
-                uint64_t delta_balance = balance.amount - new_balance;
-
-                balance.amount = new_balance;
-                delta_balance -= fee(delta_balance);
-                return asset(delta_balance, balance.symbol);
-            }
-
-            EOSLIB_SERIALIZE(market, (id)(supply)(balance)(progress))
-        };
-
-        typedef eosio::multi_index<"market"_n, market> market_t;     
-};
+} // namespace kyubeytool
