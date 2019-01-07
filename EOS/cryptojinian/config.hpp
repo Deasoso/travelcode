@@ -69,6 +69,71 @@ const vector<vector<uint64_t>> _coinvalues = { // [][+1]
         {500,500,1000,2000,5000}    //tr 21
 };
 
+const asset bouns_table( const uint8_t &type ) {
+    switch( type ) {
+        case 0 :
+            return asset( string_to_price("10000.0000"), TOKEN_SYMBOL ) ;
+        case 1 :
+            return asset( string_to_price("2200.0000"), TOKEN_SYMBOL ) ;
+        case 2 :
+            return asset( string_to_price("2500.0000"), TOKEN_SYMBOL ) ;
+        case 3 :
+            return asset( string_to_price("10000.0000"), TOKEN_SYMBOL ) ;
+        case 4 :
+            return asset( string_to_price("2000.0000"), TOKEN_SYMBOL ) ;
+        case 5 :
+            return asset( string_to_price("1500.0000"), TOKEN_SYMBOL ) ;
+        case 6 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 7 :
+            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
+        case 8 :
+            return asset( string_to_price("3000.0000"), TOKEN_SYMBOL ) ;
+        case 9 :
+            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
+        case 10 :
+            return asset( string_to_price("10000.0000"), TOKEN_SYMBOL ) ;
+        case 11 :
+            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
+        case 12 :
+            return asset( string_to_price("1500.0000"), TOKEN_SYMBOL ) ;
+        case 13 :
+            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
+        case 14 :
+            return asset( string_to_price("2800.0000"), TOKEN_SYMBOL ) ;
+        case 15 :
+            return asset( string_to_price("1400.0000"), TOKEN_SYMBOL ) ;
+        case 16 :
+            return asset( string_to_price("1200.0000"), TOKEN_SYMBOL ) ;
+        case 17 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 18 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 19 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 20 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 21 :
+            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
+        case 22 :
+            return asset( string_to_price("20000.0000"), TOKEN_SYMBOL ) ;
+        case 23 :
+            return asset( string_to_price("14000.0000"), TOKEN_SYMBOL ) ;
+        case 24 :
+            return asset( string_to_price("12000.0000"), TOKEN_SYMBOL ) ;
+        case 25 :
+            return asset( string_to_price("4500.0000"), TOKEN_SYMBOL ) ;
+        case 26 :
+            return asset( string_to_price("4000.0000"), TOKEN_SYMBOL ) ;
+        case 27 :
+            return asset( string_to_price("2500.0000"), TOKEN_SYMBOL ) ;
+        case 28 :
+            return asset( string_to_price("0.0000"), EOS_SYMBOL ) ;
+        default :
+            return asset( string_to_price("0.0000"), TOKEN_SYMBOL ) ;
+    }
+}
+
 /*
 int i = 0 ;
 for ( i = 0 ; i < 20 ; i++ )
@@ -136,70 +201,7 @@ for ( i = 0 ; i < 20 ; i++ )
 即齐整版幽默类纪念币（包括狗币整版、韭菜币整版）可获得2500 TOKEN奖励，即领即取；
                         19       4
 */
-const asset bouns_table( const uint8_t &type ) {
-    switch( type ) {
-        case 0 :
-            return asset( string_to_price("10000.0000"), TOKEN_SYMBOL ) ;
-        case 1 :
-            return asset( string_to_price("2200.0000"), TOKEN_SYMBOL ) ;
-        case 2 :
-            return asset( string_to_price("2500.0000"), TOKEN_SYMBOL ) ;
-        case 3 :
-            return asset( string_to_price("10000.0000"), TOKEN_SYMBOL ) ;
-        case 4 :
-            return asset( string_to_price("2000.0000"), TOKEN_SYMBOL ) ;
-        case 5 :
-            return asset( string_to_price("1500.0000"), TOKEN_SYMBOL ) ;
-        case 6 :
-            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
-        case 7 :
-            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
-        case 8 :
-            return asset( string_to_price("3000.0000"), TOKEN_SYMBOL ) ;
-        case 9 :
-            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
-        case 10 :
-            return asset( string_to_price("10000.0000"), TOKEN_SYMBOL ) ;
-        case 11 :
-            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
-        case 12 :
-            return asset( string_to_price("1500.0000"), TOKEN_SYMBOL ) ;
-        case 13 :
-            return asset( string_to_price("1800.0000"), TOKEN_SYMBOL ) ;
-        case 14 :
-            return asset( string_to_price("2800.0000"), TOKEN_SYMBOL ) ;
-        case 15 :
-            return asset( string_to_price("1400.0000"), TOKEN_SYMBOL ) ;
-        case 16 :
-            return asset( string_to_price("1200.0000"), TOKEN_SYMBOL ) ;
-        case 17 :
-            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
-        case 18 :
-            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
-        case 19 :
-            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
-        case 20 :
-            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
-        case 21 :
-            return asset( string_to_price("1000.0000"), TOKEN_SYMBOL ) ;
-        case 22 :
-            return asset( string_to_price("20000.0000"), TOKEN_SYMBOL ) ;
-        case 23 :
-            return asset( string_to_price("14000.0000"), TOKEN_SYMBOL ) ;
-        case 24 :
-            return asset( string_to_price("12000.0000"), TOKEN_SYMBOL ) ;
-        case 25 :
-            return asset( string_to_price("4500.0000"), TOKEN_SYMBOL ) ;
-        case 26 :
-            return asset( string_to_price("4000.0000"), TOKEN_SYMBOL ) ;
-        case 27 :
-            return asset( string_to_price("2500.0000"), TOKEN_SYMBOL ) ;
-        case 28 :
-            return asset( string_to_price("0.0000"), EOS_SYMBOL ) ;
-        default :
-            return asset( string_to_price("0.0000"), TOKEN_SYMBOL ) ;
-    }
-}
 
 } // namespace config
+
 #endif
