@@ -152,8 +152,8 @@ CONTRACT cryptojinian : public eosio::contract {
         uint64_t addcoincount( uint64_t type );
         uint64_t findcoinpos( uint32_t &input );
         void newcoinbypos(const name owner, const uint64_t pos);
-        void exchange(const std::string inputs);
-        void exchangedown(const uint64_t inputid, const uint64_t goal);
+        ACTION exchange(const std::string inputs);
+        ACTION exchangedown(const uint64_t inputid, const uint64_t goal);
         void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
         
         auto join_game_processing( const name &account ) {
@@ -568,6 +568,8 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (pushorder)
                   (cancelorder)
                   (syscxlorder)
+                  (exchange)
+                  (exchangedown)
                   /*(takeorder)*/
                   (claim)
                   (collclaim)
