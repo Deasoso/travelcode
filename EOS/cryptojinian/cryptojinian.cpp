@@ -238,6 +238,7 @@ inline const asset cryptojinian::fee_processing(asset &quantity) {
 // check trade id & paid EOS
 // transfer coin 所有权
 // issue CCC bouns to buyer
+// 调整价格回原价
 // transfer EOS to seller
 // make log
 // del order
@@ -259,6 +260,9 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset 
     
     // issue CCC bouns to buyer
     token_mining( buyer, asset( eos.amount, CCC_SYMBOL ), "CCC bouns" );
+
+    // 调整价格回原价
+    eos.set_amount(eos.amount / ( 1 + TRADE_FEE ));
 
     // transfer EOS to seller
     auto delta = fee_processing( eos ) ;

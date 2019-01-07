@@ -287,6 +287,8 @@ CONTRACT cryptojinian : public eosio::contract {
             }
             eosio_assert( pcoins.size() == n_coin, "Player dont have enough coins for sell order");
 
+            eos.set_amount(eos.amount * (1 + TRADE_FEE));
+
             order_t _orders( get_self(), get_self().value );
             _orders.emplace( account, [&](auto &o) {
                 o.id = _orders.available_primary_key() + type_order * 1000000 ;
