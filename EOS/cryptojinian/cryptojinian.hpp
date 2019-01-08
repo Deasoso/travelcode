@@ -233,6 +233,7 @@ CONTRACT cryptojinian : public eosio::contract {
 
         ACTION mining( const capi_checksum256 &seed ) {
             require_auth(get_self());
+            const auto &mc = _global.get().miningcost();
             auto v_seed = merge_seed( seed ) ;
             uint8_t n = 0 ;
             miningqueue_t _miningqueue(get_self(), get_self().value);
@@ -242,7 +243,7 @@ CONTRACT cryptojinian : public eosio::contract {
                 miner = name(itr->miner) ;
                 // eosio_assert(false, int_to_string(v_seed[n]).c_str() );
                 newcoinbypos( miner, findcoinpos( v_seed[n] ) ) ;
-                token_mining( miner, asset( string_to_price("20.0000"), CCC_SYMBOL ), "Mining 20 CCC" );
+                token_mining( miner, asset( mc.amount, CCC_SYMBOL ), "CCC mining." );
                 
                 SEND_INLINE_ACTION( *this, recmining, { _self, "active"_n }, { miner } );
                 _miningqueue.erase( itr );

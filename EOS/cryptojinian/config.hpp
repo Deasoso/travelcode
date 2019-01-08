@@ -16,7 +16,7 @@ const auto TOKEN_SYMBOL = CCC_SYMBOL ;
 
 const auto DEF_SPONSOR = "rukamoemoe51"_n;
 
-constexpr double_t TRADE_FEE = 0.0175 ;
+constexpr double_t TRADE_FEE = 0.0175 ; // 1.75%
 constexpr double_t TRADE_COEF = 1 - TRADE_FEE ;
 
 const asset cost_table( const uint64_t &n ) {
