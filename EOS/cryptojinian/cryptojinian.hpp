@@ -251,7 +251,7 @@ CONTRACT cryptojinian : public eosio::contract {
                 miner = name(itr->miner) ;
                 // eosio_assert(false, int_to_string(v_seed[n]).c_str() );
                 newcoinbypos( miner, findcoinpos( v_seed[n] ) ) ;
-                token_mining( miner, asset( string_to_price("10.0000"), CCC_SYMBOL ), "Mining 10 CCC" );
+                token_mining( miner, asset( string_to_price("20.0000"), CCC_SYMBOL ), "Mining 20 CCC" );
                 
                 SEND_INLINE_ACTION( *this, recmining, { _self, "active"_n }, { miner } );
                 _miningqueue.erase( itr );

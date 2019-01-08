@@ -103,6 +103,9 @@ void cryptojinian::newcoinbypos(const name owner, const uint64_t pos){
         }
         pos_number -= type_array[i];
     }
+    auto g = _global.get() ;
+    g.remainamount -= 1;
+    _global.set( g, _self) ;
     uint64_t globalcoincount = addcoincount(type);
     setcoin(owner,type,globalcoincount);
 }
