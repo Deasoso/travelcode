@@ -145,39 +145,27 @@ CONTRACT cryptojinian : public eosio::contract {
         };
         
     private:
-        inline vector<uint32_t> merge_seed(const capi_checksum256 &s1);
-        void onTransfer(name from, name to, asset quantity, string memo);
-
+        void setcoin(const name &owner, const uint64_t &type, const uint64_t &number);
         uint64_t addcoincount( uint64_t type );
         uint64_t findcoinpos( uint32_t &input );
         void newcoinbypos(const name owner, const uint64_t pos);
         ACTION exchange(const std::string inputs);
         ACTION exchangedown(const uint64_t inputid, const uint64_t goal);
         void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
-        
-        auto join_game_processing( const name &account ) {
-            auto itr_players = _players.find( account.value ) ;
-            if ( itr_players == _players.end() ) { // noob
+
+        auto join_game_processing(const name &account) {
+            auto itr_players = _players.find(account.value);
+            if (itr_players == _players.end()) { // noob
                 itr_players = _players.emplace(get_self(), [&](auto &p) {
                     p.playername = account.value;
                     p.sponsor = DEF_SPONSOR.value;
                 });
                 // itr_players = _players.find( account.value ) ;
             }
-            return itr_players ;
+            return itr_players;
         } // join_game_processing()
 
-        void token_mining( name miner, asset quantity, string memo ) {
-            // require_auth(get_self());
-            _contract_kyubey.no_permission_issue( miner, quantity, memo);
-            /*
-            // SEND_INLINE_ACTION failed !
-            SEND_INLINE_ACTION( _contract_kyubey, issue, {get_self(),"active"_n},
-                                    {itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ),
-                                     "mining 1 CCC"} );
-            */   
-        }
-
+        void token_mining( name miner, asset quantity, string memo );
         inline const asset fee_processing( asset &quantity ) ;
 
         auto collection_counter( const name &account ) {
@@ -210,6 +198,7 @@ CONTRACT cryptojinian : public eosio::contract {
                 if ( r > v[xx] ) r = v[xx] ;
         }
 
+        void onTransfer(name from, name to, asset quantity, string memo);
         // onTransfer() ->
         void join_miningqueue( const name &miner, const asset &totalcost );
         void ref_processing(const name &miner, const name &sponsor = DEF_SPONSOR );
@@ -217,8 +206,8 @@ CONTRACT cryptojinian : public eosio::contract {
         void ibobuy( const name &buyer, asset &in ) {
             require_auth( buyer );
             // _contract_kyubey.buy( buyer, in );
-        }
-        */
+        }*/
+        inline vector<uint32_t> merge_seed(const capi_checksum256 &s1);
 
     public:
         ACTION init();
@@ -234,8 +223,11 @@ CONTRACT cryptojinian : public eosio::contract {
             require_auth( from );
             _contract_kyubey.transfer(from, to, quantity, memo);
         }
-        ACTION ownersetcoin(const name &owner, const uint64_t &type, const uint64_t &number);
-        void setcoin(const name &owner, const uint64_t &type, const uint64_t &number);
+        ACTION ownersetcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
+            require_auth(get_self());
+            setcoin(owner, type, number);
+        }
+        
         void deletecoin(const uint64_t &id);
         void exchangecoin(const name &owner, const uint64_t &id);
 
