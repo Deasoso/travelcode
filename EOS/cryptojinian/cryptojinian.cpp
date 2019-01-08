@@ -253,9 +253,11 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset 
 
     // transfer coin 所有权
     for (auto &cid : itr->the_coins_for_sell) {
-        _coins.modify(_coins.find(cid), get_self(), [&](auto &c) {
-            c.owner = buyer.value;
-        });
+        deletecoin(cid);
+        exchangecoin(buyer, cid);
+        // _coins.modify(_coins.find(cid), get_self(), [&](auto &c) {
+        //     c.owner = buyer.value;
+        // });
     }
     
     // issue CCC bouns to buyer
