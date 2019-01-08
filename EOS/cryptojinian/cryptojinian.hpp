@@ -488,27 +488,10 @@ CONTRACT cryptojinian : public eosio::contract {
 
         ACTION test() {
             require_auth(get_self());
+            
             uint32_t x = 428600 ;
             findcoinpos( x ) ;
         }
-        [[eosio::action("test1")]] void test1( const name &tester ) {
-            require_auth(get_self());
-            /*
-            uint64_t type = 111, number = 111 ;
-            // SEND_INLINE_ACTION( *this, setcoin, { _self, "active"_n }, { tester, type, number} );
-           
-            //for ( uint64_t yy = 0 ; yy < _coinvalues.size() ; yy++ ) {
-                for ( uint64_t xx = 0 ; xx < _coinvalues[0].size(); xx++ ) {
-                    type = ( xx * 100 + ( 0 + 1 ) ) ;
-                    // number = 111 ;
-                    SEND_INLINE_ACTION( *this, setcoin, { _self, "active"_n }, { tester, type, number} );
-                    //if ( xx % 2 == 1 )
-                    //    setcoin(tester, ( xx * 100 + ( yy + 1 ) ), 222) ;
-                }
-            //}
-            */
-        }
-
 
         // rec
         ACTION receipt(const st_rec_takeOrder& take_order_record) {}
@@ -574,7 +557,7 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (buyback)
                   (autobuyback)
                   (test)
-                  (test1)
+                  /*(test1)*/
                   (receipt)
                   (recmining)
                   (reccollclaim)

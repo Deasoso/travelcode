@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Jan  7 23:13:17 2019",
-=======
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Jan  8 11:28:33 2019",
->>>>>>> 2c20b624e400817b10071a105cbe9385467db776
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Jan  9 00:09:59 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -457,16 +453,6 @@
             "fields": []
         },
         {
-            "name": "test1",
-            "base": "",
-            "fields": [
-                {
-                    "name": "tester",
-                    "type": "name"
-                }
-            ]
-        },
-        {
             "name": "transfer",
             "base": "",
             "fields": [
@@ -603,11 +589,6 @@
         {
             "name": "test",
             "type": "test",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "test1",
-            "type": "test1",
             "ricardian_contract": ""
         },
         {

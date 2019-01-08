@@ -29,7 +29,7 @@ vector<uint32_t> merge_seed(const uint8_t s[]) {
     return v_hash;
 }
 
-int test()
+int merge_seed_test()
 {                        
     uint8_t hash[32];// f2 35 66 7e a7 c6 3e 96 b6 72 8b 95 bd 88 79bc1a6c7a297212df53e8c8a4b0c9bfc731
     
@@ -60,6 +60,24 @@ int test()
     cout << seed[i] << endl ;
 
     return 0;
+}
+
+void test2(const name &tester)
+{
+    uint64_t type = 111, number = 111;
+    // SEND_INLINE_ACTION( *this, setcoin, { _self, "active"_n }, { tester, type, number} );
+    /*
+    for (uint64_t yy = 0; yy < _coinvalues.size(); yy++)
+    {
+        for (uint64_t xx = 0; xx < _coinvalues[0].size(); xx++)
+        {
+            type = (xx * 100 + (0 + 1));
+            number = 111;
+            SEND_INLINE_ACTION(*this, setcoin, {_self, "active"_n}, {tester, type, number});
+            if (xx % 2 == 1)
+                setcoin(tester, (xx * 100 + (yy + 1)), 222);
+        }
+    }*/
 }
 
 } // namespace kyubeytool
