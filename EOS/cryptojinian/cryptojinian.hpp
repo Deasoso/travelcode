@@ -558,7 +558,6 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (issue)
                   (clear)
                   (transfer)
-                  (setcoin)
                   (ownersetcoin)
                   (mining)
                   (pushorder)
