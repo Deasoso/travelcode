@@ -3,21 +3,20 @@
 #include <eosiolib/asset.hpp>
 #include "utils.hpp"
 
-// typedef uint32_t time;
 namespace config {
+
+constexpr auto CCC_MAX_SUPPLY = 300000000000;
 
 const auto EOS_CONTRACT = "eosio.token"_n;
 const auto EOS_SYMBOL = eosio::symbol("EOS", 4);
-// const auto CCC_CONTRACT =
+// const auto CCC_CONTRACT = get_self();
 const auto CCC_SYMBOL = eosio::symbol("CCC", 4);
 // const auto TOKEN_CONTRACT =
 const auto TOKEN_SYMBOL = CCC_SYMBOL ;
 
-#define CCC_MAX_SUPPLY 300000000000
-
 const auto DEF_SPONSOR = "rukamoemoe51"_n;
 
-constexpr double_t TRADE_FEE = 0.035 ;
+constexpr double_t TRADE_FEE = 0.0175 ;
 constexpr double_t TRADE_COEF = 1 - TRADE_FEE ;
 
 const asset cost_table( const uint64_t &n ) {
@@ -133,14 +132,6 @@ const asset bouns_table( const uint8_t &type ) {
             return asset( string_to_price("0.0000"), TOKEN_SYMBOL ) ;
     }
 }
-
-/*
-int i = 0 ;
-for ( i = 0 ; i < 20 ; i++ )
-    if ( remainamount >= ( i / 100 ) * totalmount )
-        return asset( "EOS", initminingcost * pow( 1.1, i ) ) ;
-    return asset( "EOS", initminingcost * pow( 1.1, --i ) ) ;
-*/
 
 /*
 剩余总量为429,600张时	挖矿成本为        1EOS进行一次挖矿

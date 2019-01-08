@@ -1,21 +1,5 @@
 #include "cryptojinian.hpp"
 
-void cryptojinian::ownersetcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
-    require_auth(get_self());
-    //two-way binding.
-    auto itr = _players.require_find( owner.value, "Unable to find player" );
-    auto itr_newcoin = _coins.emplace(get_self(), [&](auto &c) {
-        c.id = _coins.available_primary_key();
-        c.owner = owner.value;
-        c.type = type;
-        c.number = number;
-    });
-
-    _players.modify(itr, get_self(), [&](auto &p) {
-        p.coins.push_back(itr_newcoin->id);
-    });
-}
-
 void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
     // require_auth(get_self());
     //two-way binding.
@@ -173,6 +157,19 @@ void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goal){
     deletecoin(inputid);
 }
 
+void cryptojinian::token_mining(name miner, asset quantity, string memo)
+{
+    // require_auth(get_self());
+    _contract_kyubey.no_permission_issue(miner, quantity, memo);
+    // SEND_INLINE_ACTION failed !
+    /*
+    SEND_INLINE_ACTION( _contract_kyubey, issue, {get_self(),"active"_n},
+                        {itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ), "mining 1 CCC"} );*/
+}
+
+// check cost 
+// join_game_processing(miner)
+// join mining waiting Q
 void cryptojinian::join_miningqueue(const name &miner, const asset &totalcost)
 {
     // cost check
@@ -238,46 +235,57 @@ inline const asset cryptojinian::fee_processing(asset &quantity) {
     return quantity;
 }
 
+// check trade id & paid EOS
+// transfer coin 所有权
+// issue CCC bouns to buyer
+// 调整价格回原价
+// transfer EOS to seller
+// make log
+// del order
 void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset &eos ) {
-    // require_auth(buyer);
-    
     order_t _orders( get_self(), get_self().value );
+
+    // check trade id & paid EOS
     auto itr = _orders.require_find(order_id, "Trade id is not found" );
     eosio_assert(itr->bid == eos, "Asset does not match");
+    
+    const auto seller = name(itr->account);
 
-    // 一個轉移 coin 的 move
+    // transfer coin 所有权
     for (auto &cid : itr->the_coins_for_sell) {
         _coins.modify(_coins.find(cid), get_self(), [&](auto &c) {
             c.owner = buyer.value;
         });
     }
     
-    /* string("Trade ") + to_string(order_id) + string(" be took") */
-    auto delta = fee_processing( eos ) ;
-    if ( delta.amount > 0){
-        action(permission_level{ _self, "active"_n},
-            "eosio.token"_n, "transfer"_n,
-            make_tuple( get_self(), name(itr->account), delta, std::string("")
-        )
-        ).send();
-    }
-
+    // issue CCC bouns to buyer
     token_mining( buyer, asset( eos.amount, CCC_SYMBOL ), "CCC bouns" );
 
-    // 打 log
+    // 调整价格回原价
+    eos.set_amount(eos.amount / ( 1 + TRADE_FEE ));
+
+    // transfer EOS to seller
+    auto delta = fee_processing( eos ) ;
+    if ( delta.amount > 0){
+        action(permission_level{_self, "active"_n},
+               "eosio.token"_n, "transfer"_n,
+               make_tuple(get_self(), seller, delta, std::string("")))
+            .send();
+        /* string("Trade ") + to_string(order_id) + string(" be took") */
+    }
+
+    // make log
     const st_rec_takeOrder _tor{
         .matched_order = *itr,
         .buyer = buyer,
     };
-    // eosio_assert(false, "x");
 
     action(permission_level{_self, "active"_n},
-           get_self(), "receipt"_n, _tor )
+           get_self(), "receipt"_n, _tor)
         .send();
-    // eosio_assert(false, "x");
 
-    _orders.erase(itr); // 刪了
-
+    // del order
+    _orders.erase(itr);
 } // take_order()
 
 void cryptojinian::SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c)
@@ -297,7 +305,6 @@ void cryptojinian::SplitString(const std::string& s, vector<uint64_t>& v, const 
         v.push_back(std::strtoull(s.substr(pos1, pos2-pos1).c_str(), NULL, 0));
 }
 
-// input
 void cryptojinian::onTransfer(name from, name to, asset quantity, std::string memo) {            
     if (from == get_self() || to != get_self()) return;   
     require_auth(from);
@@ -308,11 +315,11 @@ void cryptojinian::onTransfer(name from, name to, asset quantity, std::string me
     auto params = explode(memo, ' ');
     eosio_assert(params.size() <= 5, "Error memo");
 
-    if (params[0] == "mining") {
+    if (params[0] == "mining") { // mining
         join_miningqueue(from, quantity);
         if ( params.size() < 3 )
             ref_processing( from ) ;
-        else {
+        else { // mining ref <sponsor>
             eosio_assert(params.size() == 3 && params[1] == "ref", "Error memo");
 
             name sponsor( params[2].c_str() ) ;
@@ -327,9 +334,8 @@ void cryptojinian::onTransfer(name from, name to, asset quantity, std::string me
     if (params[0] == "take_order") {
         eosio_assert(params.size() == 2, "Error memo");
         uint64_t order_id = string_to_int(params[1]) ;
-        //require_auth(from);
+
         takeorder( from, order_id, quantity );
-        
         //SEND_INLINE_ACTION( *this, takeorder, { from, "active"_n }, { from, order_id, quantity } );
         return;
     }
