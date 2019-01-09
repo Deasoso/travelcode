@@ -275,21 +275,32 @@ CONTRACT cryptojinian : public eosio::contract {
             auto citr = _coins.begin() ;
             for ( auto cid : itr_players->coins ) {
                 citr = _coins.find( cid ) ;
-                if ( citr->type == type_coin ) {
+                if ( citr->owner != get_self().value /* not on order */ &&
+                     citr->type == type_coin ) {
                     pcoins.push_back( cid ) ;
                     if ( pcoins.size() == n_coin ) break ;
                 }
             }
             eosio_assert( pcoins.size() == n_coin, "Player dont have enough coins for sell order");
 
+            // transfer coin 所有权 to 交易所
+            for (auto cid : pcoins) {
+                citr = _coins.find(cid);
+                _coins.modify(citr, get_self(), [&](auto &c) {
+                    c.owner = get_self().value;
+                });
+            }
+
+            // add TRADE_FEE
             eos.set_amount(eos.amount * (1 + TRADE_FEE));
 
+            // push order
             order_t _orders( get_self(), get_self().value );
             _orders.emplace( account, [&](auto &o) {
                 o.id = _orders.available_primary_key() % 1000000 + type_order * 1000000 ;
                 o.account = account.value ;
                 o.bid = eos ;
-                o.the_coins_for_sell = pcoins  ;// set coins
+                o.the_coins_for_sell = pcoins ; // set coins
                 o.timestamp = current_time();
             });
         } // pushorder()

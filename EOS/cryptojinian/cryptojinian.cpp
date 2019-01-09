@@ -21,7 +21,7 @@ void cryptojinian::deletecoin(const uint64_t &id) {
         onecoin.owner = get_self().value;
     });
     auto itr_player = _players.find(onecoin->owner);
-    for(int i3=0;i3<itr_player->coins.size();i3++){
+    for(std::size_t i3=0;i3<itr_player->coins.size();i3++){
         if(itr_player->coins[i3] == id){
             _players.modify(itr_player, get_self(), [&](auto &p) {
                 p.coins.erase(p.coins.begin()+i3);
@@ -245,18 +245,25 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset 
     order_t _orders( get_self(), get_self().value );
 
     // check trade id & paid EOS
-    auto itr = _orders.require_find(order_id, "Trade id is not found" );
-    eosio_assert(itr->bid == eos, "Asset does not match");
+    auto itr_order = _orders.require_find(order_id, "Trade id is not found" );
+    eosio_assert(itr_order->bid == eos, "Asset does not match");
     
-    const auto seller = name(itr->account);
+    const auto seller = name(itr_order->account);
 
     // transfer coin 所有权
-    for (auto &cid : itr->the_coins_for_sell) {
-        deletecoin(cid);
+    auto itr_player = _players.find( seller.value );
+    auto &v_pcoins = itr_player->coins;
+    for (const auto &cid : itr_order->the_coins_for_sell){
+        // deletecoin(cid);
+        for(std::size_t i=0;i<v_pcoins.size();++i){
+            if( cid ==  v_pcoins[i] ){
+                _players.modify(itr_player, get_self(), [&](auto &p) {
+                    p.coins.erase(p.coins.begin()+i);
+                });
+                break;
+            }
+        }
         exchangecoin(buyer, cid);
-        // _coins.modify(_coins.find(cid), get_self(), [&](auto &c) {
-        //     c.owner = buyer.value;
-        // });
     }
     
     // issue CCC bouns to buyer
@@ -277,7 +284,7 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset 
 
     // make log
     const st_rec_takeOrder _tor{
-        .matched_order = *itr,
+        .matched_order = *itr_order,
         .buyer = buyer,
     };
 
@@ -286,7 +293,7 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset 
         .send();
 
     // del order
-    _orders.erase(itr);
+    _orders.erase(itr_order);
 } // take_order()
 
 void cryptojinian::SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c)
