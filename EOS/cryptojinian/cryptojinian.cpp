@@ -1,7 +1,6 @@
 #include "cryptojinian.hpp"
 
 void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
-    // require_auth(get_self());
     //two-way binding.
     auto itr = _players.require_find( owner.value, "Unable to find player" );
     auto itr_newcoin = _coins.emplace(get_self(), [&](auto &c) {
