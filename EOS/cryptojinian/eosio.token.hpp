@@ -233,7 +233,7 @@ void token::sub_balance( name owner, asset value ) {
    if( from.balance.amount == value.amount ) {
       from_acnts.erase( from );
    } else {
-      from_acnts.modify( from, owner, [&]( auto& a ) {
+      from_acnts.modify( from, get_self(), [&]( auto& a ) {
           a.balance -= value;
       });
    }

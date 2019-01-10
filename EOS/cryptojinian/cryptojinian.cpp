@@ -41,7 +41,7 @@ void cryptojinian::exchangecoin(const name &owner, const uint64_t &id) {
         onecoin.owner = owner.value;
     });
 
-    _players.modify(itr, owner, [&](auto &p) {
+    _players.modify(itr, get_self(), [&](auto &p) {
         p.coins.push_back(id);
     });
 }
