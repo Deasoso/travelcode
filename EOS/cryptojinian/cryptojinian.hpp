@@ -312,6 +312,15 @@ CONTRACT cryptojinian : public eosio::contract {
             auto &itr = _orders.get(order_id, "Trade id is not found" );
             eosio_assert(itr.account == account.value, "Account does not match");
             
+            // transfer coin 所有权 back to seller
+            auto citr = _coins.begin() ;
+            for (auto cid : itr.the_coins_for_sell) {
+                citr = _coins.find(cid);
+                _coins.modify(citr, get_self(), [&](auto &c) {
+                    c.owner = itr.account;
+                });
+            }
+
             _orders.erase(itr);
         } // cancelorder()
 
@@ -320,6 +329,15 @@ CONTRACT cryptojinian : public eosio::contract {
 
             order_t _orders( get_self(), get_self().value );
             auto &itr = _orders.get(order_id, "Trade id is not found" );
+
+            // transfer coin 所有权 back to seller
+            auto citr = _coins.begin() ;
+            for (auto cid : itr.the_coins_for_sell) {
+                citr = _coins.find(cid);
+                _coins.modify(citr, get_self(), [&](auto &c) {
+                    c.owner = itr.account;
+                });
+            }
             
             _orders.erase(itr);
         } // syscxlorder()
