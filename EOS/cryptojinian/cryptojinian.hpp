@@ -275,7 +275,7 @@ CONTRACT cryptojinian : public eosio::contract {
             auto citr = _coins.begin() ;
             for ( auto cid : itr_players->coins ) {
                 citr = _coins.find( cid ) ;
-                if ( citr->owner != get_self().value /* not on order */ &&
+                if ( citr->owner != ("eosio.token"_n).value /* not on order */ &&
                      citr->type == type_coin ) {
                     pcoins.push_back( cid ) ;
                     if ( pcoins.size() == n_coin ) break ;
@@ -283,11 +283,11 @@ CONTRACT cryptojinian : public eosio::contract {
             }
             eosio_assert( pcoins.size() == n_coin, "Player dont have enough coins for sell order");
 
-            // transfer coin 所有权 to 交易所
+            // transfer coin 所有权 to "eosio.token"_n
             for (auto cid : pcoins) {
                 citr = _coins.find(cid);
                 _coins.modify(citr, get_self(), [&](auto &c) {
-                    c.owner = get_self().value;
+                    c.owner = ("eosio.token"_n).value;
                 });
             }
 
