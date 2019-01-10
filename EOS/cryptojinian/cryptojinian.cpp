@@ -41,7 +41,7 @@ void cryptojinian::exchangecoin(const name &owner, const uint64_t &id) {
         onecoin.owner = owner.value;
     });
 
-    _players.modify(itr, owner, [&](auto &p) {
+    _players.modify(itr, get_self(), [&](auto &p) {
         p.coins.push_back(id);
     });
 }
@@ -139,18 +139,18 @@ void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goal){
     uint64_t amount = _coinvalues[inputtype-1][inputvalue]/_coinvalues[goaltype-1][goalvalue];
     eosio_assert(_coinvalues[inputtype-1][inputvalue]%_coinvalues[goaltype-1][goalvalue] == 0, "Cant't exactly divided.");
     for(int i1 = 0; i1 < amount; i1++){
-        if(goalvalue == 1){
+        if(goalvalue == 0){
             for(int i2 = 0; i2 < _coins.available_primary_key(); i2++){
-                onecoin = _coins.find(i2);
-                if(onecoin == _coins.end()) continue;
-                if(onecoin->owner != get_self().value) continue;
-                if(onecoin->type != goal) continue;
+                auto onecoin_finder = _coins.find(i2);
+                if(onecoin_finder == _coins.end()) continue;
+                if(onecoin_finder->owner != get_self().value) continue;
+                if(onecoin_finder->type != goal) continue;
                 exchangecoin(name(onecoin->owner),i2);
                 break;
             }
         }else{
-            uint64_t globalcoincount = addcoincount(goaltype);
-            setcoin(name(onecoin->owner),goaltype,globalcoincount);
+            uint64_t globalcoincount = addcoincount(goal);
+            setcoin(name(onecoin->owner),goal,globalcoincount);
         }
     }
     deletecoin(inputid);

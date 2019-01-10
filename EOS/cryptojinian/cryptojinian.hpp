@@ -296,7 +296,7 @@ CONTRACT cryptojinian : public eosio::contract {
 
             // push order
             order_t _orders( get_self(), get_self().value );
-            _orders.emplace( account, [&](auto &o) {
+            _orders.emplace( get_self(), [&](auto &o) {
                 o.id = _orders.available_primary_key() % 1000000 + type_order * 1000000 ;
                 o.account = account.value ;
                 o.bid = eos ;
