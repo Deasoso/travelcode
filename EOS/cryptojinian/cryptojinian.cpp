@@ -149,8 +149,8 @@ void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goal){
                 break;
             }
         }else{
-            uint64_t globalcoincount = addcoincount(goaltype);
-            setcoin(name(onecoin->owner),goaltype,globalcoincount);
+            uint64_t globalcoincount = addcoincount(goal);
+            setcoin(name(onecoin->owner),goal,globalcoincount);
         }
     }
     deletecoin(inputid);
