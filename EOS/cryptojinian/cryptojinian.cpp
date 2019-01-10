@@ -139,7 +139,7 @@ void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goal){
     uint64_t amount = _coinvalues[inputtype-1][inputvalue]/_coinvalues[goaltype-1][goalvalue];
     eosio_assert(_coinvalues[inputtype-1][inputvalue]%_coinvalues[goaltype-1][goalvalue] == 0, "Cant't exactly divided.");
     for(int i1 = 0; i1 < amount; i1++){
-        if(goalvalue == 1){
+        if(goalvalue == 0){
             for(int i2 = 0; i2 < _coins.available_primary_key(); i2++){
                 onecoin = _coins.find(i2);
                 if(onecoin == _coins.end()) continue;
