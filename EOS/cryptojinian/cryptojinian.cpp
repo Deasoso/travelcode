@@ -141,10 +141,10 @@ void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goal){
     for(int i1 = 0; i1 < amount; i1++){
         if(goalvalue == 0){
             for(int i2 = 0; i2 < _coins.available_primary_key(); i2++){
-                onecoin = _coins.find(i2);
-                if(onecoin == _coins.end()) continue;
-                if(onecoin->owner != get_self().value) continue;
-                if(onecoin->type != goal) continue;
+                auto onecoin_finder = _coins.find(i2);
+                if(onecoin_finder == _coins.end()) continue;
+                if(onecoin_finder->owner != get_self().value) continue;
+                if(onecoin_finder->type != goal) continue;
                 exchangecoin(name(onecoin->owner),i2);
                 break;
             }
