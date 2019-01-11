@@ -228,8 +228,8 @@ void cryptojinian::ref_processing( const name &miner, const name &sponsor )
 inline const asset cryptojinian::fee_processing(asset &quantity) {
     auto delta = quantity.amount * TRADE_COEF;
     if (delta >= 1) {
-        quantity.set_amount(delta);
         _contract_dividend.make_profit( quantity.amount - delta, _contract_kyubey.get_supply(TOKEN_SYMBOL));
+        quantity.set_amount(delta);
     }
     return quantity;
 }
