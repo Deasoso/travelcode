@@ -31,6 +31,7 @@ CONTRACT cryptojinian : public eosio::contract {
         TABLE accounts : kyubey::account {};
         TABLE stat : kyubey::currency_stats {};
         struct [[eosio::table("dividend")]] st_dividend : kyubeytool::dividend::st_d_global {};
+        TABLE playerinfo : kyubeytool::dividend::st_player_info {};
     
         struct [[eosio::table("global")]] st_global {
             uint64_t id = 0;
@@ -166,6 +167,7 @@ CONTRACT cryptojinian : public eosio::contract {
         } // join_game_processing()
 
         void token_mining( name miner, asset quantity, string memo );
+        void token_mining_with_stake(name miner, asset quantity, string memo);
         inline const asset fee_processing( asset &quantity ) ;
 
         auto collection_counter( const name &account ) {
@@ -245,7 +247,8 @@ CONTRACT cryptojinian : public eosio::contract {
             while( itr != _miningqueue.end() && n != v_seed.size() ) {
                 miner = name(itr->miner) ;
                 newcoinbypos( miner, findcoinpos( v_seed[n] ) ) ;
-                token_mining( miner, asset( mc.amount * 10, CCC_SYMBOL ), "CCC mining." );
+                token_mining( miner, asset( mc.amount * config::MINING_COEF, config::TOKEN_SYMBOL ),
+                              "CCC mining.");
                 
                 SEND_INLINE_ACTION( *this, recmining, { _self, "active"_n }, { miner } );
                 _miningqueue.erase( itr );
@@ -414,7 +417,7 @@ CONTRACT cryptojinian : public eosio::contract {
                 if ( type == 28 )
                     _contract_dividend.collection_claim( account );   
                 else
-                    token_mining( account, config::bouns_table(type), string("Bouns from collection claim.") );
+                    token_mining_with_stake( account, config::bouns_table(type), string("Bouns from collection claim.") );
                                 
                 SEND_INLINE_ACTION( *this, reccollclaim, { _self, "active"_n }, { account, type } );
                 itr.records[type] = r ;

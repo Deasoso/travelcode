@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Jan 10 17:53:46 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Jan 14 11:55:25 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -276,6 +276,11 @@
             ]
         },
         {
+            "name": "playerinfo",
+            "base": "st_player_info",
+            "fields": []
+        },
+        {
             "name": "pushorder",
             "base": "",
             "fields": [
@@ -411,6 +416,16 @@
                 {
                     "name": "miner",
                     "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "st_player_info",
+            "base": "",
+            "fields": [
+                {
+                    "name": "payout",
+                    "type": "asset"
                 }
             ]
         },
@@ -657,6 +672,13 @@
         {
             "name": "player",
             "type": "player",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "playerinfo",
+            "type": "playerinfo",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

@@ -16,7 +16,18 @@ namespace kyubeytool {
 
          static constexpr uint128_t MAGNITUDE = 1ll<<32;
 
+         struct st_player_info {
+            // asset staked;
+            asset payout;
+         };
+         /*
+         struct refund_request {
+            time request_time;
+            asset amount;
+         };*/
+
          void make_profit(uint64_t delta, asset total_staked);
+         void stake(name &from, asset delta);
          void claim(name &from, asset quantity);
          void collection_claim( const name &from );
 
@@ -32,6 +43,7 @@ namespace kyubeytool {
          };
 
          typedef singleton<"dividend"_n, st_d_global> singleton_global_t;
+         typedef singleton<"playerinfo"_n, st_player_info> singleton_playerinfo_t;
          singleton_global_t _global;
 
          uint64_t get_next_defer_id() {
@@ -57,43 +69,49 @@ void dividend::make_profit(uint64_t delta, asset total_staked) {
     g.earnings_for_collection += delta * 0.1 ;
     _global.set(g, get_self());
 }
-    /*
-   void dividend::stake(name from, asset delta)
-   {
-      //require_auth(from);
-      //eosio_assert(delta.amount > 0, "must stake a positive amount");
-      
-    singleton_voters _voters(_self, from.value);
-    auto v = _voters.get_or_create(_self, voter_info{.staked = asset(0, TOKEN_SYMBOL)});
-    auto g = _global.get();
-    v.staked += delta;
-    v.payout += g.earnings_per_share * delta.amount / MAGNITUDE;
-    _voters.set(v, _self);
-    g.total_staked += delta;
-    _global.set(g, _self);
-    }*/
 
-void dividend::claim(name &from, asset quantity) {
-    require_auth(get_self());
-    auto g = _global.get();
-    int64_t raw_dividend = g.earnings_per_share * quantity.amount / MAGNITUDE;
-    asset delta( raw_dividend, config::EOS_SYMBOL);
+void dividend::stake(name &from, asset delta) {
+   eosio_assert(delta.amount > 0, "must stake a positive amount");
+   eosio_assert(delta.symbol == config::TOKEN_SYMBOL, "must be token.");
 
-    if ( delta.is_valid() && delta.amount > 0) {
-       
-      action(permission_level{ _self, "active"_n},
-            "eosio.token"_n, "transfer"_n,
-            make_tuple( _self, from, delta,
-                string("claim dividend."))
-      ).send();
-
-        g.last = from.value ;
-        _global.set(g, get_self());
-       
-    }
+   singleton_playerinfo_t _playerinfo(get_self(), from.value);
+   auto pi = _playerinfo.get_or_create(get_self(), st_player_info{.payout = asset(0, config::EOS_SYMBOL)});
+   auto g = _global.get();
+   // pi.staked += delta;
    
+   // only " asset += asset " has addition underflow & overflow checking
+   pi.payout += asset( g.earnings_per_share * delta.amount / MAGNITUDE, pi.payout.symbol );
+   _playerinfo.set(pi, _self);
+
+   // auto g = _global.get();
+   //g.total_staked += delta;
+   //_global.set(g, _self);
 }
 
+void dividend::claim(name &from, asset quantity) {
+   require_auth(get_self());
+
+   singleton_playerinfo_t _playerinfo(get_self(), from.value);
+   auto pi = _playerinfo.get_or_create(get_self(), st_player_info{.payout = asset(0, config::EOS_SYMBOL)});
+
+   auto g = _global.get();
+   int64_t raw_dividend = g.earnings_per_share * quantity.amount / MAGNITUDE;
+   asset delta(raw_dividend, config::EOS_SYMBOL);
+   if (delta > pi.payout) delta.set_amount(delta.amount - pi.payout.amount);
+
+   pi.payout.set_amount( raw_dividend );
+   _playerinfo.set(pi, get_self());
+
+   if (delta.is_valid() && delta.amount > 0) {
+      action(permission_level{_self, "active"_n},
+             "eosio.token"_n, "transfer"_n,
+             make_tuple(get_self(), from, delta, string("claim dividend.")))
+      .send();
+
+      g.last = from.value;
+      _global.set(g, get_self());
+   }
+}
 
 void dividend::collection_claim(const name &from) {
     require_auth(get_self());
@@ -112,5 +130,110 @@ void dividend::collection_claim(const name &from) {
       _global.set(g, get_self());       
     }
 }
+/*
+void dividend::unstake(name from, asset delta) {
+    require_auth(from);
+    singleton_voters _voters(_self, from.value);
+    auto v = _voters.get_or_create(_self, voter_info{});
+    auto g = _global.get();
+    eosio_assert(delta <= v.staked, "don't have enough token for unstake");
+
+    if (g.earnings_per_share * delta.amount / MAGNITUDE <= v.payout) {
+        v.payout -= g.earnings_per_share * delta.amount / MAGNITUDE;
+    } else {
+        v.payout = 0;
+    }
+
+    v.staked -= delta;
+    _voters.set(v, _self);   
+
+    g.total_staked -= delta;
+    _global.set(g, _self);
+
+    singleton_dividend _dividend(_self, v.to.value);
+    if (_dividend.exists()) {
+        auto c = _dividend.get();
+        c.total_votes -= delta.amount;
+        _dividend.set(c, _self); 
+    }
+
+    singleton_refunds _refunds( _self, from.value );
+    auto req = _refunds.get_or_create(_self, refund_request{.amount = asset(0, TOKEN_SYMBOL)});
+    req.request_time = now();
+    req.amount += delta;
+    _refunds.set(req, _self);
+
+    send_defer_refund_action(from);
+}
+
+void dividend::claim(name from) {
+    require_auth(from);
+    singleton_voters _voters(_self, from.value);
+    auto v = _voters.get_or_create(_self, voter_info{});
+    auto g = _global.get();
+
+   
+    auto delta = asset(0, TOKEN_SYMBOL);
+    auto raw_dividend = g.earnings_per_share * v.staked.amount / MAGNITUDE;
+    if (raw_dividend > v.payout) delta.amount = raw_dividend - v.payout;
+
+    v.payout = raw_dividend;
+    _voters.set(v, _self);
+
+    if (delta.amount > 0) {
+        action(
+            permission_level{_self, "active"_n},
+            TOKEN_CONTRACT, "transfer"_n,
+            make_tuple(_self, from, delta,
+                string("claim dividend."))
+        ).send();        
+    }
+}
+
+void dividend::refund(name from) {
+    require_auth( from );
+    
+    singleton_refunds refunds_tbl( _self, from.value );
+    eosio_assert( refunds_tbl.exists(), "refund request not found" );
+    auto req = refunds_tbl.get();
+
+    // eosio_assert( req.request_time + refund_delay >= now(), "refund is not available yet" );
+    // Until now() becomes NOW, the fact that now() is the timestamp of the previous block could in theory
+    // allow people to get their tokens earlier than the 1 day delay if the unstake happened immediately after many
+    // consecutive missed blocks.
+
+    action(
+        permission_level{_self, "active"_n},
+        TOKEN_CONTRACT, "transfer"_n,
+        make_tuple(_self, from, req.amount, string("unstake refund"))
+    ).send();
+
+    refunds_tbl.remove();
+}
+
+void dividend::onTransfer(name from, name to, extended_asset in, string memo) {        
+
+    if (to != _self) return;
+    require_auth(from);
+    eosio_assert(in.quantity.is_valid(), "invalid token transfer");
+    eosio_assert(in.quantity.amount > 0, "must transfer a positive amount");
+
+    auto params = split(memo, ' ');
+    eosio_assert(params.size() >= 1, "error memo");    
+    
+    if (params[0] == "stake") {        
+        eosio_assert(in.contract == TOKEN_CONTRACT, "must use true target TOKEN to stake");
+        eosio_assert(in.quantity.symbol == TOKEN_SYMBOL, "must use target TOKEN to stake");
+        stake(from, in.quantity);
+        return;
+    }    
+    
+    if (params[0] == "make_profit") {
+        eosio_assert(in.contract == TOKEN_CONTRACT, "must use true target TOKEN to make profit");
+        eosio_assert(in.quantity.symbol == TOKEN_SYMBOL, "must use target TOKEN to make profit");
+        make_profit(in.quantity.amount);
+        return;
+    }
+}*/
 
 } // namespace kyubeytool
