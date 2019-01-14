@@ -166,6 +166,12 @@ void cryptojinian::token_mining(name miner, asset quantity, string memo)
                         {itr->miner, asset( string_to_price("1.0000"), CCC_SYMBOL ), "mining 1 CCC"} );*/
 }
 
+void cryptojinian::token_mining_with_stake(name miner, asset quantity, string memo)
+{
+    token_mining( miner, quantity, memo );
+    _contract_dividend.stake( miner, quantity );
+}
+
 // check cost 
 // join_game_processing(miner)
 // join mining waiting Q
@@ -204,20 +210,20 @@ void cryptojinian::ref_processing( const name &miner, const name &sponsor )
         });
         // 發 bouns token 給 sponsor
         const auto refs_size = itr_sponsor->refs.size();
-        uint64_t bouns = 0;
+        asset bouns( 0, config::TOKEN_SYMBOL );
         if (refs_size <= 10)
-            bouns = 30;
+            bouns.set_amount( 30 * 10000 );
         else if (refs_size <= 30)
-            bouns = 40;
+            bouns.set_amount( 40 * 10000 );
         else if (refs_size <= 70)
-            bouns = 50;
+            bouns.set_amount( 50 * 10000 );
         else if (refs_size <= 100)
-            bouns = 60;
+            bouns.set_amount( 60 * 10000 );
         else
-            bouns = 80;
+            bouns.set_amount( 80 * 10000 );
 
-        token_mining( name(itr_sponsor->playername), asset( bouns * 10000, CCC_SYMBOL ),
-                      "bouns " + std::to_string(bouns) + " CCC" );
+        token_mining_with_stake( name(itr_sponsor->playername), bouns,
+                      "bouns " + std::to_string(bouns.amount / 10000) + " CCC" );
             
         _players.modify(itr_miner, get_self(), [&](auto &m) {
             m.sponsor = sponsor.value;
@@ -266,8 +272,8 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset 
         exchangecoin(buyer, cid);
     }
     
-    // issue CCC bouns to buyer
-    token_mining( buyer, asset( eos.amount, CCC_SYMBOL ), "CCC bouns" );
+    // issue token bouns to buyer
+    token_mining_with_stake( buyer, asset( eos.amount, config::TOKEN_SYMBOL ), "CCC bouns" );
 
     // 调整价格回原价
     eos.set_amount(eos.amount / ( 1 + TRADE_FEE ));
@@ -335,6 +341,8 @@ void cryptojinian::onTransfer(name from, name to, asset quantity, std::string me
             ref_processing( from, sponsor );
         }
         
+        const auto &mc = _global.get().miningcost();
+        _contract_dividend.stake( from, asset( mc.amount * config::MINING_COEF, config::TOKEN_SYMBOL ) );
         _contract_dividend.make_profit( quantity.amount, _contract_kyubey.get_supply( TOKEN_SYMBOL ) );
         return;
     }
