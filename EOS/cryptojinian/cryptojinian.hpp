@@ -422,7 +422,9 @@ CONTRACT cryptojinian : public eosio::contract {
                 SEND_INLINE_ACTION( *this, reccollclaim, { _self, "active"_n }, { account, type } );
                 itr.records[type] = r ;
                 _collection.set( itr, get_self() ) ;
-            }        
+            }else{
+                eosio_assert(false, "Not Enough Coin");
+            }   
         } // collclaim()
 
         ACTION joinbuybackq( const name &buyer, const asset &quantity ) {
