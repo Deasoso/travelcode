@@ -209,9 +209,7 @@ CONTRACT cryptojinian : public eosio::contract {
             require_auth( buyer );
             // _contract_kyubey.buy( buyer, in );
         }*/
-        inline vector<uint32_t> merge_seed(const capi_checksum256 &s1);
-
-        void deletecoin(const uint64_t &id);
+        inline vector<uint32_t> merge_seed(const capi_checksum256 &s);
 
     public:
         ACTION init();
@@ -231,6 +229,8 @@ CONTRACT cryptojinian : public eosio::contract {
             require_auth(get_self());
             setcoin(owner, type, number);
         }
+        void deletecoin(const uint64_t &id);
+
         ACTION ownerdelcoin(const uint64_t &id) {
             require_auth(get_self());
             deletecoin(id);
@@ -521,7 +521,7 @@ CONTRACT cryptojinian : public eosio::contract {
                 bbq_buyer.limit -= quantity ;
                 buybackqueue.set( bbq_buyer, get_self() );
     
-
+            }
             buybackqueue.remove();
         } // buyback
 
