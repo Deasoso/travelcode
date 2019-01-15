@@ -349,7 +349,7 @@ CONTRACT cryptojinian : public eosio::contract {
 
         ACTION claim( name &from ) {
             require_auth(get_self());
-            _contract_dividend.claim( from, _contract_kyubey.get_balance( from, TOKEN_SYMBOL ) );
+            _contract_dividend.claim( from, _contract_kyubey.get_balance( from, config::TOKEN_SYMBOL ) );
         }
 
         [[eosio::action("collclaim")]] void collclaim( const name &account, uint8_t &type ) {
@@ -430,7 +430,7 @@ CONTRACT cryptojinian : public eosio::contract {
         ACTION joinbuybackq( const name &buyer, const asset &quantity ) {
             require_auth(buyer);
             eosio_assert(quantity.is_valid(), "invalid token transfer");
-            eosio_assert(quantity.symbol == TOKEN_SYMBOL, "Only CCC token is allowed");
+            eosio_assert(quantity.symbol == config::TOKEN_SYMBOL, "Only CCC token is allowed");
             eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
             auto buyer_balance = _contract_kyubey.get_balance( buyer, quantity.symbol );
             eosio_assert(buyer_balance > quantity, "Must have enough token.");
@@ -441,7 +441,7 @@ CONTRACT cryptojinian : public eosio::contract {
                                                 .price = asset( 0, EOS_SYMBOL) }, get_self() );
             // set total
             singleton_buybackqueue_t bbq_self( get_self(), get_self().value);
-            auto bbq = bbq_self.get_or_create( get_self(), st_buybackqueue { .limit = asset( 0, TOKEN_SYMBOL),
+            auto bbq = bbq_self.get_or_create( get_self(), st_buybackqueue { .limit = asset( 0, config::TOKEN_SYMBOL),
                                                                              .price = asset( 0, EOS_SYMBOL)
                                                                            } );
             bbq.limit += buybackqueue.get().limit ;
@@ -468,7 +468,7 @@ CONTRACT cryptojinian : public eosio::contract {
         ACTION buyback( const name &buyer, asset &quantity ) {
             require_auth(get_self());
             eosio_assert(quantity.is_valid(), "invalid token transfer");
-            eosio_assert(quantity.symbol == TOKEN_SYMBOL, "Only CCC token is allowed");
+            eosio_assert(quantity.symbol == config::TOKEN_SYMBOL, "Only CCC token is allowed");
             eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
             auto buyer_balance = _contract_kyubey.get_balance( buyer, quantity.symbol );
             eosio_assert(buyer_balance > quantity, "Must have enough x.");
@@ -496,9 +496,9 @@ CONTRACT cryptojinian : public eosio::contract {
         ACTION autobuyback(  const name &buyer ) {
             require_auth(get_self());
             //eosio_assert(quantity.is_valid(), "invalid token transfer");
-            //eosio_assert(quantity.symbol == TOKEN_SYMBOL, "Only CCC token is allowed");
+            //eosio_assert(quantity.symbol == config::TOKEN_SYMBOL, "Only CCC token is allowed");
             //eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
-            auto buyer_balance = _contract_kyubey.get_balance( buyer, TOKEN_SYMBOL );
+            auto buyer_balance = _contract_kyubey.get_balance( buyer, config::TOKEN_SYMBOL );
             
             singleton_buybackqueue_t buybackqueue( get_self(), buyer.value);
             eosio_assert( buybackqueue.exists(), "Did not entered buybackqueue before." ); 
