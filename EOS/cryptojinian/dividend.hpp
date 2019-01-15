@@ -93,13 +93,14 @@ void dividend::claim(name &from, asset quantity) {
 
    singleton_playerinfo_t _playerinfo(get_self(), from.value);
    auto pi = _playerinfo.get_or_create(get_self(), st_player_info{.payout = asset(0, config::EOS_SYMBOL)});
-
    auto g = _global.get();
-   int64_t raw_dividend = g.earnings_per_share * quantity.amount / MAGNITUDE;
-   asset delta(raw_dividend, config::EOS_SYMBOL);
-   if (delta > pi.payout) delta.set_amount(delta.amount - pi.payout.amount);
 
-   pi.payout.set_amount( raw_dividend );
+   auto delta = asset(0, config::EOS_SYMBOL);
+   int64_t raw_dividend = g.earnings_per_share * quantity.amount / MAGNITUDE;
+   if (raw_dividend > pi.payout.amount)
+       delta.set_amount(raw_dividend - pi.payout.amount);
+
+   pi.payout.set_amount(raw_dividend);
    _playerinfo.set(pi, get_self());
 
    if (delta.is_valid() && delta.amount > 0) {
