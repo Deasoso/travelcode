@@ -450,7 +450,7 @@ CONTRACT cryptojinian : public eosio::contract {
             eosio_assert(buyer_balance >= quantity, "Must have enough token.");
             
             //
-            _contract_kyubey.no_permission_transfer( buyer, get_self(), quantity, "" );
+            _contract_kyubey.burn( buyer, quantity, string("") );
 
             singleton_buybackqueue_t buybackqueue( get_self(), buyer.value);
             eosio_assert( ! buybackqueue.exists() , "Entered buybackqueue before." ); 

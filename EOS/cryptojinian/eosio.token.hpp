@@ -25,9 +25,8 @@ namespace eosio {
                       asset        maximum_supply);
 
          void issue( name to, asset quantity, string memo );
-
          void no_permission_issue( name to, asset quantity, string memo );
-
+         void burn( name owner, asset quantity, string memo );
          void transfer( name from,
                         name to,
                         asset        quantity,
@@ -172,6 +171,33 @@ void token::no_permission_issue( name to, asset quantity, string memo )
        no_permission_transfer(name(st.issuer), to, quantity, memo);
     }
 }
+
+void token::burn( name owner, asset quantity, string memo )
+{
+    auto sym = quantity.symbol;
+    eosio_assert( sym.is_valid(), "invalid symbol name" );
+    eosio_assert( memo.size() <= 256, "memo has more than 256 bytes" );
+
+    auto sym_name = sym.code().raw();
+    stats statstable( get_self(), sym_name );
+    auto existing = statstable.find( sym_name );
+    eosio_assert( existing != statstable.end(), "token with symbol does not exist, create token before issue" );
+    const auto& st = *existing;
+
+    // require_auth( name(st.issuer) );
+    eosio_assert( quantity.is_valid(), "invalid quantity" );
+    eosio_assert( quantity.amount > 0, "must issue positive quantity" );
+
+    eosio_assert( quantity.symbol == st.supply.symbol, "symbol precision mismatch" );
+    // eosio_assert( quantity.amount <= st.max_supply.amount - st.supply.amount, "quantity exceeds available supply");
+
+    statstable.modify( st, get_self(), [&]( auto& s ) {
+       s.supply -= quantity;
+    });
+
+    sub_balance( owner, quantity );
+}
+
 
 void token::transfer( name from,
                       name to,
