@@ -25,6 +25,7 @@ namespace kyubeytool {
             time request_time;
             asset amount;
          };*/
+         void cleanbuyback();
 
          void make_profit(uint64_t delta, asset total_staked);
          void stake(name &from, asset delta);
@@ -61,6 +62,13 @@ namespace kyubeytool {
          }
 
    };
+
+void dividend::cleanbuyback() {
+    auto g = _global.get_or_create( _self, st_d_global{});
+    g.earnings_for_buyback = 0 ; 
+    _global.set(g, get_self());
+}
+
 
 void dividend::make_profit(uint64_t delta, asset total_staked) {
     auto g = _global.get_or_create( _self, st_d_global{});

@@ -492,6 +492,7 @@ CONTRACT cryptojinian : public eosio::contract {
             eosio_assert( bbq_self.exists(), "Did not entered buybackqueue before." );
            
             bbq_self.remove();
+            _contract_dividend.cleanbuyback();
         } // cleanbbq
 
 
