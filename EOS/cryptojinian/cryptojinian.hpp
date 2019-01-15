@@ -366,7 +366,8 @@ CONTRACT cryptojinian : public eosio::contract {
             collection_t _collection( get_self(), account.value );
             auto itr = _collection.get_or_create( get_self(), st_collection { .records = vector<uint64_t> (22 + 6 + 1,0) } );
             auto vv_cc = collection_counter( account ) ;
-            SEND_INLINE_ACTION( *this, recpcoll, { _self, "active"_n }, { account, vv_cc } );
+            auto v_c = vv_cc[type] ;
+            SEND_INLINE_ACTION( *this, recpcoll, { _self, "active"_n }, { account, v_c } );
             
             uint64_t r ;
             if ( type < 22 ) {
@@ -548,7 +549,7 @@ CONTRACT cryptojinian : public eosio::contract {
             require_auth(get_self());
         }
         [[eosio::action("reccollc")]] void reccollclaim( const name &account, uint8_t &type ) {}
-        ACTION recpcoll( const name &account, vector<vector<uint64_t>> vv_cc ) {}
+        ACTION recpcoll( const name &account, vector<uint64_t> v_cc ) {}
 
     public:
         void apply(uint64_t receiver, uint64_t code, uint64_t action) ;
