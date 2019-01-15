@@ -301,7 +301,7 @@ CONTRACT cryptojinian : public eosio::contract {
             order_t _orders( get_self(), get_self().value );
             uint64_t neworderid = type_order * 1000000;
             auto getorder = _orders.find(neworderid);
-            while(getorder == _orders.end()){
+            while(getorder != _orders.end()){
                 neworderid ++;
                 getorder = _orders.find(neworderid);
             }
