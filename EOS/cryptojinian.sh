@@ -10,6 +10,8 @@ cleos -u https://api-kylin.eosasia.one push action ccctest22222 pushorder '["ccc
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 miningqueue
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 dividend
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 order
+#cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 coin
+
 
 cleos get table contract contract accounts
 cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 player -L lower -U upper cccmining555
@@ -33,7 +35,9 @@ cleos -u https://api-kylin.eosasia.one set account permission ccctest22222 activ
 
 cleos -u http://api-direct.eosasia.one push action eosio.token transfer '[ "rukamoemoe51","chainbankeos","78.2479 EOS","back"]' -p rukamoemoe51@active
 
-cleos -u https://api-kylin.eosasia.one push action ccctest22222  cccmining555
+cleos -u https://api-kylin.eosasia.one push action ccctest22222 joinbuybackq '[ "cccmining555","10.0000 CCC"]' -p cccmining555@active
+
+cleos -u https://api-kylin.eosasia.one push action ccctest22222 ownersetcoin '[ "cccmining555","301","11"]' -p ccctest22222@active
 
 
 cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 buybackqueue

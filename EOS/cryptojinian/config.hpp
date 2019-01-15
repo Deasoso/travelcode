@@ -21,6 +21,8 @@ constexpr double_t TRADE_COEF = 1 - TRADE_FEE ;
 
 constexpr int64_t MINING_COEF = 10 ;
 
+constexpr uint64_t PRICE_SCALE = 100000000;
+
 const asset cost_table( const uint64_t &n ) {
     if ( n > 408120 ) return asset( string_to_price("1.0000"), EOS_SYMBOL ) * 2 ;
     else if ( n > 386640 ) return asset( string_to_price("1.1000"), EOS_SYMBOL ) * 2 ;

@@ -211,6 +211,8 @@ CONTRACT cryptojinian : public eosio::contract {
         }*/
         inline vector<uint32_t> merge_seed(const capi_checksum256 &s1);
 
+        void deletecoin(const uint64_t &id);
+
     public:
         ACTION init();
         ACTION clear() {
@@ -229,8 +231,12 @@ CONTRACT cryptojinian : public eosio::contract {
             require_auth(get_self());
             setcoin(owner, type, number);
         }
+        ACTION ownerdelcoin(const uint64_t &id) {
+            require_auth(get_self());
+            deletecoin(id);
+        }
         
-        void deletecoin(const uint64_t &id);
+        
         void exchangecoin(const name &owner, const uint64_t &id);
 
         ACTION mining( const capi_checksum256 &seed ) {
@@ -452,10 +458,10 @@ CONTRACT cryptojinian : public eosio::contract {
             auto bbq = bbq_self.get_or_create( get_self(), st_buybackqueue { .limit = asset( 0, config::TOKEN_SYMBOL),
                                                                              .price = asset( 0, EOS_SYMBOL)
                                                                            } );
-            bbq.limit += buybackqueue.get().limit ;
+            bbq.limit += quantity ;
             auto _d_g = _contract_dividend._global.get() ;
-            bbq.price = asset( _d_g.earnings_for_buyback, EOS_SYMBOL)
-                      /= bbq.limit.amount ;
+            uint64_t price = _d_g.earnings_for_buyback * config::PRICE_SCALE / bbq.limit.amount ;
+            bbq.price = asset( price, config::EOS_SYMBOL);
             bbq_self.set( bbq, get_self() );
         }
 
@@ -467,12 +473,27 @@ CONTRACT cryptojinian : public eosio::contract {
             singleton_buybackqueue_t bbq_self( get_self(), get_self().value);
             auto bbq = bbq_self.get();
             bbq.limit -= buybackqueue.get().limit ;
-            bbq.price = asset( _contract_dividend._global.get().earnings_for_buyback, EOS_SYMBOL)
-                      /= bbq.limit.amount ;
+            if ( bbq.limit == asset( 0, config::TOKEN_SYMBOL) )
+                bbq.price = asset( 0, config::EOS_SYMBOL);
+            else {
+                auto _d_g = _contract_dividend._global.get() ;
+                uint64_t price = _d_g.earnings_for_buyback * config::PRICE_SCALE / bbq.limit.amount ;
+                bbq.price = asset( price, config::EOS_SYMBOL);
+            }
+            
             bbq_self.set( bbq, get_self() );
-
+          
             buybackqueue.remove();
         } // outbuybackq
+
+        ACTION cleanbbq(){
+            require_auth(get_self());
+            singleton_buybackqueue_t bbq_self( get_self(), get_self().value);
+            eosio_assert( bbq_self.exists(), "Did not entered buybackqueue before." );
+           
+            bbq_self.remove();
+        } // cleanbbq
+
 
         ACTION buyback( const name &buyer, asset &quantity ) {
             require_auth(get_self());
@@ -488,21 +509,23 @@ CONTRACT cryptojinian : public eosio::contract {
             eosio_assert( bbq_buyer.limit >= quantity, "Must have enough token limit.");
             
             singleton_buybackqueue_t bbq_self( get_self(), get_self().value);
-            quantity /= bbq_self.get().price.amount ;
+            quantity *= bbq_self.get().price.amount ;
+            quantity /= config::PRICE_SCALE ;
             asset delta( quantity.amount, EOS_SYMBOL ) ;
             if ( delta.is_valid() && delta.amount > 0) { 
                 action(permission_level{ _self, "active"_n},
                     "eosio.token"_n, "transfer"_n,
-                    make_tuple( _self, buyer, delta,
-                    string("Claim buyback."))
+                    make_tuple( _self, buyer, delta, string("Claim buyback."))
                 ).send();
 
                 bbq_buyer.limit -= quantity ;
                 buybackqueue.set( bbq_buyer, get_self() );
-            }
+    
+
+            buybackqueue.remove();
         } // buyback
 
-        ACTION autobuyback(  const name &buyer ) {
+        ACTION autobuyback( const name &buyer ) {
             require_auth(get_self());
             //eosio_assert(quantity.is_valid(), "invalid token transfer");
             //eosio_assert(quantity.symbol == config::TOKEN_SYMBOL, "Only CCC token is allowed");
@@ -515,20 +538,23 @@ CONTRACT cryptojinian : public eosio::contract {
             // eosio_assert( bbq_buyer.limit >= quantity, "Must have enough token limit.");
             auto quantity = bbq_buyer.limit;
             eosio_assert(buyer_balance > quantity, "Must have enough token.");
-            
+         
             singleton_buybackqueue_t bbq_self( get_self(), get_self().value);
-            quantity /= bbq_self.get().price.amount ;
+            quantity *= bbq_self.get().price.amount ;
+            quantity /= config::PRICE_SCALE ;
             asset delta( quantity.amount, EOS_SYMBOL ) ;
             if ( delta.is_valid() && delta.amount > 0) { 
                 action(permission_level{ _self, "active"_n},
                     "eosio.token"_n, "transfer"_n,
-                    make_tuple( _self, buyer, delta,
-                    string("Claim buyback."))
+                    make_tuple( _self, buyer, delta, string("Claim buyback."))
                 ).send();
 
                 bbq_buyer.limit -= quantity ;
+
                 buybackqueue.set( bbq_buyer, get_self() );
             }
+
+            buybackqueue.remove();
         } // buyback
 
         ACTION test() {
@@ -549,7 +575,7 @@ CONTRACT cryptojinian : public eosio::contract {
             require_auth(get_self());
         }
         [[eosio::action("reccollc")]] void reccollclaim( const name &account, uint8_t &type ) {}
-        ACTION recpcoll( const name &account, vector<uint64_t> v_cc ) {}
+        ACTION recpcoll( const name &account, vector<uint64_t> number_of_coins ) {}
 
     public:
         void apply(uint64_t receiver, uint64_t code, uint64_t action) ;
@@ -589,6 +615,7 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (clear)
                   (transfer)
                   (ownersetcoin)
+                  (ownerdelcoin)
                   (mining)
                   (pushorder)
                   (cancelorder)
@@ -600,6 +627,7 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (collclaim)
                   (joinbuybackq)
                   (outbuybackq)
+                  (cleanbbq)
                   (buyback)
                   (autobuyback)
                   (test)
