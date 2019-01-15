@@ -299,8 +299,14 @@ CONTRACT cryptojinian : public eosio::contract {
 
             // push order
             order_t _orders( get_self(), get_self().value );
+            uint64_t neworderid = type_order * 1000000;
+            auto getorder = _orders.find(neworderid);
+            while(getorder != _orders.end()){
+                neworderid ++;
+                getorder = _orders.find(neworderid);
+            }
             _orders.emplace( get_self(), [&](auto &o) {
-                o.id = _orders.available_primary_key() % 1000000 + type_order * 1000000 ;
+                o.id = neworderid;
                 o.account = account.value ;
                 o.bid = eos ;
                 o.the_coins_for_sell = pcoins ; // set coins
