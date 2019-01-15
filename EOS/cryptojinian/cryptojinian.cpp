@@ -17,10 +17,10 @@ void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64
 
 void cryptojinian::deletecoin(const uint64_t &id) {
     auto onecoin = _coins.find(id);
+    auto itr_player = _players.find(onecoin->owner);
     _coins.modify(onecoin, get_self(), [&](auto &onecoin) {
         onecoin.owner = get_self().value;
     });
-    auto itr_player = _players.find(onecoin->owner);
     for(std::size_t i3=0;i3<itr_player->coins.size();i3++){
         if(itr_player->coins[i3] == id){
             _players.modify(itr_player, get_self(), [&](auto &p) {
