@@ -34,6 +34,7 @@ cleos -u https://api-kylin.eosasia.one set account permission ccctest22222 activ
 cleos -u http://api-direct.eosasia.one push action eosio.token transfer '[ "rukamoemoe51","chainbankeos","78.2479 EOS","back"]' -p rukamoemoe51@active
 
 
+cleos -u http://api-direct.eosasia.one get table chainbankeos chainbankeos buybackqueue
 
 cleos -u http://api-direct.eosasia.one get table chainbankeos chainbankeos order
 

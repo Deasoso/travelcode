@@ -452,7 +452,8 @@ CONTRACT cryptojinian : public eosio::contract {
                                                                              .price = asset( 0, EOS_SYMBOL)
                                                                            } );
             bbq.limit += buybackqueue.get().limit ;
-            bbq.price = asset( _contract_dividend._global.get().earnings_for_buyback, EOS_SYMBOL)
+            auto _d_g = _contract_dividend._global.get() ;
+            bbq.price = asset( _d_g.earnings_for_buyback, EOS_SYMBOL)
                       /= bbq.limit.amount ;
             bbq_self.set( bbq, get_self() );
         }
@@ -547,7 +548,7 @@ CONTRACT cryptojinian : public eosio::contract {
             require_auth(get_self());
         }
         [[eosio::action("reccollc")]] void reccollclaim( const name &account, uint8_t &type ) {}
-        ACTION recpcoll( const name &account, vector<vector<uint64_t> > ) {}
+        ACTION recpcoll( const name &account, vector<vector<uint64_t>> vv_cc ) {}
 
     public:
         void apply(uint64_t receiver, uint64_t code, uint64_t action) ;
