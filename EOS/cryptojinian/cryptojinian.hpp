@@ -447,7 +447,7 @@ CONTRACT cryptojinian : public eosio::contract {
             eosio_assert(quantity.symbol == config::TOKEN_SYMBOL, "Only CCC token is allowed");
             eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
             auto buyer_balance = _contract_kyubey.get_balance( buyer, quantity.symbol );
-            eosio_assert(buyer_balance > quantity, "Must have enough token.");
+            eosio_assert(buyer_balance >= quantity, "Must have enough token.");
             
             singleton_buybackqueue_t buybackqueue( get_self(), buyer.value);
             eosio_assert( ! buybackqueue.exists() , "Entered buybackqueue before." ); 
