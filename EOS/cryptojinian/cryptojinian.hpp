@@ -147,11 +147,12 @@ CONTRACT cryptojinian : public eosio::contract {
         
     private:
         void setcoin(const name &owner, const uint64_t &type, const uint64_t &number);
+        void deletecoin(const uint64_t &id);
         uint64_t addcoincount( uint64_t type );
         uint64_t findcoinpos( uint32_t &input );
         void newcoinbypos(const name owner, const uint64_t pos);
-        ACTION exchange(const std::string inputs);
-        ACTION exchangedown(const uint64_t inputid, const uint64_t goal);
+        void exchangecoin(const name &owner, const uint64_t &id);
+
         void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
 
         auto join_game_processing(const name &account) {
@@ -212,33 +213,33 @@ CONTRACT cryptojinian : public eosio::contract {
         inline vector<uint32_t> merge_seed(const capi_checksum256 &s);
 
     public:
+        // Contract management
         ACTION init();
-        ACTION clear() {
-            require_auth(get_self());
-            auto itr = _usedcoins.begin();
-            while( itr != _usedcoins.end() ) {
-                _usedcoins.erase(itr);
-                itr = _usedcoins.begin();
-            }
+        ACTION clear(); // for _usedcoins
+
+        // Token management
+        ACTION issue( name to, asset quantity, string memo ){
+            _contract_kyubey.issue(to, quantity, memo);
+            _contract_dividend.stake( to, quantity );
         }
         ACTION transfer(name from, name to, asset quantity, string memo) {
             require_auth( from );
             _contract_kyubey.transfer(from, to, quantity, memo);
         }
+
+        // Coin management
         ACTION ownersetcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
             require_auth(get_self());
             setcoin(owner, type, number);
-        }
-        void deletecoin(const uint64_t &id);
-
+        }        
         ACTION ownerdelcoin(const uint64_t &id) {
             require_auth(get_self());
             deletecoin(id);
         }
-        
-        
-        void exchangecoin(const name &owner, const uint64_t &id);
+        ACTION exchange(const std::string inputs);
+        ACTION exchangedown(const uint64_t inputid, const uint64_t goal);
 
+        // Game management
         ACTION mining( const capi_checksum256 &seed ) {
             require_auth(get_self());
 
@@ -265,6 +266,7 @@ CONTRACT cryptojinian : public eosio::contract {
             }
         }
 
+        // Trade management
         ACTION pushorder( const name &account, asset &eos, string &straddorder ) {
             // straddorder = type_order type_coin n_coin
             // type_order: 1 or 2
@@ -318,8 +320,7 @@ CONTRACT cryptojinian : public eosio::contract {
                 o.the_coins_for_sell = pcoins ; // set coins
                 o.timestamp = current_time();
             });
-        } // pushorder()
-        
+        }
         ACTION cancelorder( const name &account, const uint64_t &order_id ) {
             require_auth(account);
 
@@ -337,8 +338,7 @@ CONTRACT cryptojinian : public eosio::contract {
             }
 
             _orders.erase(itr);
-        } // cancelorder()
-
+        }
         ACTION syscxlorder( const uint64_t &order_id ) {
             require_auth(get_self());
 
@@ -355,16 +355,17 @@ CONTRACT cryptojinian : public eosio::contract {
             }
             
             _orders.erase(itr);
-        } // syscxlorder()
-
+        }
         void takeorder( const name &buyer, const uint64_t &order_id, asset &eos );
 
+        // Dividend management
         ACTION claim( name &from ) {
             require_auth(get_self());
             _contract_dividend.claim( from, _contract_kyubey.get_balance( from, config::TOKEN_SYMBOL ) );
         }
 
-        [[eosio::action("collclaim")]] void collclaim( const name &account, uint8_t &type ) {
+        // Coll management
+        ACTION collclaim( const name &account, uint8_t &type ) {
             require_auth(account);
             eosio_assert( type < 23 + 6 + 1, "Type error");
             type --;
@@ -439,8 +440,9 @@ CONTRACT cryptojinian : public eosio::contract {
             }else{
                 eosio_assert(false, "Not Enough Coin");
             }   
-        } // collclaim()
+        }
 
+        // Buyback management
         ACTION joinbuybackq( const name &buyer, const asset &quantity ) {
             require_auth(buyer);
             eosio_assert(quantity.is_valid(), "invalid token transfer");
@@ -467,7 +469,6 @@ CONTRACT cryptojinian : public eosio::contract {
             bbq.price = asset( price, config::EOS_SYMBOL);
             bbq_self.set( bbq, get_self() );
         }
-
         ACTION outbuybackq( const name &buyer ){
             require_auth(buyer);
             singleton_buybackqueue_t buybackqueue( get_self(), buyer.value);
@@ -487,8 +488,7 @@ CONTRACT cryptojinian : public eosio::contract {
             bbq_self.set( bbq, get_self() );
           
             buybackqueue.remove();
-        } // outbuybackq
-
+        }
         ACTION cleanbbq(){
             require_auth(get_self());
             singleton_buybackqueue_t bbq_self( get_self(), get_self().value);
@@ -496,9 +496,7 @@ CONTRACT cryptojinian : public eosio::contract {
            
             bbq_self.remove();
             _contract_dividend.cleanbuyback();
-        } // cleanbbq
-
-
+        }
         ACTION buyback( const name &buyer, asset &quantity ) {
             require_auth(get_self());
             eosio_assert(quantity.is_valid(), "invalid token transfer");
@@ -527,8 +525,7 @@ CONTRACT cryptojinian : public eosio::contract {
     
             }
             buybackqueue.remove();
-        } // buyback
-
+        }
         ACTION autobuyback( const name &buyer ) {
             require_auth(get_self());
             auto buyer_balance = _contract_kyubey.get_balance( buyer, config::TOKEN_SYMBOL );
@@ -556,8 +553,9 @@ CONTRACT cryptojinian : public eosio::contract {
             }
 
             buybackqueue.remove();
-        } // buyback
+        }
 
+        // Test
         ACTION test() {
             require_auth(get_self());
             
@@ -565,18 +563,12 @@ CONTRACT cryptojinian : public eosio::contract {
             findcoinpos( x ) ;
         }
 
-        // rec
+        // Rec
         ACTION receipt(const st_rec_takeOrder& take_order_record) {}
-
-        ACTION issue( name to, asset quantity, string memo ){
-            _contract_kyubey.issue(to, quantity, memo);
-            _contract_dividend.stake( to, quantity );
-        }
-        
         ACTION recmining( const name &miner ) {
             require_auth(get_self());
         }
-        [[eosio::action("reccollc")]] void reccollclaim( const name &account, uint8_t &type ) {}
+        ACTION reccollclaim( const name &account, uint8_t &type ) {}
         ACTION recpcoll( const name &account, vector<uint64_t> number_of_coins ) {}
 
     public:
@@ -601,6 +593,15 @@ void cryptojinian::init() {
     _contract_kyubey.create( get_self(), asset( CCC_MAX_SUPPLY, CCC_SYMBOL ) );
 }
 
+void cryptojinian::clear() {
+    require_auth(get_self());
+    auto itr = _usedcoins.begin();
+    while (itr != _usedcoins.end()) {
+        _usedcoins.erase(itr);
+        itr = _usedcoins.begin();
+    }
+}
+
 void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
     auto &thiscontract = *this;
     if ( code == ( "eosio.token"_n ).value && action == ( "transfer"_n ).value ) {
@@ -613,17 +614,17 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
     switch (action) {
         EOSIO_DISPATCH_HELPER(cryptojinian,
                   (init)
-                  (issue)
                   (clear)
+                  (issue)
                   (transfer)
                   (ownersetcoin)
                   (ownerdelcoin)
+                  (exchange)
+                  (exchangedown)
                   (mining)
                   (pushorder)
                   (cancelorder)
                   (syscxlorder)
-                  (exchange)
-                  (exchangedown)
                   /*(takeorder)*/
                   (claim)
                   (collclaim)
@@ -633,7 +634,6 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (buyback)
                   (autobuyback)
                   (test)
-                  /*(test1)*/
                   (receipt)
                   (recmining)
                   (reccollclaim)

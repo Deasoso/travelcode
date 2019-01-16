@@ -7,12 +7,16 @@ namespace config {
 
 constexpr auto CCC_MAX_SUPPLY = 300000000000;
 
-const auto EOS_CONTRACT = "eosio.token"_n;
 const auto EOS_SYMBOL = eosio::symbol("EOS", 4);
-// const auto CCC_CONTRACT = get_self();
+const auto EOS_CONTRACT = "eosio.token"_n;
+
 const auto CCC_SYMBOL = eosio::symbol("CCC", 4);
-// const auto TOKEN_CONTRACT =
+// const auto CCC_CONTRACT = get_self();
+
 const auto TOKEN_SYMBOL = CCC_SYMBOL ;
+// const auto TOKEN_CONTRACT =
+
+const auto DIVIDEND_EX_SYMBOL = eosio::extended_symbol( EOS_SYMBOL, EOS_CONTRACT ) ;
 
 const auto DEF_SPONSOR = "rukamoemoe51"_n;
 
