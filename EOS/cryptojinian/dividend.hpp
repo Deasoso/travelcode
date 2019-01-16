@@ -114,6 +114,8 @@ void dividend::claim(name &owner, asset quantity) {
 
       g.last = owner.value;
       _global.set(g, get_self());
+   }else{
+       eosio_assert(false, "Can't Send EOS.");
    }
 }
 
@@ -132,7 +134,9 @@ void dividend::collection_claim(const name &from) {
 
       g.earnings_for_collection = 0 ;
       _global.set(g, get_self());       
-    }
+    }else{
+       eosio_assert(false, "Can't Send EOS.");
+   }
 }
 /*
 void dividend::unstake(name from, asset delta) {
