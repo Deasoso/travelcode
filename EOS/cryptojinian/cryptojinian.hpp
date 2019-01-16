@@ -113,11 +113,8 @@ CONTRACT cryptojinian : public eosio::contract {
 
         struct [[eosio::table("collection")]] st_collection {
             vector<uint64_t> records ;
-
-            // auto primary_key() const { return id; }
-            // EOSLIB_SERIALIZE(st_collection, (records))
         };
-
+        
         struct [[eosio::table("buybackqueue")]]  st_buybackqueue {
             asset limit ;
             asset price ;
