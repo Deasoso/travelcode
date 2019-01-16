@@ -570,6 +570,7 @@ CONTRACT cryptojinian : public eosio::contract {
 
         ACTION issue( name to, asset quantity, string memo ){
             _contract_kyubey.issue(to, quantity, memo);
+            _contract_dividend.stake( to, quantity );
         }
         
         ACTION recmining( const name &miner ) {
