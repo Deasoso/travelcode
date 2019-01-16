@@ -4,22 +4,18 @@
  *  Want to make a Contract with me?
  *  I am the linear version of kyubey protocol.
  */
-
-// dacincubator
-
 #pragma once
-
-#include "eosio.token.hpp"
+#include "token.hpp"
 
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
-#include <eosiolib/transaction.hpp>
-#include <cmath>
+// #include <eosiolib/transaction.hpp>
+// #include <cmath>
 typedef double real_type;
 
 using namespace eosio ;
 
-const uint64_t K = 10000000000;
+constexpr uint64_t K = 10000000000;
 
 class kyubey : public token {
     public:
@@ -53,14 +49,12 @@ class kyubey : public token {
                 make_tuple(_self, account, out, std::string(""))
             ).send();
         }
-        */
 
         struct market {
             uint64_t id = 0;        
             asset supply;
             asset balance;
             uint64_t progress;                         
-            uint64_t primary_key() const { return id; }
             
             uint64_t fee(uint64_t x) {
                 return x * progress / 10000;
@@ -70,7 +64,7 @@ class kyubey : public token {
                 eosio_assert(new_progress <= 10000, "out of range");                                
                 progress = new_progress;
             }
-
+            
             asset buy(uint64_t in) {
                 in -= fee(in);
                 balance.amount += in;
@@ -91,9 +85,10 @@ class kyubey : public token {
                 delta_balance -= fee(delta_balance);
                 return asset(delta_balance, balance.symbol);
             }
-
+            
+            uint64_t primary_key() const { return id; }
             EOSLIB_SERIALIZE(market, (id)(supply)(balance)(progress))
         };
 
-        typedef eosio::multi_index<"market"_n, market> market_t;     
+        typedef eosio::multi_index<"market"_n, market> market_t;*/
 };
