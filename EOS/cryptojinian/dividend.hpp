@@ -80,7 +80,7 @@ void dividend::make_profit(uint64_t delta, asset total_staked) {
 
 void dividend::stake(name &from, asset delta) {
    eosio_assert(delta.amount > 0, "must stake a positive amount");
-   eosio_assert(delta.symbol == config::DIVIDEND_EX_SYMBOL.get_symbol(), "must be token.");
+   eosio_assert(delta.symbol == config::TOKEN_SYMBOL, "must be token.");
 
    singleton_playerinfo_t _playerinfo(get_self(), from.value);
    auto pi = _playerinfo.get_or_create(get_self(), st_player_info{});

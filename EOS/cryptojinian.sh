@@ -1,6 +1,10 @@
 cleos wallet unlock -n www --password PW5JDQJvz73w73eNEtthCRhLn9gieFki5uiZu1JZdjwMftVA3f4cG
 
 cleos -u https://api-kylin.eosasia.one set contract ccctest22222 cryptojinian -p ccctest22222@active
+
+cleos 
+cleos --wallet-url http://127.0.0.1:8900 -u https://api-kylin.eosasia.one set contract ccctest22222 /mnt/d/ruka/Documents/github/cryptocoin-contracts/EOS/cryptojinian -p ccctest22222@active
+
 https://kylin.eoscanada.com/
 cleos -u https://api-kylin.eosasia.one push action ccctest22222 pushorder '["cccmining555","1.0000 EOS","1 1 3" ]' -p cccmining555@active
 #cleos -u https://api-kylin.eosasia.one get table ccctest22222 ccctest22222 accounts
