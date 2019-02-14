@@ -259,7 +259,7 @@ CONTRACT cryptojinian : public eosio::contract {
                 
                 itr = _miningqueue.begin();
                 n++ ;
-                if ( n > 2 ) return ;
+                if ( n > config::MINING_TIMES ) return ;
             }
         }
 
@@ -578,8 +578,10 @@ vector<uint32_t> cryptojinian::merge_seed(const capi_checksum256 &s) {
     vector<uint32_t> v_hash ;
     for (uint8_t i = 0 ; i < 32 ; i += 4 ) {
         hash = ( s.hash[i] << 24 ) | ( s.hash[i+1] << 16 ) | ( s.hash[i+2] << 8 ) | s.hash[i+3] ;
-        // hash = ( s16[0] << 48 ) | ( s16[1] << 32 ) | ( s16[2] << 16 )  | s16[3] ;
         v_hash.push_back( hash ) ;
+        hash = ( s.hash[i+3] << 24 ) | ( s.hash[i+2] << 16 ) | ( s.hash[i+1] << 8 ) | s.hash[i] ;
+        v_hash.push_back( hash ) ;
+        // hash = ( s16[0] << 48 ) | ( s16[1] << 32 ) | ( s16[2] << 16 )  | s16[3] ;
     }
     return v_hash;
 }

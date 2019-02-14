@@ -27,6 +27,8 @@ constexpr int64_t MINING_COEF = 10 ;
 
 constexpr uint64_t PRICE_SCALE = 100000000;
 
+constexpr uint8_t MINING_TIMES = 16 ;
+
 const asset cost_table( const uint64_t &n ) {
     if ( n > 408120 ) return asset( string_to_price("1.0000"), EOS_SYMBOL ) * 2 ;
     else if ( n > 386640 ) return asset( string_to_price("1.1000"), EOS_SYMBOL ) * 2 ;
