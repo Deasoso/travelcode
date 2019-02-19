@@ -594,10 +594,27 @@ void cryptojinian::init() {
 
 void cryptojinian::clear() {
     require_auth(get_self());
-    auto itr = _usedcoins.begin();
-    while (itr != _usedcoins.end()) {
-        _usedcoins.erase(itr);
-        itr = _usedcoins.begin();
+    // auto itr = _players.begin();
+    // while (itr != _players.end()) {
+    //     _players.erase(itr);
+    //     itr = _players.begin();
+    // }
+    // itr = _global.begin();
+    // while (itr != _global.end()) {
+    //     _global.erase(itr);
+    //     itr = _global.begin();
+    // }
+    // itr = _coins.begin();
+    // while (itr != _coins.end()) {
+    //     _coins.erase(itr);
+    //     itr = _coins.begin();
+    // }
+    auto it = db_lowerbound_i64(get_self().value, ("daymonthyear"_n).value, ("collection"_n).value , 0);
+    while (it >= 0) {
+        auto del = it;
+        uint64_t dummy;
+        it = db_next_i64(it, &dummy);
+        db_remove_i64(del);
     }
 }
 
