@@ -599,23 +599,43 @@ void cryptojinian::clear() {
     //     _players.erase(itr);
     //     itr = _players.begin();
     // }
-    // itr = _global.begin();
-    // while (itr != _global.end()) {
-    //     _global.erase(itr);
-    //     itr = _global.begin();
+    // auto itr3 = _coins.begin();
+    // while (itr3 != _coins.end()) {
+    //     _coins.erase(itr3);
+    //     itr3 = _coins.begin();
     // }
-    // itr = _coins.begin();
-    // while (itr != _coins.end()) {
-    //     _coins.erase(itr);
-    //     itr = _coins.begin();
-    // }
-    auto it = db_lowerbound_i64(get_self().value, ("daymonthyear"_n).value, ("collection"_n).value , 0);
+    auto it = db_lowerbound_i64(get_self().value, get_self().value, ("dividend"_n).value , 0);
     while (it >= 0) {
         auto del = it;
         uint64_t dummy;
         it = db_next_i64(it, &dummy);
         db_remove_i64(del);
     }
+
+    it = db_lowerbound_i64(get_self().value, ("........ch1o3"_n).value, ("stat"_n).value , 0);
+    while (it >= 0) {
+        auto del = it;
+        uint64_t dummy;
+        it = db_next_i64(it, &dummy);
+        db_remove_i64(del);
+    }
+
+    it = db_lowerbound_i64(get_self().value, ("........el1p3"_n).value, ("stat"_n).value , 0);
+    while (it >= 0) {
+        auto del = it;
+        uint64_t dummy;
+        it = db_next_i64(it, &dummy);
+        db_remove_i64(del);
+    }
+
+    // auto it = db_lowerbound_i64(get_self().value, get_self().value, ("global"_n).value , 0);
+    // while (it >= 0) {
+    //     auto del = it;
+    //     uint64_t dummy;
+    //     it = db_next_i64(it, &dummy);
+    //     db_remove_i64(del);
+    // }
+
 }
 
 void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {

@@ -84,7 +84,7 @@ void dividend::stake(name &from, asset delta) {
 
    singleton_playerinfo_t _playerinfo(get_self(), from.value);
    auto pi = _playerinfo.get_or_create(get_self(), st_player_info{});
-   auto g = _global.get();
+   auto g = _global.get_or_create( _self, st_d_global{});
    
    // only " asset += asset " has addition underflow & overflow checking
    pi.payout += asset( g.earnings_per_share * delta.amount / MAGNITUDE, pi.payout.symbol );
