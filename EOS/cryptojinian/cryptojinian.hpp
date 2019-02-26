@@ -218,25 +218,27 @@ CONTRACT cryptojinian : public eosio::contract {
     public:
         // Contract management
         ACTION init();
-        ACTION clear(); // for _usedcoins
+        ACTION clear();
 
         // Token management
         ACTION issue( name to, asset quantity, string memo ){
             _contract_kyubey.issue(to, quantity, memo);
-            _contract_dividend.stake( to, quantity );
+            _contract_dividend.stake(to, quantity);
         }
         ACTION transfer(name from, name to, asset quantity, string memo) {
-            require_auth( from );
+            require_auth(from);
             _contract_kyubey.transfer(from, to, quantity, memo);
+            _contract_dividend.unstake(from, quantity, memo);
+            _contract_dividend.stake(to, quantity);
         }
 
         // Coin management
         ACTION ownersetcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
-            require_auth(get_self());
+            require_auth(_self);
             setcoin(owner, type, number);
         }        
         ACTION ownerdelcoin(const uint64_t &id) {
-            require_auth(get_self());
+            require_auth(_self);
             deletecoin(id);
         }
         ACTION exchange(const std::string inputs);
@@ -256,12 +258,12 @@ CONTRACT cryptojinian : public eosio::contract {
             name miner ;
             while( itr != _miningqueue.end() && n != v_seed.size() ) {
                 miner = name(itr->miner) ;
-                newcoinbypos( miner, findcoinpos( v_seed[n] ) ) ;
-                token_mining( miner, asset( mc.amount * config::MINING_COEF, config::TOKEN_SYMBOL ),
+                newcoinbypos(miner, findcoinpos(v_seed[n])) ;
+                token_mining(miner, asset(mc.amount * config::MINING_COEF, TOKEN_SYMBOL),
                               "CCC mining.");
                 
-                SEND_INLINE_ACTION( *this, recmining, { _self, "active"_n }, { miner } );
-                _miningqueue.erase( itr );
+                SEND_INLINE_ACTION(*this, recmining, { _self, "active"_n }, { miner });
+                _miningqueue.erase(itr);
                 
                 itr = _miningqueue.begin();
                 n++ ;
@@ -270,16 +272,18 @@ CONTRACT cryptojinian : public eosio::contract {
         }
 
         // Trade management
+        /*
+         * straddorder = type_order type_coin n_coin
+         * type_order: 1 or 2
+         * type_coin:  coin's type
+         * n_coin:     coin's number
+        */
         ACTION pushorder( const name &account, asset &eos, string &straddorder ) {
-            // straddorder = type_order type_coin n_coin
-            // type_order: 1 or 2
-            // type_coin:  coin's type
-            // n_coin:     coin's number
             require_auth(account);
 
             auto itr_players = join_game_processing( account ) ;
 
-            auto v_str = explode( straddorder, ' ' ) ;
+            auto v_str = explode(straddorder, ' ') ;
             eosio_assert(v_str.size() == 3, "Error memo");
 
             uint8_t type_order = string_to_int( v_str[0] ) ;
@@ -460,13 +464,12 @@ CONTRACT cryptojinian : public eosio::contract {
 
             singleton_buybackqueue_t buybackqueue(_self, buyer.value);
             eosio_assert( ! buybackqueue.exists() , "Entered buybackqueue before." ); 
-            buybackqueue.set(st_buybackqueue { .limit = quantity, 
-                                                .price = asset( 0, EOS_SYMBOL) }, _self);
+            buybackqueue.set(st_buybackqueue {.limit = quantity, 
+                                                .price = asset(0, EOS_SYMBOL)}, _self);
             // set total
             singleton_buybackqueue_t bbq_self(_self, _self.value);
-            auto bbq = bbq_self.get_or_create(_self, st_buybackqueue { .limit = asset( 0, TOKEN_SYMBOL),
-                                                                             .price = asset( 0, EOS_SYMBOL)
-                                                                           } );
+            auto bbq = bbq_self.get_or_create(_self, st_buybackqueue{.limit = asset(0, TOKEN_SYMBOL),
+                                                                     .price = asset(0, EOS_SYMBOL)});
             bbq.limit += quantity ;
             auto _d_g = _contract_dividend._global.get() ;
             uint64_t price = _d_g.earnings_for_buyback * config::PRICE_SCALE / bbq.limit.amount ;
@@ -602,7 +605,7 @@ vector<uint32_t> cryptojinian::merge_seed(const capi_checksum256 &s) {
 void cryptojinian::init() {
     require_auth(_self);
     _global.set( st_global{ .id = 0, .remainamount = 429600 } , get_self() );
-    _contract_kyubey.create( get_self(), asset( CCC_MAX_SUPPLY, CCC_SYMBOL ) );
+    _contract_kyubey.create(_self, asset(CCC_MAX_SUPPLY, CCC_SYMBOL) );
 }
 
 void cryptojinian::clear() {

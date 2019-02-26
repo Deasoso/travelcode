@@ -67,17 +67,17 @@ namespace kyubeytool {
    };
 
 void dividend::cleanbuyback() {
-    auto g = _global.get_or_create( _self, st_d_global{});
+    auto g = _global.get_or_create(_self, st_d_global{});
     g.earnings_for_buyback = 0 ; 
-    _global.set(g, get_self());
+    _global.set(g, _self);
 }
 
 void dividend::make_profit(uint64_t delta, asset total_staked) {
-    auto g = _global.get_or_create( _self, st_d_global{});
+    auto g = _global.get_or_create(_self, st_d_global{});
     g.earnings_per_share += MAGNITUDE * delta * 0.6 / total_staked.amount;
     g.earnings_for_buyback += delta * 0.3 ; 
     g.earnings_for_collection += delta * 0.1 ;
-    _global.set(g, get_self());
+    _global.set(g, _self);
 }
 
 void dividend::stake(name &from, asset delta) {
@@ -94,10 +94,10 @@ void dividend::stake(name &from, asset delta) {
 }
 
 void dividend::claim(name &owner, asset quantity) {
-   require_auth(get_self());
+   require_auth(_self);
 
-   singleton_playerinfo_t _playerinfo(get_self(), owner.value);
-   auto pi = _playerinfo.get_or_create(get_self(), st_player_info{});
+   singleton_playerinfo_t _playerinfo(_self, owner.value);
+   auto pi = _playerinfo.get_or_create(_self, st_player_info{});
    auto g = _global.get();
 
    auto delta = extended_asset(0, config::DIVIDEND_EX_SYMBOL);
@@ -106,19 +106,16 @@ void dividend::claim(name &owner, asset quantity) {
        delta.quantity.set_amount(raw_dividend - pi.payout.amount);
 
    pi.payout.set_amount(raw_dividend);
-   _playerinfo.set(pi, get_self());
+   _playerinfo.set(pi, _self);
 
-   if (delta.quantity.is_valid() && delta.quantity.amount > 0) {
-      action(permission_level{_self, "active"_n},
-             delta.get_extended_symbol().get_contract(), "transfer"_n,
-             make_tuple(get_self(), owner, delta.quantity, string("claim dividend.")))
-      .send();
+   eosio_assert(delta.quantity.is_valid() && delta.quantity.amount > 0, "Can't Send EOS.");
+   action(permission_level{_self, "active"_n},
+          delta.get_extended_symbol().get_contract(), "transfer"_n,
+          make_tuple(_self, owner, delta.quantity, string("claim dividend.")))
+   .send();
 
-      g.last = owner.value;
-      _global.set(g, get_self());
-   }else{
-       eosio_assert(false, "Can't Send EOS.");
-   }
+   g.last = owner.value;
+   _global.set(g, _self);
 }
 
 void dividend::collection_claim(const name &from) {
@@ -147,9 +144,10 @@ void dividend::unstake(name from, asset quantity, string memo)
    eosio_assert(quantity.symbol == config::TOKEN_SYMBOL, "must be token.");
 
    singleton_playerinfo_t _playerinfo(_self, from.value);
-   eosio_assert(_playerinfo.exists(), "stake info not found" );
+   // eosio_assert(_playerinfo.exists(), "stake info not found" );
    // eosio_assert(quantity <= v.staked, "don't have enough token for unstake");
-   auto pi = _playerinfo.get();
+   // auto pi = _playerinfo.get();
+   auto pi = _playerinfo.get_or_create(_self, st_player_info{});
    auto g = _global.get();
 
    int64_t g_payout = g.earnings_per_share * quantity.amount / MAGNITUDE ;
