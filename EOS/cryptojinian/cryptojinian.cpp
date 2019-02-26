@@ -47,7 +47,6 @@ void cryptojinian::exchangecoin(const name &owner, const uint64_t &id) {
 }
 
 uint64_t cryptojinian::addcoincount( uint64_t type ){
-    type = type << 48 ;
     auto usedcoins = _usedcoins.find( type );
     uint64_t globalcoincount = 0 ;
     globalcoincount ++;
