@@ -281,7 +281,7 @@ CONTRACT cryptojinian : public eosio::contract {
         ACTION pushorder( const name &account, asset &eos, string &straddorder ) {
             require_auth(account);
 
-            auto itr_players = join_game_processing( account ) ;
+            auto itr_players = join_game_processing(account) ;
 
             auto v_str = explode(straddorder, ' ') ;
             eosio_assert(v_str.size() == 3, "Error memo");

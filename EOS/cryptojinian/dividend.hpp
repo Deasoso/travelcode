@@ -87,12 +87,20 @@ void dividend::stake(name &from, asset delta) {
    singleton_playerinfo_t _playerinfo(_self, from.value);
    auto pi = _playerinfo.get_or_create(_self, st_player_info{});
    auto g = _global.get_or_create(_self, st_d_global{});
-   
+
+   int64_t g_payout = g.earnings_per_share * delta.amount / MAGNITUDE ;
+   /*
+   if ( g_payout < string_to_price("0.0001") )
+      g_payout = string_to_price("0.0001");
+   */
    // only " asset += asset " has addition underflow & overflow checking
-   pi.payout += asset( g.earnings_per_share * delta.amount / MAGNITUDE, pi.payout.symbol );
+   pi.payout += asset(g_payout, pi.payout.symbol);
    _playerinfo.set(pi, _self);
 }
-
+/*
+ * 假設所有的CCC issue, burn 時都有正確被 stake & unstke
+ * 那麼只有出錯的時候，payout 才會是 0
+*/
 void dividend::claim(name &owner, asset quantity) {
    require_auth(_self);
 
@@ -104,6 +112,12 @@ void dividend::claim(name &owner, asset quantity) {
    int64_t raw_dividend = g.earnings_per_share * quantity.amount / MAGNITUDE;
    if (raw_dividend > pi.payout.amount)
        delta.quantity.set_amount(raw_dividend - pi.payout.amount);
+
+   if ( quantity.amount > 0 && pi.payout.amount == 0 ) {
+      pi.payout.set_amount(raw_dividend);
+      _playerinfo.set(pi, _self);
+      return ;
+   }
 
    pi.payout.set_amount(raw_dividend);
    _playerinfo.set(pi, _self);
