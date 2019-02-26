@@ -5,10 +5,11 @@
 
 namespace config {
 
-constexpr auto CCC_MAX_SUPPLY = 300000000000;
-
+// basic
 const auto EOS_SYMBOL = eosio::symbol("EOS", 4);
 const auto EOS_CONTRACT = "eosio.token"_n;
+
+constexpr auto CCC_MAX_SUPPLY = 300000000000;
 
 const auto CCC_SYMBOL = eosio::symbol("CCC", 4);
 // const auto CCC_CONTRACT = get_self();

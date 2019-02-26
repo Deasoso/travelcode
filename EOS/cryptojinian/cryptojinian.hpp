@@ -238,7 +238,7 @@ CONTRACT cryptojinian : public eosio::contract {
 
         // Game management
         ACTION mining( const capi_checksum256 &seed ) {
-            require_auth(get_self());
+            require_auth(_self);
 
             miningqueue_t _miningqueue(get_self(), get_self().value);
             auto itr = _miningqueue.begin();
@@ -337,9 +337,8 @@ CONTRACT cryptojinian : public eosio::contract {
             _orders.erase(itr);
         }
         ACTION syscxlorder( const uint64_t &order_id ) {
-            require_auth(get_self());
-
-            order_t _orders( get_self(), get_self().value );
+            require_auth(_self);
+            order_t _orders(_self, _self.value);
             auto itr = _orders.require_find(order_id, "Trade id is not found" );
 
             // transfer coin 所有权 back to seller
@@ -358,12 +357,14 @@ CONTRACT cryptojinian : public eosio::contract {
         // Dividend management
         ACTION claim( name &from ) {
             require_auth(get_self());
+            if ( from == _self ) return;
             _contract_dividend.claim( from, _contract_kyubey.get_balance( from, config::TOKEN_SYMBOL ) );
         }
 
         // Coll management
         ACTION collclaim( const name &account, uint8_t &type ) {
             require_auth(account);
+            if ( account == _self ) return;
             eosio_assert( type < 23 + 6 + 1, "Type error");
             type --;
             
@@ -442,6 +443,7 @@ CONTRACT cryptojinian : public eosio::contract {
         // Buyback management
         ACTION joinbuybackq( const name &buyer, const asset &quantity ) {
             require_auth(buyer);
+            if ( buyer == _self ) return;
             eosio_assert(quantity.is_valid(), "invalid token transfer");
             eosio_assert(quantity.symbol == config::TOKEN_SYMBOL, "Only CCC token is allowed");
             eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
@@ -468,6 +470,7 @@ CONTRACT cryptojinian : public eosio::contract {
         }
         ACTION outbuybackq( const name &buyer ){
             require_auth(buyer);
+            if ( buyer == _self ) return;
             singleton_buybackqueue_t buybackqueue( get_self(), buyer.value);
             eosio_assert( buybackqueue.exists(), "Did not entered buybackqueue before." );
             // set total
@@ -487,7 +490,7 @@ CONTRACT cryptojinian : public eosio::contract {
             buybackqueue.remove();
         }
         ACTION cleanbbq(){
-            require_auth(get_self());
+            require_auth(_self);
             singleton_buybackqueue_t bbq_self( get_self(), get_self().value);
             eosio_assert( bbq_self.exists(), "Did not entered buybackqueue before." );
            
@@ -495,19 +498,20 @@ CONTRACT cryptojinian : public eosio::contract {
             _contract_dividend.cleanbuyback();
         }
         ACTION buyback( const name &buyer, asset &quantity ) {
-            require_auth(get_self());
+            require_auth(_self);
+            if ( buyer == _self ) return;
             eosio_assert(quantity.is_valid(), "invalid token transfer");
-            eosio_assert(quantity.symbol == config::TOKEN_SYMBOL, "Only CCC token is allowed");
+            eosio_assert(quantity.symbol == TOKEN_SYMBOL, "Only CCC token is allowed");
             eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
             auto buyer_balance = _contract_kyubey.get_balance( buyer, quantity.symbol );
             eosio_assert(buyer_balance >= quantity, "Must have enough x.");
             
-            singleton_buybackqueue_t buybackqueue( get_self(), buyer.value);
+            singleton_buybackqueue_t buybackqueue(_self, buyer.value);
             eosio_assert( buybackqueue.exists(), "Did not entered buybackqueue before." ); 
             auto bbq_buyer = buybackqueue.get();
             eosio_assert( bbq_buyer.limit >= quantity, "Must have enough token limit.");
             
-            singleton_buybackqueue_t bbq_self( get_self(), get_self().value);
+            singleton_buybackqueue_t bbq_self(_self, _self.value);
             quantity *= bbq_self.get().price.amount ;
             quantity /= config::PRICE_SCALE ;
             asset delta( quantity.amount, EOS_SYMBOL ) ;
@@ -518,23 +522,25 @@ CONTRACT cryptojinian : public eosio::contract {
                 ).send();
 
                 bbq_buyer.limit -= quantity ;
-                buybackqueue.set( bbq_buyer, get_self() );
+                buybackqueue.set(bbq_buyer, _self);
     
             }
             buybackqueue.remove();
         }
         ACTION autobuyback( const name &buyer ) {
-            require_auth(get_self());
-            auto buyer_balance = _contract_kyubey.get_balance( buyer, config::TOKEN_SYMBOL );
+            require_auth(_self);
+            if ( buyer == _self ) return;
+            auto buyer_balance = _contract_kyubey.get_balance(buyer, TOKEN_SYMBOL);
             
-            singleton_buybackqueue_t buybackqueue( get_self(), buyer.value);
+            singleton_buybackqueue_t buybackqueue(_self, buyer.value);
             eosio_assert( buybackqueue.exists(), "Did not entered buybackqueue before." ); 
             auto bbq_buyer = buybackqueue.get();
             // eosio_assert( bbq_buyer.limit >= quantity, "Must have enough token limit.");
             auto quantity = bbq_buyer.limit;
             eosio_assert(buyer_balance >= quantity, "Must have enough token.");
-         
-            singleton_buybackqueue_t bbq_self( get_self(), get_self().value);
+
+            // total
+            singleton_buybackqueue_t bbq_self(_self, _self.value);
             quantity *= bbq_self.get().price.amount ;
             quantity /= config::PRICE_SCALE ;
             asset delta( quantity.amount, EOS_SYMBOL ) ;
@@ -546,27 +552,28 @@ CONTRACT cryptojinian : public eosio::contract {
 
                 bbq_buyer.limit -= quantity ;
 
-                buybackqueue.set( bbq_buyer, get_self() );
+                buybackqueue.set(bbq_buyer, _self);
             }
 
             buybackqueue.remove();
         }
 
+        // Rec
+        ACTION receipt(const st_rec_takeOrder& take_order_record) {}
+        ACTION recmining( const name &miner ) {
+            require_auth(_self);
+        }
+        ACTION reccollclaim( const name &account, uint8_t &type ) {}
+        ACTION recpcoll( const name &account, vector<uint64_t> number_of_coins ) {}
+
+        // Dev
         // Test
         ACTION test() {
-            require_auth(get_self());
+            require_auth(_self);
             
             uint32_t x = 428600 ;
             findcoinpos( x ) ;
         }
-
-        // Rec
-        ACTION receipt(const st_rec_takeOrder& take_order_record) {}
-        ACTION recmining( const name &miner ) {
-            require_auth(get_self());
-        }
-        ACTION reccollclaim( const name &account, uint8_t &type ) {}
-        ACTION recpcoll( const name &account, vector<uint64_t> number_of_coins ) {}
 
     public:
         void apply(uint64_t receiver, uint64_t code, uint64_t action) ;
@@ -587,13 +594,13 @@ vector<uint32_t> cryptojinian::merge_seed(const capi_checksum256 &s) {
 }
 
 void cryptojinian::init() {
-    require_auth(get_self());
+    require_auth(_self);
     _global.set( st_global{ .id = 0, .remainamount = 429600 } , get_self() );
     _contract_kyubey.create( get_self(), asset( CCC_MAX_SUPPLY, CCC_SYMBOL ) );
 }
 
 void cryptojinian::clear() {
-    require_auth(get_self());
+    require_auth(_self);
     auto itr = _usedcoins.begin();
     while (itr != _usedcoins.end()) {
         _usedcoins.erase(itr);
@@ -632,11 +639,11 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (cleanbbq)
                   (buyback)
                   (autobuyback)
-                  (test)
                   (receipt)
                   (recmining)
                   (reccollclaim)
                   (recpcoll)
+                  (test)
         )
     }
 }
