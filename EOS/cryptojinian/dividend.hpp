@@ -30,8 +30,10 @@ namespace kyubeytool {
 
          void make_profit(uint64_t delta, asset total_staked);
          void stake(name &from, asset delta);
+         void unstake(name from, asset quantity, string memo);
          void claim(name &from, asset quantity);
          void collection_claim( const name &from );
+         void refund(name from);
 
          struct st_d_global {
             uint64_t defer_id = 0 ;
@@ -82,8 +84,8 @@ void dividend::stake(name &from, asset delta) {
    eosio_assert(delta.amount > 0, "must stake a positive amount");
    eosio_assert(delta.symbol == config::TOKEN_SYMBOL, "must be token.");
 
-   singleton_playerinfo_t _playerinfo(get_self(), from.value);
-   auto pi = _playerinfo.get_or_create(get_self(), st_player_info{});
+   singleton_playerinfo_t _playerinfo(_self, from.value);
+   auto pi = _playerinfo.get_or_create(_self, st_player_info{});
    auto g = _global.get();
    
    // only " asset += asset " has addition underflow & overflow checking
@@ -138,45 +140,32 @@ void dividend::collection_claim(const name &from) {
        eosio_assert(false, "Can't Send EOS.");
    }
 }
-/*
-void dividend::unstake(name from, asset delta) {
-    require_auth(from);
-    singleton_voters _voters(_self, from.value);
-    auto v = _voters.get_or_create(_self, voter_info{});
-    auto g = _global.get();
-    eosio_assert(delta <= v.staked, "don't have enough token for unstake");
 
-    if (g.earnings_per_share * delta.amount / MAGNITUDE <= v.payout) {
-        v.payout -= g.earnings_per_share * delta.amount / MAGNITUDE;
-    } else {
-        v.payout = 0;
-    }
+void dividend::unstake(name from, asset quantity, string memo)
+{
+   eosio_assert(quantity.amount > 0, "must stake a positive amount");
+   eosio_assert(quantity.symbol == config::TOKEN_SYMBOL, "must be token.");
 
-    v.staked -= delta;
-    _voters.set(v, _self);   
+   singleton_playerinfo_t _playerinfo(_self, from.value);
+   eosio_assert(_playerinfo.exists(), "stake info not found" );
+   // eosio_assert(quantity <= v.staked, "don't have enough token for unstake");
+   auto pi = _playerinfo.get();
+   auto g = _global.get();
 
-    g.total_staked -= delta;
-    _global.set(g, _self);
-
-    singleton_dividend _dividend(_self, v.to.value);
-    if (_dividend.exists()) {
-        auto c = _dividend.get();
-        c.total_votes -= delta.amount;
-        _dividend.set(c, _self); 
-    }
-
-    singleton_refunds _refunds( _self, from.value );
-    auto req = _refunds.get_or_create(_self, refund_request{.amount = asset(0, TOKEN_SYMBOL)});
-    req.request_time = now();
-    req.amount += delta;
-    _refunds.set(req, _self);
-
-    send_defer_refund_action(from);
+   int64_t g_payout = g.earnings_per_share * quantity.amount / MAGNITUDE ;
+   if ( asset{g_payout, pi.payout.symbol} <= pi.payout) {
+     // only " asset -= asset " has addition underflow & overflow checking
+     pi.payout -= asset(g_payout, pi.payout.symbol);
+   } else {
+     pi.payout.set_amount(0);
+   }
+   _playerinfo.set(pi, _self);
 }
 
-void dividend::refund(name from) {
+void dividend::refund(name from)
+{
     require_auth( from );
-    
+    /*
     singleton_refunds refunds_tbl( _self, from.value );
     eosio_assert( refunds_tbl.exists(), "refund request not found" );
     auto req = refunds_tbl.get();
@@ -193,8 +182,7 @@ void dividend::refund(name from) {
     ).send();
 
     refunds_tbl.remove();
+    */
 }
-
-*/
 
 } // namespace kyubeytool

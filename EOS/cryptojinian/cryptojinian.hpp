@@ -202,6 +202,12 @@ CONTRACT cryptojinian : public eosio::contract {
         // onTransfer() ->
         void join_miningqueue( const name &miner, const asset &totalcost );
         void ref_processing(const name &miner, const name &sponsor = DEF_SPONSOR );
+
+        inline void token_unstake_and_burn(name owner, asset quantity, string memo) {
+            _contract_dividend.unstake(owner, quantity, memo);
+            _contract_kyubey.burn(owner, quantity, memo);
+        }
+
         /*
         void ibobuy( const name &buyer, asset &in ) {
             require_auth( buyer );
@@ -447,52 +453,52 @@ CONTRACT cryptojinian : public eosio::contract {
             eosio_assert(quantity.is_valid(), "invalid token transfer");
             eosio_assert(quantity.symbol == config::TOKEN_SYMBOL, "Only CCC token is allowed");
             eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
-            auto buyer_balance = _contract_kyubey.get_balance( buyer, quantity.symbol );
+            auto buyer_balance = _contract_kyubey.get_balance(buyer, quantity.symbol);
             eosio_assert(buyer_balance >= quantity, "Must have enough token.");
             
-            //
-            _contract_kyubey.burn( buyer, quantity, string("") );
+            token_unstake_and_burn(buyer, quantity, string{""});
 
-            singleton_buybackqueue_t buybackqueue( get_self(), buyer.value);
+            singleton_buybackqueue_t buybackqueue(_self, buyer.value);
             eosio_assert( ! buybackqueue.exists() , "Entered buybackqueue before." ); 
-            buybackqueue.set( st_buybackqueue { .limit = quantity, 
-                                                .price = asset( 0, EOS_SYMBOL) }, get_self() );
+            buybackqueue.set(st_buybackqueue { .limit = quantity, 
+                                                .price = asset( 0, EOS_SYMBOL) }, _self);
             // set total
-            singleton_buybackqueue_t bbq_self( get_self(), get_self().value);
-            auto bbq = bbq_self.get_or_create( get_self(), st_buybackqueue { .limit = asset( 0, config::TOKEN_SYMBOL),
+            singleton_buybackqueue_t bbq_self(_self, _self.value);
+            auto bbq = bbq_self.get_or_create(_self, st_buybackqueue { .limit = asset( 0, TOKEN_SYMBOL),
                                                                              .price = asset( 0, EOS_SYMBOL)
                                                                            } );
             bbq.limit += quantity ;
             auto _d_g = _contract_dividend._global.get() ;
             uint64_t price = _d_g.earnings_for_buyback * config::PRICE_SCALE / bbq.limit.amount ;
-            bbq.price = asset( price, config::EOS_SYMBOL);
-            bbq_self.set( bbq, get_self() );
+            bbq.price = asset( price, EOS_SYMBOL);
+            bbq_self.set(bbq, _self);
         }
-        ACTION outbuybackq( const name &buyer ){
+        ACTION outbuybackq( const name &buyer ) { // Deprecated
+            return; // Deprecated
             require_auth(buyer);
             if ( buyer == _self ) return;
-            singleton_buybackqueue_t buybackqueue( get_self(), buyer.value);
+            singleton_buybackqueue_t buybackqueue(_self, buyer.value);
             eosio_assert( buybackqueue.exists(), "Did not entered buybackqueue before." );
+            
             // set total
-            singleton_buybackqueue_t bbq_self( get_self(), get_self().value);
+            singleton_buybackqueue_t bbq_self(_self, _self.value);
             auto bbq = bbq_self.get();
             bbq.limit -= buybackqueue.get().limit ;
-            if ( bbq.limit == asset( 0, config::TOKEN_SYMBOL) )
-                bbq.price = asset( 0, config::EOS_SYMBOL);
+            if ( bbq.limit == asset(0, TOKEN_SYMBOL) )
+                bbq.price = asset(0, EOS_SYMBOL);
             else {
                 auto _d_g = _contract_dividend._global.get() ;
                 uint64_t price = _d_g.earnings_for_buyback * config::PRICE_SCALE / bbq.limit.amount ;
-                bbq.price = asset( price, config::EOS_SYMBOL);
+                bbq.price = asset( price, EOS_SYMBOL);
             }
-            
-            bbq_self.set( bbq, get_self() );
+            bbq_self.set(bbq, _self);
           
             buybackqueue.remove();
         }
-        ACTION cleanbbq(){
+        ACTION cleanbbq() {
             require_auth(_self);
-            singleton_buybackqueue_t bbq_self( get_self(), get_self().value);
-            eosio_assert( bbq_self.exists(), "Did not entered buybackqueue before." );
+            singleton_buybackqueue_t bbq_self(_self, _self.value);
+            eosio_assert(bbq_self.exists(), "Did not entered buybackqueue before.");
            
             bbq_self.remove();
             _contract_dividend.cleanbuyback();

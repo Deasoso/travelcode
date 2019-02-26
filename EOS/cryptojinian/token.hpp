@@ -169,7 +169,7 @@ void token::burn(name owner, asset quantity, string memo)
    eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
 
    auto sym_name = sym.code().raw();
-   stats statstable(get_self(), sym_name);
+   stats statstable(_self, sym_name);
    auto existing = statstable.find(sym_name);
    eosio_assert(existing != statstable.end(), "token with symbol does not exist, create token before issue");
    const auto &st = *existing;
@@ -181,7 +181,7 @@ void token::burn(name owner, asset quantity, string memo)
    eosio_assert(quantity.symbol == st.supply.symbol, "symbol precision mismatch");
    // eosio_assert( quantity.amount <= st.max_supply.amount - st.supply.amount, "quantity exceeds available supply");
 
-   statstable.modify(st, get_self(), [&](auto &s) {
+   statstable.modify(st, _self, [&](auto &s) {
       s.supply -= quantity;
    });
 
