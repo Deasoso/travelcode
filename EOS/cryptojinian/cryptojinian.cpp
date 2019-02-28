@@ -355,7 +355,7 @@ void cryptojinian::onTransfer(name from, name to, asset quantity, std::string me
             Never beaker couple-thing which should be always done together.
         */
         const auto &mc = _global.get().miningcost();
-        token_mining_with_stake(miner, asset{mc.amount * config::MINING_COEF, TOKEN_SYMBOL}, string{"CCC mining."});
+        token_mining_with_stake(from, asset{mc.amount * config::MINING_COEF, TOKEN_SYMBOL}, string{"CCC mining."});
         _contract_dividend.make_profit( quantity.amount, _contract_kyubey.get_supply( TOKEN_SYMBOL ) );
         return;
     }
