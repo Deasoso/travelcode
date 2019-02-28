@@ -80,10 +80,12 @@ CONTRACT cryptojinian : public eosio::contract {
             EOSLIB_SERIALIZE(coin, (id)(owner)(type)(number))
         };
         
-        TABLE usedcoins {
+        /*
             // << 16 to fix usedspilt64;
             // << 32 to fix usedspilt6400;
             // << 48 to fix typecounts;
+        */
+        TABLE usedcoins {
             uint64_t key = 0;
             uint64_t value = 0;
 
@@ -248,7 +250,7 @@ CONTRACT cryptojinian : public eosio::contract {
         ACTION mining( const capi_checksum256 &seed ) {
             require_auth(_self);
 
-            miningqueue_t _miningqueue(get_self(), get_self().value);
+            miningqueue_t _miningqueue(_self, _self.value);
             auto itr = _miningqueue.begin();
             if ( itr == _miningqueue.end() ) return ;
 
@@ -259,9 +261,7 @@ CONTRACT cryptojinian : public eosio::contract {
             while( itr != _miningqueue.end() && n != v_seed.size() ) {
                 miner = name(itr->miner) ;
                 newcoinbypos(miner, findcoinpos(v_seed[n])) ;
-                token_mining(miner, asset(mc.amount * config::MINING_COEF, TOKEN_SYMBOL),
-                              "CCC mining.");
-                
+
                 SEND_INLINE_ACTION(*this, recmining, { _self, "active"_n }, { miner });
                 _miningqueue.erase(itr);
                 
