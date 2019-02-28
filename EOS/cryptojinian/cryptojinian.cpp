@@ -282,7 +282,7 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset 
     if ( delta.amount > 0){
         action(permission_level{_self, "active"_n},
                "eosio.token"_n, "transfer"_n,
-               make_tuple(get_self(), seller, delta, std::string("")))
+               make_tuple(_self, seller, delta, std::string{""}))
             .send();
         /* string("Trade ") + to_string(order_id) + string(" be took") */
     }
@@ -319,7 +319,7 @@ void cryptojinian::SplitString(const std::string& s, vector<uint64_t>& v, const 
 }
 
 void cryptojinian::onTransfer(name from, name to, asset quantity, std::string memo) {            
-    if (from == get_self() || to != get_self()) return;   
+    if (from == _self || to != _self) return;   
     require_auth(from);
     eosio_assert(quantity.is_valid(), "invalid token transfer");
     eosio_assert(quantity.symbol == EOS_SYMBOL, "only EOS token is allowed");
@@ -340,8 +340,22 @@ void cryptojinian::onTransfer(name from, name to, asset quantity, std::string me
             ref_processing( from, sponsor );
         }
         
+        /*
+            Older code mechanism:
+                stake => 100CCC stake for someone
+                make_profit => 50EOS / total_staked == get_supply // ex: 200 CCC
+                token_mining => +100CCC to someone
+                
+                Wrong, total_staked should be 300 CCC
+
+            Newer code mechanism:
+                token_mining_with_stake => +100CCC & stake for someone
+                make_profit => 50EOS / total_staked == get_supply // would be 300 CCC
+            
+            Never beaker couple-thing which should be always done together.
+        */
         const auto &mc = _global.get().miningcost();
-        _contract_dividend.stake( from, asset( mc.amount * config::MINING_COEF, config::TOKEN_SYMBOL ) );
+        token_mining_with_stake(miner, asset{mc.amount * config::MINING_COEF, TOKEN_SYMBOL}, string{"CCC mining."});
         _contract_dividend.make_profit( quantity.amount, _contract_kyubey.get_supply( TOKEN_SYMBOL ) );
         return;
     }
