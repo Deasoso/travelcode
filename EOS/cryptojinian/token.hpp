@@ -11,7 +11,7 @@
 
 using std::string;
 
-class token : public contract {
+class token : virtual public eosio::contract {
  public:
    using contract::contract;
 
