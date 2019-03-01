@@ -188,7 +188,8 @@ void cryptojinian::join_miningqueue(const name &miner, const asset &totalcost)
     // join mining waiting Q
     miningqueue_t _miningqueue(get_self(), get_self().value);
     for (uint8_t n = 0; n < times; n++) {
-        _miningqueue.emplace( get_self(), [&](auto &q) {
+        token_mining_with_stake(miner, asset{mc.amount * config::MINING_COEF, TOKEN_SYMBOL}, string{"CCC mining."});
+        _miningqueue.emplace( _self, [&](auto &q) {
             q.id = _miningqueue.available_primary_key();
             q.miner = miner.value;
         });
@@ -354,8 +355,6 @@ void cryptojinian::onTransfer(name from, name to, asset quantity, std::string me
             
             Never beaker couple-thing which should be always done together.
         */
-        const auto &mc = _global.get().miningcost();
-        token_mining_with_stake(from, asset{mc.amount * config::MINING_COEF, TOKEN_SYMBOL}, string{"CCC mining."});
         _contract_dividend.make_profit( quantity.amount, _contract_kyubey.get_supply( TOKEN_SYMBOL ) );
         return;
     }
