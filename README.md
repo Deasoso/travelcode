@@ -4,7 +4,7 @@
 ### 開發須知
 * 目前環境為 EOSIO.CDT Version 1.4.1 https://github.com/EOSIO/eosio.cdt/releases/tag/v1.4.1
 * 上線合約帳號 eosflare.io/account/chainbankeos
-
+* Production
 ### 合約功能
 - [x] 管理 token & coins
 - [x] 挖礦

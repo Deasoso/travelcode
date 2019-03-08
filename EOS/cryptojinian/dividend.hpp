@@ -8,6 +8,7 @@
 namespace kyubeytool {
 
    using std::string;
+   using namespace config ;
 
    class dividend : public contract {
       public:
@@ -74,9 +75,9 @@ void dividend::cleanbuyback() {
 
 void dividend::make_profit(uint64_t delta, asset total_staked) {
     auto g = _global.get_or_create(_self, st_d_global{});
-    g.earnings_per_share += MAGNITUDE * delta * 0.6 / total_staked.amount;
-    g.earnings_for_buyback += delta * 0.3 ; 
-    g.earnings_for_collection += delta * 0.1 ;
+    g.earnings_per_share += MAGNITUDE * delta * DIVIDEND_COEF / total_staked.amount;
+    g.earnings_for_buyback += delta * BUYBACK_COEF ; 
+    g.earnings_for_collection += delta * COLLECTION_COEF ;
     _global.set(g, _self);
 }
 

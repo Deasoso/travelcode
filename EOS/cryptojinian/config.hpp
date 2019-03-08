@@ -30,6 +30,10 @@ constexpr uint64_t PRICE_SCALE = 100000000;
 
 constexpr uint8_t MINING_TIMES = 16 ;
 
+constexpr double_t DIVIDEND_COEF{0.65} ;    // 分红调成65%
+constexpr double_t BUYBACK_COEF{0.1} ;      // 回购调成10%
+constexpr double_t COLLECTION_COEF{0.25} ;  // 集齐整版纪念币奖励调成25%
+
 const asset cost_table( const uint64_t &n ) {
     if ( n > 408120 ) return asset( string_to_price("1.0000"), EOS_SYMBOL ) * 2 ;
     else if ( n > 386640 ) return asset( string_to_price("1.1000"), EOS_SYMBOL ) * 2 ;
@@ -145,6 +149,8 @@ const asset bouns_table( const uint8_t &type ) {
 }
 
 /*
+20190308 在合约里把游戏收益用于分红调成65%， 回购调成10% ，集齐整版纪念币奖励调成25%
+
 剩余总量为429,600张时	挖矿成本为        1EOS进行一次挖矿
 剩余总量为408,120张时	挖矿成本增加到1.100EOS进行一次挖矿
 剩余总量为386,640张时	挖矿成本增加到1.210EOS进行一次挖矿
