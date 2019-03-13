@@ -89,9 +89,9 @@ void cryptojinian::exchangecoin(const name &owner, const uint64_t &id) {
     // require_auth(get_self());
     //two-way binding.
     auto onecoin = _coins.find(id);
-    auto itr = _players.require_find( owner.value, "Unable to find player" );
+    auto itr = _players.require_find(owner.value, "Unable to find player");
 
-    _coins.modify(onecoin, get_self(), [&](auto &onecoin) {
+    _coins.modify(onecoin, _self, [&](auto &onecoin) {
         onecoin.owner = owner.value;
     });
 

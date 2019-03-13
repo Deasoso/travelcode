@@ -308,8 +308,9 @@ CONTRACT cryptojinian : public eosio::contract {
             auto citr = _coins.begin() ;
             for ( auto cid : itr_players->coins ) {
                 citr = _coins.find( cid ) ;
-                if ( citr->owner != ("eosio.token"_n).value /* not on order */ &&
-                     citr->type == type_coin ) {
+                if ( citr->owner != ("eosio.token"_n).value /* not on order */
+                     && citr->type == type_coin
+                     && cd_check(cid) ) {
                     pcoins.push_back( cid ) ;
                     if ( pcoins.size() == n_coin ) break ;
                 }
