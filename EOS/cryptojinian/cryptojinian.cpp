@@ -155,6 +155,7 @@ void cryptojinian::exchange(const std::string inputstrs){
     name coinowner;
     auto onecoin = _coins.begin();
     for(int i=0;i<inputs.size();i++){
+        eosio_assert(cd_check(inputs[i]), "This coin cant exchange, it is frozen.");
         onecoin = _coins.find(inputs[i]);
         require_auth(name(onecoin->owner));
         if (type == 0) {
@@ -181,6 +182,7 @@ void cryptojinian::exchange(const std::string inputstrs){
 
 void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goal){
     auto onecoin = _coins.begin();
+    eosio_assert(cd_check(inputid), "This coin cant exchange, it is frozen.");
     onecoin = _coins.find(inputid);
     require_auth(name(onecoin->owner));
     uint64_t goaltype = goal % 100;
