@@ -34,6 +34,8 @@ constexpr double_t DIVIDEND_COEF{0.65} ;    // 分红调成65%
 constexpr double_t BUYBACK_COEF{0.2} ;      // 回购调成20%
 constexpr double_t COLLECTION_COEF{0.15} ;  // 集齐整版纪念币奖励调成15%
 
+constexpr uint8_t FROZEN_DAYS = 30 ;
+
 const asset cost_table( const uint64_t &n ) {
     if ( n > 408120 ) return asset( string_to_price("1.0000"), EOS_SYMBOL ) * 2 ;
     else if ( n > 386640 ) return asset( string_to_price("1.1000"), EOS_SYMBOL ) * 2 ;

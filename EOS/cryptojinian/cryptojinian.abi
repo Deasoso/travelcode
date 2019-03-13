@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Jan 15 23:04:17 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Mar 13 14:32:57 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -386,6 +386,16 @@
             ]
         },
         {
+            "name": "st_collection_cd",
+            "base": "",
+            "fields": [
+                {
+                    "name": "time_limit",
+                    "type": "uint32[]"
+                }
+            ]
+        },
+        {
             "name": "st_d_global",
             "base": "",
             "fields": [
@@ -674,6 +684,13 @@
         {
             "name": "coin",
             "type": "coin",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "collcd",
+            "type": "st_collection_cd",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

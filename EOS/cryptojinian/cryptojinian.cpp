@@ -1,5 +1,20 @@
 #include "cryptojinian.hpp"
 
+bool cryptojinian::cd_check( const name &owner, const uint8_t &type )
+{
+   singleton_collcd_t collcd(_self, owner.value);
+   auto itr = collcd.get_or_create(_self, st_collection_cd { .time_limit = vector<uint32_t> (22 + 6 + 1, now()-1) } );
+   return now() > itr.time_limit[type];
+}
+
+void cryptojinian::update_frozen_time_limit( const name &owner, const uint8_t &type, const uint32_t &frozen_days )
+{
+   singleton_collcd_t collcd(_self, owner.value);
+   auto itr = collcd.get_or_create(_self, st_collection_cd { .time_limit = vector<uint32_t> (22 + 6 + 1, now()-1) } );
+   itr.time_limit[type] = now() + (frozen_days * 86400);
+   collcd.set(itr,_self);
+}
+
 void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
     //two-way binding.
     auto itr = _players.require_find( owner.value, "Unable to find player" );

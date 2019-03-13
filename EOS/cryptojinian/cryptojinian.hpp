@@ -117,6 +117,10 @@ CONTRACT cryptojinian : public eosio::contract {
             vector<uint64_t> records ;
         };
         
+        struct [[eosio::table("collcd")]] st_collection_cd {
+            vector<uint32_t> time_limit ;
+        };
+
         struct [[eosio::table("buybackqueue")]]  st_buybackqueue {
             asset limit ;
             asset price ;
@@ -129,6 +133,7 @@ CONTRACT cryptojinian : public eosio::contract {
         typedef eosio::multi_index<"miningqueue"_n, st_miningqueue> miningqueue_t;
         typedef eosio::multi_index<"order"_n, order> order_t;
         typedef singleton<"collection"_n, st_collection> collection_t;
+        typedef singleton<"collcd"_n, st_collection_cd> singleton_collcd_t;
         typedef singleton<"buybackqueue"_n, st_buybackqueue> singleton_buybackqueue_t;
 
         singleton_global_t _global;
@@ -151,7 +156,8 @@ CONTRACT cryptojinian : public eosio::contract {
         uint64_t findcoinpos( uint32_t &input );
         void newcoinbypos(const name owner, const uint64_t pos);
         void exchangecoin(const name &owner, const uint64_t &id);
-
+        bool cd_check( const name &owner, const uint8_t &type );
+        void update_frozen_time_limit( const name &owner, const uint8_t &type, const uint32_t &frozen_days );
         void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
 
         auto join_game_processing(const name &account) {
@@ -371,7 +377,7 @@ CONTRACT cryptojinian : public eosio::contract {
             _contract_dividend.claim( from, _contract_kyubey.get_balance( from, config::TOKEN_SYMBOL ) );
         }
 
-        // Coll management
+        // Coll. management
         ACTION collclaim( const name &account, uint8_t &type ) {
             require_auth(account);
             if ( account == _self ) return;
@@ -436,18 +442,17 @@ CONTRACT cryptojinian : public eosio::contract {
                 }
             }
 
-            if ( r > itr.records[type] ) {
-                if ( type == 28 )
-                    _contract_dividend.collection_claim( account );   
-                else
-                    token_mining_with_stake( account, config::bouns_table(type), string("Bouns from collection claim.") );
+            eosio_assert(r > itr.records[type], "Not Enough Coin");
+            eosio_assert(cd_check(account, type), "still in cd");
+            if ( type == 28 )
+                _contract_dividend.collection_claim( account );   
+            else
+                token_mining_with_stake( account, config::bouns_table(type), string("Bouns from collection claim.") );
                                 
-                SEND_INLINE_ACTION( *this, reccollclaim, { _self, "active"_n }, { account, type } );
-                itr.records[type] = r ;
-                _collection.set( itr, get_self() ) ;
-            }else{
-                eosio_assert(false, "Not Enough Coin");
-            }   
+            SEND_INLINE_ACTION( *this, reccollclaim, { _self, "active"_n }, { account, type } );
+            itr.records[type] = r ;
+            _collection.set(itr, _self) ;
+            update_frozen_time_limit(account, type, FROZEN_DAYS);
         }
 
         // Buyback management
