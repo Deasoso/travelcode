@@ -31,8 +31,10 @@ constexpr uint64_t PRICE_SCALE = 100000000;
 constexpr uint8_t MINING_TIMES = 16 ;
 
 constexpr double_t DIVIDEND_COEF{0.65} ;    // 分红调成65%
-constexpr double_t BUYBACK_COEF{0.1} ;      // 回购调成10%
-constexpr double_t COLLECTION_COEF{0.25} ;  // 集齐整版纪念币奖励调成25%
+constexpr double_t BUYBACK_COEF{0.2} ;      // 回购调成20%
+constexpr double_t COLLECTION_COEF{0.15} ;  // 集齐整版纪念币奖励调成15%
+
+constexpr uint8_t FROZEN_DAYS = 30 ;
 
 const asset cost_table( const uint64_t &n ) {
     if ( n > 408120 ) return asset( string_to_price("1.0000"), EOS_SYMBOL ) * 2 ;
@@ -82,6 +84,27 @@ const vector<vector<uint64_t>> _coinvalues = { // [][+1]
         {500,500,1000,2000,5000},   //rp 20
         {500,500,1000,2000,5000}    //tr 21
 };
+
+const vector<uint8_t> collection_combination_parameters( const uint8_t &type ) {
+    switch( type ) {
+        case 22 :
+            return {0, 2, 10};
+        case 23 :
+            return {1, 14, 7, 11, 12, 6, 15, 18, 21};
+        case 24 :
+            return {3, 13, 16};
+        case 25 :
+            return {17, 5, 20};
+        case 26 :
+            return {9, 8};
+        case 27 :
+            return {19, 4};
+        case 28 :
+            return {type};
+        default :
+            return {type};
+    }
+}
 
 const asset bouns_table( const uint8_t &type ) {
     switch( type ) {

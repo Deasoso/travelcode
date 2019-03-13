@@ -1,5 +1,59 @@
 #include "cryptojinian.hpp"
 
+bool cryptojinian::cd_check( const uint64_t &id )
+{
+   frozencoins_t frozencoins(_self, _self.value);
+   auto itr = frozencoins.find(id);
+    if (itr == frozencoins.end()) // new
+        return true ;
+    else
+        return now() > itr->time_limit;
+}
+
+bool cryptojinian::cd_check( const name &owner, const uint8_t &type )
+{
+   singleton_collcd_t collcd(_self, owner.value);
+   auto itr = collcd.get_or_create(_self, st_collection_cd { .time_limit = vector<uint32_t> (22 + 6 + 1, now()-1) } );
+   return now() > itr.time_limit[type];
+}
+
+void cryptojinian::update_frozen_time_limit( const name &owner, const uint8_t &type, const uint64_t &quantity, const uint32_t &frozen_days )
+{
+    frozencoins_t frozencoins(_self, _self.value);
+    auto itr_p = _players.require_find(owner.value, "Player not found.") ;
+    const auto &v_param = collection_combination_parameters(type);
+    for (auto i = 0; i < quantity; ++i) {
+        for (const auto &id : itr_p->coins) {
+            for(const auto& yy : v_param) {
+                for ( uint8_t xx = 0 ; xx < _coinvalues[yy].size(); ++xx ) {
+                    if (cd_check(id) && _coins.find(id)->type == (xx * 100 + (yy + 1))) {
+                        auto itr = frozencoins.find(id);
+                        if (itr == frozencoins.end()) { // new
+                            frozencoins.emplace(_self, [&](auto &c) {
+                                c.id = id;
+                                c.time_limit = now() + (frozen_days * 86400);
+                            });
+                        } else {
+                            frozencoins.modify(itr, _self, [&](auto &c) {
+                                c.time_limit = now() + (frozen_days * 86400);
+                            });
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+   }
+}
+
+void cryptojinian::update_frozen_time_limit( const name &owner, const uint8_t &type, const uint32_t &frozen_days )
+{
+   singleton_collcd_t collcd(_self, owner.value);
+   auto itr = collcd.get_or_create(_self, st_collection_cd { .time_limit = vector<uint32_t> (22 + 6 + 1, now()-1) } );
+   itr.time_limit[type] = now() + (frozen_days * 86400);
+   collcd.set(itr,_self);
+}
+
 void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64_t &number) {
     //two-way binding.
     auto itr = _players.require_find( owner.value, "Unable to find player" );
@@ -35,9 +89,9 @@ void cryptojinian::exchangecoin(const name &owner, const uint64_t &id) {
     // require_auth(get_self());
     //two-way binding.
     auto onecoin = _coins.find(id);
-    auto itr = _players.require_find( owner.value, "Unable to find player" );
+    auto itr = _players.require_find(owner.value, "Unable to find player");
 
-    _coins.modify(onecoin, get_self(), [&](auto &onecoin) {
+    _coins.modify(onecoin, _self, [&](auto &onecoin) {
         onecoin.owner = owner.value;
     });
 
@@ -101,6 +155,7 @@ void cryptojinian::exchange(const std::string inputstrs){
     name coinowner;
     auto onecoin = _coins.begin();
     for(int i=0;i<inputs.size();i++){
+        eosio_assert(cd_check(inputs[i]), "This coin cant exchange, it is frozen.");
         onecoin = _coins.find(inputs[i]);
         require_auth(name(onecoin->owner));
         if (type == 0) {
@@ -127,6 +182,7 @@ void cryptojinian::exchange(const std::string inputstrs){
 
 void cryptojinian::exchangedown(const uint64_t inputid, const uint64_t goal){
     auto onecoin = _coins.begin();
+    eosio_assert(cd_check(inputid), "This coin cant exchange, it is frozen.");
     onecoin = _coins.find(inputid);
     require_auth(name(onecoin->owner));
     uint64_t goaltype = goal % 100;
