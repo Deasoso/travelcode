@@ -491,8 +491,8 @@ CONTRACT cryptojinian : public eosio::contract {
             eosio_assert(quantity.is_valid(), "invalid token transfer");
             eosio_assert(quantity.symbol == TOKEN_SYMBOL, "Only CCC token is allowed");
             eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
-            auto buyer_balance = _contract_kyubey.get_balance( buyer, quantity.symbol );
-            eosio_assert(buyer_balance >= quantity, "Must have enough x.");
+            // auto buyer_balance = _contract_kyubey.get_balance( buyer, quantity.symbol );
+            // eosio_assert(buyer_balance >= quantity, "Must have enough x.");
             
             singleton_buybackqueue_t buybackqueue(_self, buyer.value);
             eosio_assert( buybackqueue.exists(), "Did not entered buybackqueue before." ); 
@@ -518,20 +518,21 @@ CONTRACT cryptojinian : public eosio::contract {
         ACTION autobuyback( const name &buyer ) {
             require_auth(_self);
             if ( buyer == _self ) return;
-            auto buyer_balance = _contract_kyubey.get_balance(buyer, TOKEN_SYMBOL);
+            // auto buyer_balance = _contract_kyubey.get_balance(buyer, TOKEN_SYMBOL);
             
             singleton_buybackqueue_t buybackqueue(_self, buyer.value);
             eosio_assert( buybackqueue.exists(), "Did not entered buybackqueue before." ); 
             auto bbq_buyer = buybackqueue.get();
             // eosio_assert( bbq_buyer.limit >= quantity, "Must have enough token limit.");
             auto quantity = bbq_buyer.limit;
-            eosio_assert(buyer_balance >= quantity, "Must have enough token.");
+            // eosio_assert(buyer_balance >= quantity, "Must have enough token.");
 
             // total
             singleton_buybackqueue_t bbq_self(_self, _self.value);
             quantity *= bbq_self.get().price.amount ;
             quantity /= config::PRICE_SCALE ;
             asset delta( quantity.amount, EOS_SYMBOL ) ;
+            
             if ( delta.is_valid() && delta.amount > 0) { 
                 action(permission_level{ _self, "active"_n},
                     "eosio.token"_n, "transfer"_n,
