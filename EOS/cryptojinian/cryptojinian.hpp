@@ -200,8 +200,7 @@ CONTRACT cryptojinian : public eosio::contract {
             for ( const auto &cid : itr_players.coins ) {
                 for ( uint8_t yy = 0 ; yy < counter.size() ; yy++ ) {
                     for ( uint8_t xx = 0 ; xx < counter[yy].size(); xx++ ) {
-                        if ( cd_check(cid)
-                             && _coins.find(cid)->type == ( xx * 100 + ( yy + 1 ) ) )
+                        if ( _coins.find(cid)->type == ( xx * 100 + ( yy + 1 ) ) )
                             counter[yy][xx]++;
                     }
                 }
