@@ -72,14 +72,25 @@ void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64
 void cryptojinian::deletecoin(const uint64_t &id) {
     auto onecoin = _coins.find(id);
     auto itr_player = _players.find(onecoin->owner);
+
+    // 修改 coins 表
     _coins.modify(onecoin, get_self(), [&](auto &onecoin) {
         onecoin.owner = get_self().value;
     });
+
+    // 修改凍結表
+    frozencoins_t frozencoins(_self, _self.value);
+    auto c_itr = frozencoins.find(id);
+    if ( c_itr != frozencoins.end() ) // 有找到
+        frozencoins.erase(c_itr) ;
+
+    // 修改 players 表
     for(std::size_t i3=0;i3<itr_player->coins.size();i3++){
         if(itr_player->coins[i3] == id){
             _players.modify(itr_player, get_self(), [&](auto &p) {
                 p.coins.erase(p.coins.begin()+i3);
             });
+
             break;
         }
     }
