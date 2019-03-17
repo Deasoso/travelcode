@@ -279,15 +279,15 @@ void cryptojinian::ref_processing( const name &miner, const name &sponsor )
         const auto refs_size = itr_sponsor->refs.size();
         asset bouns( 0, config::TOKEN_SYMBOL );
         if (refs_size <= 10)
-            bouns.set_amount( 30 * 10000 );
+            bouns.set_amount( 10 * 10000 );
         else if (refs_size <= 30)
-            bouns.set_amount( 40 * 10000 );
+            bouns.set_amount( 12 * 10000 );
         else if (refs_size <= 70)
-            bouns.set_amount( 50 * 10000 );
+            bouns.set_amount( 15 * 10000 );
         else if (refs_size <= 100)
-            bouns.set_amount( 60 * 10000 );
+            bouns.set_amount( 20 * 10000 );
         else
-            bouns.set_amount( 80 * 10000 );
+            bouns.set_amount( 25 * 10000 );
 
         token_mining_with_stake( name(itr_sponsor->playername), bouns,
                       "bouns " + std::to_string(bouns.amount / 10000) + " CCC" );
@@ -391,7 +391,7 @@ void cryptojinian::onTransfer(name from, name to, asset quantity, std::string me
     require_auth(from);
     eosio_assert(quantity.is_valid(), "invalid token transfer");
     eosio_assert(quantity.symbol == EOS_SYMBOL, "only EOS token is allowed");
-    eosio_assert(quantity.amount > 0, "must transfer a positive amount"); // 正數的結界
+    eosio_assert(quantity.amount > 0, "Must transfer a positive amount"); // 正數的結界
 
     auto params = explode(memo, ' ');
     eosio_assert(params.size() <= 5, "Error memo");

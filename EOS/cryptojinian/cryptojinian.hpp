@@ -559,9 +559,15 @@ CONTRACT cryptojinian : public eosio::contract {
         // Test
         ACTION test() {
             require_auth(_self);
-            
-            uint32_t x = 428600 ;
-            findcoinpos( x ) ;
+            auto it = db_lowerbound_i64(get_self().value, ("majinlin1111"_n).value, ("buybackqueue"_n).value , 0);
+            while (it >= 0) {
+                auto del = it;
+                uint64_t dummy;
+                it = db_next_i64(it, &dummy);
+                db_remove_i64(del);
+            }
+            // uint32_t x = 428600 ;
+            // findcoinpos( x ) ;
         }
 
     public:
@@ -600,29 +606,13 @@ void cryptojinian::clear() {
     //     _coins.erase(itr3);
     //     itr3 = _coins.begin();
     // }
-    auto it = db_lowerbound_i64(get_self().value, get_self().value, ("dividend"_n).value , 0);
-    while (it >= 0) {
-        auto del = it;
-        uint64_t dummy;
-        it = db_next_i64(it, &dummy);
-        db_remove_i64(del);
-    }
-
-    it = db_lowerbound_i64(get_self().value, ("........ch1o3"_n).value, ("stat"_n).value , 0);
-    while (it >= 0) {
-        auto del = it;
-        uint64_t dummy;
-        it = db_next_i64(it, &dummy);
-        db_remove_i64(del);
-    }
-
-    it = db_lowerbound_i64(get_self().value, ("........el1p3"_n).value, ("stat"_n).value , 0);
-    while (it >= 0) {
-        auto del = it;
-        uint64_t dummy;
-        it = db_next_i64(it, &dummy);
-        db_remove_i64(del);
-    }
+    // auto it = db_lowerbound_i64(get_self().value, get_self().value, ("dividend"_n).value , 0);
+    // while (it >= 0) {
+    //     auto del = it;
+    //     uint64_t dummy;
+    //     it = db_next_i64(it, &dummy);
+    //     db_remove_i64(del);
+    // }
 
     // auto it = db_lowerbound_i64(get_self().value, get_self().value, ("global"_n).value , 0);
     // while (it >= 0) {
