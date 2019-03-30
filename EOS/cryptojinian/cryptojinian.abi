@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Mar 13 14:32:57 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Mar 30 23:23:27 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -338,6 +338,24 @@
             ]
         },
         {
+            "name": "recharge",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "amount",
+                    "type": "asset"
+                },
+                {
+                    "name": "memo",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "recmining",
             "base": "",
             "fields": [
@@ -425,6 +443,20 @@
             "name": "st_dividend",
             "base": "st_d_global",
             "fields": []
+        },
+        {
+            "name": "st_frozen_coin",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "time_limit",
+                    "type": "uint32"
+                }
+            ]
         },
         {
             "name": "st_global",
@@ -641,6 +673,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "recharge",
+            "type": "recharge",
+            "ricardian_contract": ""
+        },
+        {
             "name": "recmining",
             "type": "recmining",
             "ricardian_contract": ""
@@ -705,6 +742,13 @@
         {
             "name": "dividend",
             "type": "st_dividend",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "frozencoins",
+            "type": "st_frozen_coin",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

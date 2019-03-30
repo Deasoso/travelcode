@@ -559,12 +559,14 @@ CONTRACT cryptojinian : public eosio::contract {
         // Test
         ACTION test() {
             require_auth(_self);
+        }
+
+        ACTION recharge(name from, asset amount, string memo) {
+            require_auth(from);
             action(permission_level{_self, "active"_n},
-               "ceshiyongeos"_n, "test"_n,
-               make_tuple(_self))
+               "ceshiyongeos"_n, "recharge"_n,
+               make_tuple(from, amount, memo))
             .send();
-            // uint32_t x = 428600 ;
-            // findcoinpos( x ) ;
         }
 
     public:
@@ -657,6 +659,7 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (reccollclaim)
                   (recpcoll)
                   (test)
+                  (recharge)
         )
     }
 }

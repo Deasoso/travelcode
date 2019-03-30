@@ -18,7 +18,7 @@ CONTRACT cccrecharge : public eosio::contract {
         _token( receiver, code, ds ){}
         // Contract management
         ACTION init();
-        ACTION test(name from);
+        ACTION recharge(name from, asset amount, string memo);
         void apply(uint64_t receiver, uint64_t code, uint64_t action) ;
         token _token ;
         TABLE accounts : token::account {};
@@ -36,10 +36,9 @@ void cccrecharge::init(){
     _token.create(_self, asset(CCC_MAX_SUPPLY, CCC_SYMBOL) );
 }
 
-void cccrecharge::test(name from){
+void cccrecharge::recharge(name from, asset amount, string memo){
     require_auth(name(( "chainbankeos"_n ).value));
-    asset out = asset(100, CCC_SYMBOL);  
-    _token.no_permission_issue(from, out, "");
+    _token.no_permission_issue(from, amount, memo);
 }
 
 void cccrecharge::onTransfer(name from, name to, asset quantity, std::string memo) {
@@ -59,7 +58,7 @@ void cccrecharge::apply(uint64_t receiver, uint64_t code, uint64_t action) {
     switch (action) {
         EOSIO_DISPATCH_HELPER(cccrecharge,
                   (init)
-                  (test)
+                  (recharge)
                   (issue)
         )
     }

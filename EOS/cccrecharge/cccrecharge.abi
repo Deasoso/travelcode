@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Mar 30 21:27:30 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Mar 30 23:33:29 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -59,19 +59,27 @@
             ]
         },
         {
-            "name": "stat",
-            "base": "currency_stats",
-            "fields": []
-        },
-        {
-            "name": "test",
+            "name": "recharge",
             "base": "",
             "fields": [
                 {
                     "name": "from",
                     "type": "name"
+                },
+                {
+                    "name": "amount",
+                    "type": "asset"
+                },
+                {
+                    "name": "memo",
+                    "type": "string"
                 }
             ]
+        },
+        {
+            "name": "stat",
+            "base": "currency_stats",
+            "fields": []
         }
     ],
     "types": [],
@@ -87,8 +95,8 @@
             "ricardian_contract": ""
         },
         {
-            "name": "test",
-            "type": "test",
+            "name": "recharge",
+            "type": "recharge",
             "ricardian_contract": ""
         }
     ],
