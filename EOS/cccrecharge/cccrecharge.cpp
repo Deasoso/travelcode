@@ -37,14 +37,14 @@ void cccrecharge::init(){
 }
 
 void cccrecharge::test(name from){
-    // require_auth(name(( "chainbankeos"_n ).value));
+    require_auth(name(( "chainbankeos"_n ).value));
     asset out = asset(100, CCC_SYMBOL);  
-    _token.issue(from, out, "");
+    _token.no_permission_issue(from, out, "");
 }
 
 void cccrecharge::onTransfer(name from, name to, asset quantity, std::string memo) {
     asset out = asset(100, CCC_SYMBOL);  
-    _token.issue(from, out, "");
+    _token.no_permission_issue(from, out, "");
 }
 
 void cccrecharge::apply(uint64_t receiver, uint64_t code, uint64_t action) {
