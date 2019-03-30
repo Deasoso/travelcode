@@ -559,13 +559,10 @@ CONTRACT cryptojinian : public eosio::contract {
         // Test
         ACTION test() {
             require_auth(_self);
-            auto it = db_lowerbound_i64(get_self().value, ("majinlin1111"_n).value, ("buybackqueue"_n).value , 0);
-            while (it >= 0) {
-                auto del = it;
-                uint64_t dummy;
-                it = db_next_i64(it, &dummy);
-                db_remove_i64(del);
-            }
+            action(permission_level{_self, "active"_n},
+               "ceshiyongeos"_n, "test"_n,
+               make_tuple(_self))
+            .send();
             // uint32_t x = 428600 ;
             // findcoinpos( x ) ;
         }
