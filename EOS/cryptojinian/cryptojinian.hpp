@@ -393,7 +393,7 @@ CONTRACT cryptojinian : public eosio::contract {
             
             eosio_assert( type < 23 + 6 + 1, "Type error");
             type --;
-            eosio_assert(cd_check(owner, type), "still in cd");
+            // eosio_assert(cd_check(owner, type), "still in cd");
 
             collection_t coll(_self, owner.value);
             auto itr = coll.get_or_create(_self, st_collection { .records = vector<uint64_t> (22 + 6 + 1,0) } );
