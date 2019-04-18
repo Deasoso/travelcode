@@ -259,6 +259,7 @@ CONTRACT cryptojinian : public eosio::contract {
         }
         ACTION exchange(const std::string inputs);
         ACTION exchangedown(const uint64_t inputid, const uint64_t goal);
+        ACTION unfreezecoin(const uint64_t &id); 
 
         // Game management
         ACTION mining( const capi_checksum256 &seed ) {
@@ -642,6 +643,7 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (ownerdelcoin)
                   (exchange)
                   (exchangedown)
+                  (unfreezecoin)
                   (mining)
                   (pushorder)
                   (cancelorder)

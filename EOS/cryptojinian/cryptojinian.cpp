@@ -7,7 +7,9 @@ bool cryptojinian::cd_check( const uint64_t &id )
     if (itr == frozencoins.end()) // new
         return true ;
     else
-        return now() > itr->time_limit;
+        return false ;
+        // return now() > itr->time_limit;
+        
 }
 
 bool cryptojinian::cd_check( const name &owner, const uint8_t &type )
@@ -67,6 +69,15 @@ void cryptojinian::setcoin(const name &owner, const uint64_t &type, const uint64
     _players.modify(itr, get_self(), [&](auto &p) {
         p.coins.push_back(itr_newcoin->id);
     });
+}
+
+void cryptojinian::unfreezecoin(const uint64_t &id){
+    require_auth(get_self());
+    frozencoins_t frozencoins(_self, _self.value);
+    auto itr = frozencoins.find(id);
+    if ( itr != frozencoins.end() ) // 有找到
+        frozencoins.erase(itr) ;
+    else eosio_assert(false, "no frozen coin");  
 }
 
 void cryptojinian::deletecoin(const uint64_t &id) {
@@ -333,6 +344,11 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset 
                 _players.modify(itr_player, get_self(), [&](auto &p) {
                     p.coins.erase(p.coins.begin()+i);
                 });
+                auto onecoin = _coins.find(cid);
+                uint64_t inputtype = onecoin.type % 100;
+                uint64_t inputvalue = onecoin.type / 100;
+                uint64_t amount = _coinvalues[inputtype-1][inputvalue]/_coinvalues[inputtype-1][0];
+                token_unstake_and_burn(buyer, asset( amount * 10, config::TOKEN_SYMBOL ), string{""});
                 break;
             }
         }
