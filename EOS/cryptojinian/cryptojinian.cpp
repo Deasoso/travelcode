@@ -345,10 +345,10 @@ void cryptojinian::takeorder(const name &buyer, const uint64_t &order_id, asset 
                     p.coins.erase(p.coins.begin()+i);
                 });
                 auto onecoin = _coins.find(cid);
-                uint64_t inputtype = onecoin.type % 100;
-                uint64_t inputvalue = onecoin.type / 100;
-                uint64_t amount = _coinvalues[inputtype-1][inputvalue]/_coinvalues[inputtype-1][0];
-                token_unstake_and_burn(buyer, asset( amount * 10, config::TOKEN_SYMBOL ), string{""});
+                uint64_t inputtype = onecoin->type % 100;
+                uint64_t inputvalue = onecoin->type / 100;
+                uint64_t amount = _coinvalues[inputtype-1][inputvalue] / _coinvalues[inputtype-1][0];
+                token_unstake_and_burn(seller, asset( amount * 10 * 10000, config::TOKEN_SYMBOL ), string{""});
                 break;
             }
         }

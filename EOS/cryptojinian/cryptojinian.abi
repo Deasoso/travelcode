@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Mar 30 23:23:27 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Apr 18 23:47:54 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -102,7 +102,7 @@
             "base": "",
             "fields": [
                 {
-                    "name": "account",
+                    "name": "owner",
                     "type": "name"
                 },
                 {
@@ -561,6 +561,16 @@
             ]
         },
         {
+            "name": "unfreezecoin",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
             "name": "usedcoins",
             "base": "",
             "fields": [
@@ -700,6 +710,11 @@
         {
             "name": "transfer",
             "type": "transfer",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "unfreezecoin",
+            "type": "unfreezecoin",
             "ricardian_contract": ""
         }
     ],
