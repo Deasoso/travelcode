@@ -165,9 +165,9 @@ CONTRACT cryptojinian : public eosio::contract {
         void newcoinbypos(const name owner, const uint64_t pos);
         void exchangecoin(const name &owner, const uint64_t &id);
         bool cd_check( const uint64_t &id );
-        bool cd_check( const name &owner, const uint8_t &type );
-        void update_frozen_time_limit( const name &owner, const uint8_t &type, const uint64_t &quantity, const uint32_t &frozen_days );
-        void update_frozen_time_limit( const name &owner, const uint8_t &type, const uint32_t &frozen_days );
+        bool cd_check( const name &owner, const uint32_t &type );
+        void update_frozen_time_limit( const name &owner, const uint32_t &type, const uint64_t &quantity, const uint32_t &frozen_days );
+        void update_frozen_time_limit( const name &owner, const uint32_t &type, const uint32_t &frozen_days );
         void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
 
         auto join_game_processing(const name &account) {
@@ -271,7 +271,7 @@ CONTRACT cryptojinian : public eosio::contract {
 
             const auto &mc = _global.get().miningcost();
             auto v_seed = merge_seed( seed ) ;
-            uint8_t n = 0 ;
+            uint32_t n = 0 ;
             name miner ;
             while( itr != _miningqueue.end() && n != v_seed.size() ) {
                 miner = name(itr->miner) ;
@@ -301,7 +301,7 @@ CONTRACT cryptojinian : public eosio::contract {
             auto v_str = explode(straddorder, ' ') ;
             eosio_assert(v_str.size() == 3, "Error memo");
 
-            uint8_t type_order = string_to_int( v_str[0] ) ;
+            uint32_t type_order = string_to_int( v_str[0] ) ;
             auto type_coin = coin::str_to_coin_type( v_str[1] ) ;
             auto n_coin = string_to_int( v_str[2] ) ;
             vector<uint64_t> pcoins ;
@@ -388,7 +388,7 @@ CONTRACT cryptojinian : public eosio::contract {
         }
 
         // Coll. management
-        ACTION collclaim( const name &owner, uint8_t &type ) {
+        ACTION collclaim( const name &owner, uint32_t &type ) {
             require_auth(owner);
             if ( owner == _self ) return;
             
@@ -553,7 +553,7 @@ CONTRACT cryptojinian : public eosio::contract {
         ACTION recmining( const name &miner ) {
             require_auth(_self);
         }
-        ACTION reccollclaim( const name &account, uint8_t &type ) {}
+        ACTION reccollclaim( const name &account, uint32_t &type ) {}
         ACTION recpcoll( const name &account, vector<uint64_t> number_of_coins ) {}
 
         // Dev

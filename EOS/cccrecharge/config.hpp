@@ -28,13 +28,13 @@ constexpr int64_t MINING_COEF = 10 ;
 
 constexpr uint64_t PRICE_SCALE = 100000000;
 
-constexpr uint8_t MINING_TIMES = 16 ;
+constexpr uint32_t MINING_TIMES = 16 ;
 
 constexpr double_t DIVIDEND_COEF{0.65} ;    // 分红调成65%
 constexpr double_t BUYBACK_COEF{0.2} ;      // 回购调成20%
 constexpr double_t COLLECTION_COEF{0.15} ;  // 集齐整版纪念币奖励调成15%
 
-constexpr uint8_t FROZEN_DAYS = 30 ;
+constexpr uint32_t FROZEN_DAYS = 30 ;
 
 } // namespace config
 
