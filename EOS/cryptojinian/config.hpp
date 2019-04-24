@@ -86,23 +86,45 @@ const vector<vector<uint64_t>> _coinvalues = { // [][+1]
 };
 
 const vector<uint32_t> collection_combination_parameters( const uint32_t &type ) {
+    vector<uint32_t> v ;
     switch( type ) {
         case 22 :
-            return {0, 2, 10};
+            v.push_back(0);
+            v.push_back(2);
+            v.push_back(10);
+            return v;
         case 23 :
-            return {1, 14, 7, 11, 12, 6, 15, 18, 21};
+            v.push_back(1);
+            v.push_back(14);
+            v.push_back(7);
+            v.push_back(11);
+            v.push_back(12);
+            v.push_back(6);
+            v.push_back(15);
+            v.push_back(18);
+            v.push_back(21);
+            return v;
         case 24 :
-            return {3, 13, 16};
+            v.push_back(3);
+            v.push_back(13);
+            v.push_back(16);
+            return v;
         case 25 :
-            return {17, 5, 20};
+            v.push_back(17);
+            v.push_back(5);
+            v.push_back(20);
+            return v;
         case 26 :
-            return {9, 8};
+            v.push_back(9);
+            v.push_back(8);
+            return v;
         case 27 :
-            return {19, 4};
-        case 28 :
-            return {type};
+            v.push_back(19);
+            v.push_back(4);
+            return v;
         default :
-            return {type};
+            v.push_back(type);
+            return v;
     }
 }
 
