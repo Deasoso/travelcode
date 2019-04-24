@@ -165,7 +165,7 @@ CONTRACT cryptojinian : public eosio::contract {
         void newcoinbypos(const name owner, const uint64_t pos);
         void exchangecoin(const name &owner, const uint64_t &id);
         bool cd_check( const uint64_t &id );
-        bool cd_check( const name &owner, const uint32_t &type );
+        // bool cd_check( const name &owner, const uint32_t &type );
         void update_frozen_time_limit( const name &owner, const uint32_t &type, const uint64_t &quantity, const uint32_t &frozen_days );
         void update_frozen_time_limit( const name &owner, const uint32_t &type, const uint32_t &frozen_days );
         void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
@@ -193,13 +193,13 @@ CONTRACT cryptojinian : public eosio::contract {
             // for example: 2 valuetype BTC: 201
 
             vector<vector<uint64_t>> counter(_coinvalues.size()) ;
-            for ( uint8_t i = 0 ; i < counter.size() ; ++i ) {
+            for ( uint32_t i = 0 ; i < counter.size() ; ++i ) {
                 counter[i] = vector<uint64_t>(_coinvalues[i].size(), 0) ;
             }
 
             for ( const auto &cid : itr_players.coins ) {
-                for ( uint8_t yy = 0 ; yy < counter.size() ; yy++ ) {
-                    for ( uint8_t xx = 0 ; xx < counter[yy].size(); xx++ ) {
+                for ( uint32_t yy = 0 ; yy < counter.size() ; yy++ ) {
+                    for ( uint32_t xx = 0 ; xx < counter[yy].size(); xx++ ) {
                         if ( _coins.find(cid)->type == ( xx * 100 + ( yy + 1 ) ) )
                             counter[yy][xx]++;
                     }
@@ -210,7 +210,7 @@ CONTRACT cryptojinian : public eosio::contract {
         }
 
         inline void collection_checker( uint64_t &r, const vector<uint64_t> &v ) {
-            for ( uint8_t xx = 0 ; xx < v.size(); xx++ )
+            for ( uint32_t xx = 0 ; xx < v.size(); xx++ )
                 if ( r > v[xx] ) r = v[xx] ;
         }
 
@@ -412,7 +412,7 @@ CONTRACT cryptojinian : public eosio::contract {
                 }
             } else if ( type == 28 ) {
                 r = vv_cc[0][0] ;
-                for ( uint8_t yy = 0 ; yy < vv_cc.size() ; yy++ ) {
+                for ( uint32_t yy = 0 ; yy < vv_cc.size() ; yy++ ) {
                     collection_checker( r, vv_cc[yy] );
                 }
             }
@@ -578,7 +578,7 @@ vector<uint32_t> cryptojinian::merge_seed(const capi_checksum256 &s) {
     uint32_t hash ;
     // uint16_t s16[4] ;
     vector<uint32_t> v_hash ;
-    for (uint8_t i = 0 ; i < 32 ; i += 4 ) {
+    for (uint32_t i = 0 ; i < 32 ; i += 4 ) {
         hash = ( s.hash[i] << 24 ) | ( s.hash[i+1] << 16 ) | ( s.hash[i+2] << 8 ) | s.hash[i+3] ;
         v_hash.push_back( hash ) ;
         hash = ( s.hash[i+3] << 24 ) | ( s.hash[i+2] << 16 ) | ( s.hash[i+1] << 8 ) | s.hash[i] ;
