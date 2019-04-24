@@ -224,11 +224,6 @@ CONTRACT cryptojinian : public eosio::contract {
             _contract_kyubey.burn(owner, quantity, memo);
         }
 
-        /*
-        void ibobuy( const name &buyer, asset &in ) {
-            require_auth( buyer );
-            // _contract_kyubey.buy( buyer, in );
-        }*/
         inline vector<uint32_t> merge_seed(const capi_checksum256 &s);
 
     public:
