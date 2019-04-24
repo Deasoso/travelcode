@@ -413,7 +413,6 @@ CONTRACT cryptojinian : public eosio::contract {
                 }
             }
 
-            eosio_assert(false, "test 1");
             eosio_assert(r > itr.records[type], "Not Enough Coin");
             if ( type == 28 )
                 _contract_dividend.collection_claim(owner);   
@@ -557,6 +556,46 @@ CONTRACT cryptojinian : public eosio::contract {
         // Test
         ACTION test() {
             require_auth(_self);
+            
+            name owner = "jinxingcun12"_n;
+            uint32_t type = {27};
+            
+            eosio_assert( type < 23 + 6 + 1, "Type error");
+            type --;
+
+            collection_t coll(_self, owner.value);
+            auto itr = coll.get_or_create(_self, st_collection { .records = vector<uint64_t> (22 + 6 + 1,0) } );
+            auto vv_cc = collection_counter(owner) ;
+            
+            auto v_c = vv_cc[type] ;
+            SEND_INLINE_ACTION( *this, recpcoll, { _self, "active"_n }, { owner, v_c } );
+            
+            uint64_t r ;
+            if ( type <= 27 ) {
+                const auto &v = collection_combination_parameters(type);
+                r = vv_cc[v[0]][0]; 
+                for(auto&& i : v) {
+                    collection_checker( r, vv_cc[i] ); 
+                }
+            } else if ( type == 28 ) {
+                r = vv_cc[0][0] ;
+                for ( uint32_t yy = 0 ; yy < vv_cc.size() ; yy++ ) {
+                    collection_checker( r, vv_cc[yy] );
+                }
+            }
+
+            eosio_assert(r > itr.records[type], "Not Enough Coin");
+            if ( type == 28 )
+                _contract_dividend.collection_claim(owner);   
+            else
+                token_mining_with_stake(owner, config::bouns_table(type), string{"Bouns from collection claim."});
+                                
+            SEND_INLINE_ACTION( *this, reccollclaim, { _self, "active"_n }, { owner, type } );
+            itr.records[type] ++;
+            coll.set(itr, _self) ;
+            update_frozen_time_limit(owner, type, itr.records[type], FROZEN_DAYS);
+
+            eosio_assert(false, "test");
         }
 
         ACTION recharge(name from, asset amount, string memo) {
