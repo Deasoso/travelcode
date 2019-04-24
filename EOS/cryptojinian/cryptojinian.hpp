@@ -164,10 +164,13 @@ CONTRACT cryptojinian : public eosio::contract {
         uint64_t findcoinpos( uint32_t &input );
         void newcoinbypos(const name owner, const uint64_t pos);
         void exchangecoin(const name &owner, const uint64_t &id);
+        inline uint32_t toType( const uint32_t &x, const uint32_t &y) {
+            return x * 100 + y + 1;
+        }
         bool cd_check( const uint64_t &id );
         // bool cd_check( const name &owner, const uint32_t &type );
         void update_frozen_time_limit( const name &owner, const uint32_t &type, const uint64_t &quantity, const uint32_t &frozen_days );
-        void update_frozen_time_limit( const name &owner, const uint32_t &type, const uint32_t &frozen_days );
+        // void update_frozen_time_limit( const name &owner, const uint32_t &type, const uint32_t &frozen_days );
         void SplitString(const std::string& s, vector<uint64_t>& v, const std::string& c);
 
         auto join_game_processing(const name &account) {
@@ -200,8 +203,7 @@ CONTRACT cryptojinian : public eosio::contract {
             for ( const auto &cid : itr_players.coins ) {
                 for ( uint32_t yy = 0 ; yy < counter.size() ; yy++ ) {
                     for ( uint32_t xx = 0 ; xx < counter[yy].size(); xx++ ) {
-                        if ( _coins.find(cid)->type == ( xx * 100 + ( yy + 1 ) ) )
-                            counter[yy][xx]++;
+                        if ( _coins.find(cid)->type == toType(xx, yy) ) counter[yy][xx]++;
                     }
                 }
             }
@@ -389,7 +391,6 @@ CONTRACT cryptojinian : public eosio::contract {
             
             eosio_assert( type < 23 + 6 + 1, "Type error");
             type --;
-            // eosio_assert(cd_check(owner, type), "still in cd");
 
             collection_t coll(_self, owner.value);
             auto itr = coll.get_or_create(_self, st_collection { .records = vector<uint64_t> (22 + 6 + 1,0) } );
@@ -412,6 +413,7 @@ CONTRACT cryptojinian : public eosio::contract {
                 }
             }
 
+            eosio_assert(false, "test 1");
             eosio_assert(r > itr.records[type], "Not Enough Coin");
             if ( type == 28 )
                 _contract_dividend.collection_claim(owner);   
@@ -422,7 +424,7 @@ CONTRACT cryptojinian : public eosio::contract {
             itr.records[type] ++;
             coll.set(itr, _self) ;
             update_frozen_time_limit(owner, type, itr.records[type], FROZEN_DAYS);
-            update_frozen_time_limit(owner, type, FROZEN_DAYS);
+            // update_frozen_time_limit(owner, type, FROZEN_DAYS);
         }
 
         // Buyback management
