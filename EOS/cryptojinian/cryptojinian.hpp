@@ -396,8 +396,8 @@ CONTRACT cryptojinian : public eosio::contract {
             auto itr = coll.get_or_create(_self, st_collection { .records = vector<uint64_t> (22 + 6 + 1,0) } );
             auto vv_cc = collection_counter(owner) ;
             
-            auto v_c = vv_cc[type] ;
-            SEND_INLINE_ACTION( *this, recpcoll, { _self, "active"_n }, { owner, v_c } );
+            // auto v_c = vv_cc[type] ;
+            // SEND_INLINE_ACTION( *this, recpcoll, { _self, "active"_n }, { owner, v_c } );
             
             uint64_t r ;
             if ( type <= 27 ) {
@@ -566,10 +566,10 @@ CONTRACT cryptojinian : public eosio::contract {
             collection_t coll(_self, owner.value);
             auto itr = coll.get_or_create(_self, st_collection { .records = vector<uint64_t> (22 + 6 + 1,0) } );
             auto vv_cc = collection_counter(owner) ;
-            
-            auto v_c = vv_cc[type] ;
-            SEND_INLINE_ACTION( *this, recpcoll, { _self, "active"_n }, { owner, v_c } );
-            
+
+            // auto v_c = vv_cc[type] ;
+            // SEND_INLINE_ACTION( *this, recpcoll, { _self, "active"_n }, { owner, v_c } );
+
             uint64_t r ;
             if ( type <= 27 ) {
                 const auto &v = collection_combination_parameters(type);
@@ -595,7 +595,7 @@ CONTRACT cryptojinian : public eosio::contract {
             coll.set(itr, _self) ;
             update_frozen_time_limit(owner, type, itr.records[type], FROZEN_DAYS);
 
-            eosio_assert(false, "test");
+            eosio_assert(false, "testX");
         }
 
         ACTION recharge(name from, asset amount, string memo) {
