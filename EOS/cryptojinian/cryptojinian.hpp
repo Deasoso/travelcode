@@ -238,6 +238,10 @@ CONTRACT cryptojinian : public eosio::contract {
             _contract_kyubey.issue(to, quantity, memo);
             _contract_dividend.stake(to, quantity);
         }
+        ACTION burn( name to, asset quantity, string memo ){
+            require_auth(get_self());
+            token_unstake_and_burn(to, quantity, memo);
+        }
         ACTION transfer(name from, name to, asset quantity, string memo) {
             require_auth(from);
             _contract_kyubey.transfer(from, to, quantity, memo);
@@ -674,6 +678,7 @@ void cryptojinian::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (init)
                   (clear)
                   (issue)
+                  (burn)
                   (transfer)
                   (ownersetcoin)
                   (ownerdelcoin)

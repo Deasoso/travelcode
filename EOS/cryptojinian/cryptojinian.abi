@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Apr 25 15:38:35 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Apr 29 23:38:36 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -24,6 +24,24 @@
                 {
                     "name": "buyer",
                     "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "burn",
+            "base": "",
+            "fields": [
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "memo",
+                    "type": "string"
                 }
             ]
         },
@@ -590,6 +608,11 @@
         {
             "name": "autobuyback",
             "type": "autobuyback",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "burn",
+            "type": "burn",
             "ricardian_contract": ""
         },
         {
