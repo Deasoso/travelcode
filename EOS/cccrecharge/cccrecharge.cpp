@@ -23,12 +23,55 @@ CONTRACT cccrecharge : public eosio::contract {
         token _token ;
         TABLE accounts : token::account {};
         TABLE stat : token::currency_stats {};
+        TABLE st_miningqueue {
+            uint64_t id ;
+            capi_name miner ;
+
+            auto primary_key() const { return id; }
+            EOSLIB_SERIALIZE(st_miningqueue, (id)(miner))
+        };
+
         ACTION issue( name to, asset quantity, string memo ){
             _token.issue(to, quantity, memo);
         }
 
+        ACTION mining( const capi_checksum256 &seed ) {
+            require_auth(_self);
+
+            miningqueue_t _miningqueue(_self, _self.value);
+            auto itr = _miningqueue.begin();
+            if ( itr == _miningqueue.end() ) return ;
+
+            auto v_seed = merge_seed( seed ) ;
+            uint32_t n = 0 ;
+            name miner ;
+            while( itr != _miningqueue.end() && n != v_seed.size() ) {
+                miner = name(itr->miner) ;
+                newcoinbypos(miner, findcoinpos(v_seed[n])) ;
+
+                _miningqueue.erase(itr);
+                
+                itr = _miningqueue.begin();
+                n++ ;
+                if ( n > config::MINING_TIMES ) return ;
+            }
+        }
+
+        void cryptojinian::setcoin(const name &owner, const uint64_t &type) {
+            //two-way binding.
+            auto itr_newcoin = _coins.emplace(get_self(), [&](auto &c) {
+                c.id = _coins.available_primary_key();
+                c.owner = owner.value;
+                c.type = type;
+            });
+        }
+
+        typedef eosio::multi_index<"miningqueue"_n, st_miningqueue> miningqueue_t;
+
     private:
         void onTransfer(name from, name to, asset quantity, string memo);
+        void join_miningqueue( const name &miner, const asset &totalcost );
+        inline vector<uint32_t> merge_seed(const capi_checksum256 &s);
 };
 
 void cccrecharge::init(){
@@ -62,6 +105,30 @@ void cccrecharge::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (issue)
         )
     }
+}
+
+void cryptojinian::join_miningqueue(const name &miner)
+{
+    // join mining waiting Q
+    miningqueue_t _miningqueue(get_self(), get_self().value);
+    _miningqueue.emplace( _self, [&](auto &q) {
+        q.id = _miningqueue.available_primary_key();
+        q.miner = miner.value;
+    });
+}
+
+vector<uint32_t> cryptojinian::merge_seed(const capi_checksum256 &s) {
+    uint32_t hash ;
+    // uint16_t s16[4] ;
+    vector<uint32_t> v_hash ;
+    for (uint32_t i = 0 ; i < 32 ; i += 4 ) {
+        hash = ( s.hash[i] << 24 ) | ( s.hash[i+1] << 16 ) | ( s.hash[i+2] << 8 ) | s.hash[i+3] ;
+        v_hash.push_back( hash ) ;
+        hash = ( s.hash[i+3] << 24 ) | ( s.hash[i+2] << 16 ) | ( s.hash[i+1] << 8 ) | s.hash[i] ;
+        v_hash.push_back( hash ) ;
+        // hash = ( s16[0] << 48 ) | ( s16[1] << 32 ) | ( s16[2] << 16 )  | s16[3] ;
+    }
+    return v_hash;
 }
 
 extern "C" {
