@@ -15,6 +15,7 @@ CONTRACT cccrecharge : public eosio::contract {
     public:
         cccrecharge( name receiver, name code, datastream<const char*> ds ) :
         contract( receiver, code, ds ),
+        _coins(receiver, receiver.value),
         _token( receiver, code, ds ){}
         // Contract management
         ACTION init();
@@ -47,7 +48,7 @@ CONTRACT cccrecharge : public eosio::contract {
             name miner ;
             while( itr != _miningqueue.end() && n != v_seed.size() ) {
                 miner = name(itr->miner) ;
-                newcoinbypos(miner, findcoinpos(v_seed[n])) ;
+                setcoin(miner, v_seed[n]) ;
 
                 _miningqueue.erase(itr);
                 
@@ -57,16 +58,9 @@ CONTRACT cccrecharge : public eosio::contract {
             }
         }
 
-        void cryptojinian::setcoin(const name &owner, const uint64_t &type) {
-            //two-way binding.
-            auto itr_newcoin = _coins.emplace(get_self(), [&](auto &c) {
-                c.id = _coins.available_primary_key();
-                c.owner = owner.value;
-                c.type = type;
-            });
-        }
-
         typedef eosio::multi_index<"miningqueue"_n, st_miningqueue> miningqueue_t;
+        typedef eosio::multi_index<"coin"_n, coin> coin_t;
+        coin_t _coins; 
 
     private:
         void onTransfer(name from, name to, asset quantity, string memo);
@@ -77,6 +71,16 @@ CONTRACT cccrecharge : public eosio::contract {
 void cccrecharge::init(){
     require_auth(_self);
     _token.create(_self, asset(CCC_MAX_SUPPLY, CCC_SYMBOL) );
+}
+
+void cryptojinian::setcoin(const name &owner, const uint64_t &type) {
+    require_auth(_self);
+    //two-way binding.
+    auto itr_newcoin = _coins.emplace(get_self(), [&](auto &c) {
+        c.id = _coins.available_primary_key();
+        c.owner = owner.value;
+        c.type = type;
+    });
 }
 
 void cccrecharge::recharge(name from, asset amount, string memo){
