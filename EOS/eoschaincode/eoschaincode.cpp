@@ -31,6 +31,14 @@ CONTRACT eoschaincode : public eosio::contract {
             auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(st_miningqueue, (id)(miner))
         };
+        TABLE coin {
+            uint64_t id;
+            capi_name owner;
+            uint64_t type;
+
+            auto primary_key() const { return id; }
+            EOSLIB_SERIALIZE(coin, (id)(owner)(type))
+        };
 
         // ACTION issue( name to, asset quantity, string memo ){
         //     _token.issue(to, quantity, memo);
@@ -63,8 +71,9 @@ CONTRACT eoschaincode : public eosio::contract {
         coin_t _coins; 
 
     private:
+        void setcoin(const name &owner, const uint64_t &type);
         void onTransfer(name from, name to, asset quantity, string memo);
-        void join_miningqueue( const name &miner, const asset &totalcost );
+        void join_miningqueue( const name &miner);
         inline vector<uint32_t> merge_seed(const capi_checksum256 &s);
 };
 
@@ -105,7 +114,6 @@ void eoschaincode::apply(uint64_t receiver, uint64_t code, uint64_t action) {
     if (code != get_self().value) return;
     switch (action) {
         EOSIO_DISPATCH_HELPER(eoschaincode,
-                  (issue)
                   (mining)
         )
     }
