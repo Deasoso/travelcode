@@ -1,22 +1,7 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue May 28 15:46:37 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue May 28 16:01:30 2019",
     "version": "eosio::abi/1.1",
     "structs": [
-        {
-            "name": "account",
-            "base": "",
-            "fields": [
-                {
-                    "name": "balance",
-                    "type": "asset"
-                }
-            ]
-        },
-        {
-            "name": "accounts",
-            "base": "account",
-            "fields": []
-        },
         {
             "name": "coin",
             "base": "",
@@ -32,24 +17,6 @@
                 {
                     "name": "type",
                     "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "currency_stats",
-            "base": "",
-            "fields": [
-                {
-                    "name": "supply",
-                    "type": "asset"
-                },
-                {
-                    "name": "max_supply",
-                    "type": "asset"
-                },
-                {
-                    "name": "issuer",
-                    "type": "name"
                 }
             ]
         },
@@ -76,11 +43,6 @@
                     "type": "name"
                 }
             ]
-        },
-        {
-            "name": "stat",
-            "base": "currency_stats",
-            "fields": []
         }
     ],
     "types": [],
@@ -93,13 +55,6 @@
     ],
     "tables": [
         {
-            "name": "accounts",
-            "type": "accounts",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
             "name": "coin",
             "type": "coin",
             "index_type": "i64",
@@ -109,13 +64,6 @@
         {
             "name": "miningqueue",
             "type": "st_miningqueue",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "stat",
-            "type": "stat",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

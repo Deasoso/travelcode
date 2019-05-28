@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #include "utils.hpp"
-#include "token.hpp"
+// #include "token.hpp"
 #include "config.hpp"
 
 using namespace eosio ;
@@ -15,15 +15,15 @@ CONTRACT eoschaincode : public eosio::contract {
     public:
         eoschaincode( name receiver, name code, datastream<const char*> ds ) :
         contract( receiver, code, ds ),
-        _coins(receiver, receiver.value),
-        _token( receiver, code, ds ){}
+        _coins(receiver, receiver.value){}
+        // _token( receiver, code, ds ){}
         // Contract management
         // ACTION init();
         // ACTION recharge(name from, asset amount, string memo);
         void apply(uint64_t receiver, uint64_t code, uint64_t action) ;
-        token _token ;
-        TABLE accounts : token::account {};
-        TABLE stat : token::currency_stats {};
+        // token _token ;
+        // TABLE accounts : token::account {};
+        // TABLE stat : token::currency_stats {};
         TABLE st_miningqueue {
             uint64_t id ;
             capi_name miner ;
