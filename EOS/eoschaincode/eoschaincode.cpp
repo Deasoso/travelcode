@@ -26,18 +26,20 @@ CONTRACT eoschaincode : public eosio::contract {
         // TABLE stat : token::currency_stats {};
         TABLE st_miningqueue {
             uint64_t id ;
+            uint64_t type ;
             capi_name miner ;
 
             auto primary_key() const { return id; }
-            EOSLIB_SERIALIZE(st_miningqueue, (id)(miner))
+            EOSLIB_SERIALIZE(st_miningqueue, (id)(type)(miner))
         };
         TABLE coin {
             uint64_t id;
             capi_name owner;
             uint64_t type;
+            uint64_t code;
 
             auto primary_key() const { return id; }
-            EOSLIB_SERIALIZE(coin, (id)(owner)(type))
+            EOSLIB_SERIALIZE(coin, (id)(owner)(type)(code))
         };
 
         // ACTION issue( name to, asset quantity, string memo ){
@@ -56,7 +58,7 @@ CONTRACT eoschaincode : public eosio::contract {
             name miner ;
             while( itr != _miningqueue.end() && n != v_seed.size() ) {
                 miner = name(itr->miner) ;
-                setcoin(miner, v_seed[n]) ;
+                setcoin(miner, itr->type, v_seed[n]) ;
 
                 _miningqueue.erase(itr);
                 
@@ -65,25 +67,35 @@ CONTRACT eoschaincode : public eosio::contract {
                 if ( n > config::MINING_TIMES ) return ;
             }
         }
+        
+        ACTION test() {
+            require_auth(_self);
+            const uint64_t id = 0;
+            miningqueue_t miningqueue(_self, _self.value);
+            auto itr = miningqueue.find(id);
+            eosio_assert(itr != miningqueue.end(), "no frozen coin"); // 必須有找到
+            miningqueue.erase(itr) ;
+        }
 
         typedef eosio::multi_index<"miningqueue"_n, st_miningqueue> miningqueue_t;
         typedef eosio::multi_index<"coin"_n, coin> coin_t;
         coin_t _coins; 
 
     private:
-        void setcoin(const name &owner, const uint64_t &type);
+        void setcoin(const name &owner, const uint64_t &type, const uint64_t &code);
         void onTransfer(name from, name to, asset quantity, string memo);
-        void join_miningqueue( const name &miner);
+        void join_miningqueue(const name &miner, const uint64_t &type);
         inline vector<uint32_t> merge_seed(const capi_checksum256 &s);
 };
 
-void eoschaincode::setcoin(const name &owner, const uint64_t &type) {
+void eoschaincode::setcoin(const name &owner, const uint64_t &type, const uint64_t &code) {
     require_auth(_self);
     //two-way binding.
     auto itr_newcoin = _coins.emplace(get_self(), [&](auto &c) {
         c.id = _coins.available_primary_key();
         c.owner = owner.value;
         c.type = type;
+        c.code = code;
     });
 }
 
@@ -98,7 +110,9 @@ void eoschaincode::onTransfer(name from, name to, asset quantity, std::string me
     eosio_assert(params.size() <= 5, "Error memo");
 
     if (params[0] == "mining") { // mining
-        join_miningqueue(from);
+        eosio_assert(params.size() == 2, "Error memo");
+        uint64_t type = string_to_int(params[1]) ;
+        join_miningqueue(from, type);
         return;
     }
 }
@@ -115,15 +129,17 @@ void eoschaincode::apply(uint64_t receiver, uint64_t code, uint64_t action) {
     switch (action) {
         EOSIO_DISPATCH_HELPER(eoschaincode,
                   (mining)
+                  (test)
         )
     }
 }
 
-void eoschaincode::join_miningqueue(const name &miner)
+void eoschaincode::join_miningqueue(const name &miner, const uint64_t &type)
 {
     miningqueue_t _miningqueue(get_self(), get_self().value);
     _miningqueue.emplace( _self, [&](auto &q) {
         q.id = _miningqueue.available_primary_key();
+        q.type = type;
         q.miner = miner.value;
     });
 }

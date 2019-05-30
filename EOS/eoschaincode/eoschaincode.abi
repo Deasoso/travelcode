@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue May 28 16:01:30 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed May 29 15:53:26 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -16,6 +16,10 @@
                 },
                 {
                     "name": "type",
+                    "type": "uint64"
+                },
+                {
+                    "name": "code",
                     "type": "uint64"
                 }
             ]
@@ -39,10 +43,19 @@
                     "type": "uint64"
                 },
                 {
+                    "name": "type",
+                    "type": "uint64"
+                },
+                {
                     "name": "miner",
                     "type": "name"
                 }
             ]
+        },
+        {
+            "name": "test",
+            "base": "",
+            "fields": []
         }
     ],
     "types": [],
@@ -50,6 +63,11 @@
         {
             "name": "mining",
             "type": "mining",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "test",
+            "type": "test",
             "ricardian_contract": ""
         }
     ],
