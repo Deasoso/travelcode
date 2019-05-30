@@ -41,6 +41,14 @@ CONTRACT eoschaincode : public eosio::contract {
             auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(coin, (id)(owner)(type)(code))
         };
+        TABLE coin {
+            uint64_t id;
+            capi_name owner;
+            uint64_t type;
+
+            auto primary_key() const { return id; }
+            EOSLIB_SERIALIZE(coin, (id)(owner)(type))
+        };
 
         // ACTION issue( name to, asset quantity, string memo ){
         //     _token.issue(to, quantity, memo);
