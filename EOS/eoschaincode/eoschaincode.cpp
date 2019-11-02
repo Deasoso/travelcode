@@ -41,14 +41,6 @@ CONTRACT eoschaincode : public eosio::contract {
             auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(coin, (id)(owner)(type)(code))
         };
-        TABLE coin {
-            uint64_t id;
-            capi_name owner;
-            uint64_t type;
-
-            auto primary_key() const { return id; }
-            EOSLIB_SERIALIZE(coin, (id)(owner)(type))
-        };
 
         // ACTION issue( name to, asset quantity, string memo ){
         //     _token.issue(to, quantity, memo);
@@ -79,10 +71,10 @@ CONTRACT eoschaincode : public eosio::contract {
         ACTION test() {
             require_auth(_self);
             const uint64_t id = 0;
-            miningqueue_t miningqueue(_self, _self.value);
-            auto itr = miningqueue.find(id);
-            eosio_assert(itr != miningqueue.end(), "no frozen coin"); // 必須有找到
-            miningqueue.erase(itr) ;
+            coin_t coin(_self, _self.value);
+            auto itr = coin.find(id);
+            eosio_assert(itr != coin.end(), "no frozen coin"); // 必須有找到
+            coin.erase(itr) ;
         }
 
         typedef eosio::multi_index<"miningqueue"_n, st_miningqueue> miningqueue_t;
