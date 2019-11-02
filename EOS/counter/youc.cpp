@@ -1,10 +1,14 @@
-int i;
+struct sti{
+  int counter
+}
+
+sti k;
 
 add(){
-  i += 1;
+  k.counter += 1;
 }
 
 init(){
   if who == _wo
-    i = 0;
+    new sti(counter = 0)
 }
