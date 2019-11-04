@@ -7,7 +7,7 @@ using namespace eosio; // 工作空间
 CONTRACT counter : public contract {  // 定义 CONTRACT（合约） 类
 public: // 固定
     //            创建者     abi            二进制数据流
-    counter(name receiver, name code, datastream<const char*> ds)  // 固定
+    counter(name receiver, name code, datastream<const char*> ds)  // 固定，构造函数
         :contract(receiver, code, ds), // 固定
         todos(receiver, receiver.value) {} // 下面定义的table
 

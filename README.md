@@ -30,7 +30,12 @@ eosio-abigen /root/gitdoc/travelcode/EOS/eoschaincode/eoschaincode.cpp -contract
 ./cleos -u https://api.eosnewyork.io:443 get table -l 65536 ceshiyongeos ceshiyongeos coin
 
 # 执行合约方法
+ 钱包文件         定义节点                  执行方法      用户名   合约方法 参数       给权限
 ./cleos -u https://api.eosnewyork.io:443 push action ceshiyongeos test '[]' -p ceshiyongeos@active
 
 # 执行合约方法（带参数）
 ./cleos -u https://api.eosnewyork.io:443 push action ceshiyongeos burn '["ceshiyongeos", "2.0000 CCC", ""]' -p ceshiyongeos@active
+
+# 几个常识
+eos的用户名字为长度12的字符串，只有abcdefg..z 12345
+quantity 一般传入 "1.0000 EOS" 注意四位小数，空格及币名大写
