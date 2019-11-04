@@ -27,7 +27,7 @@ eosio-abigen /root/gitdoc/eocchaincode/EOS/eoschaincode/eoschaincode.cpp -contra
 ./cleos -u https://api.eosnewyork.io:443 set contract ceshiyongeos /root/gitdoc/eocchaincode/EOS/eoschaincode -p ceshiyongeos@active
 
 # 获取链上数据
-./cleos -u https://api.eosnewyork.io:443 get table -l 65536 ceshiyongeos ceshiyongeos todo
+./cleos -u https://api.eosnewyork.io:443 get table -l 65536 ceshiyongeos ceshiyongeos coin
 
 # 执行合约方法
 ./cleos -u https://api.eosnewyork.io:443 push action ceshiyongeos test '[]' -p ceshiyongeos@active
