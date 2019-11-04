@@ -18,13 +18,13 @@ cd eos/build/programs/cleos
 #### # 这里输入wallet的解锁密码
 
 # 将cpp文件编译为二进制文件
-eosio-cpp /root/gitdoc/eocchaincode/EOS/eoschaincode/eoschaincode.cpp -o /root/gitdoc/eocchaincode/EOS/eoschaincode/eoschaincode.wasm
+eosio-cpp /root/gitdoc/travelcode/EOS/eoschaincode/eoschaincode.cpp -o /root/gitdoc/travelcode/EOS/eoschaincode/eoschaincode.wasm
 
 # 将cpp文件编译为abi格式文件
-eosio-abigen /root/gitdoc/eocchaincode/EOS/eoschaincode/eoschaincode.cpp -contract=eoschaincode --output=/root/gitdoc/eocchaincode/EOS/eoschaincode/eoschaincode.abi
+eosio-abigen /root/gitdoc/travelcode/EOS/eoschaincode/eoschaincode.cpp -contract=eoschaincode --output=/root/gitdoc/travelcode/EOS/eoschaincode/eoschaincode.abi
 
 # 部署合约
-./cleos -u https://api.eosnewyork.io:443 set contract ceshiyongeos /root/gitdoc/eocchaincode/EOS/eoschaincode -p ceshiyongeos@active
+./cleos -u https://api.eosnewyork.io:443 set contract ceshiyongeos /root/gitdoc/travelcode/EOS/eoschaincode -p ceshiyongeos@active
 
 # 获取链上数据
 ./cleos -u https://api.eosnewyork.io:443 get table -l 65536 ceshiyongeos ceshiyongeos todo
