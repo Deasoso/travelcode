@@ -18,7 +18,8 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
     public: // 不用管，和private没区别 
         eoschaincode( name receiver, name code, datastream<const char*> ds ) :// 构造函数，不用管
         contract( receiver, code, ds ),// eosio构造函数，不用管
-        _coins(receiver, receiver.value){}// 定义struct结构体
+        _coins(receiver, receiver.value),
+        _users(receiver, receiver.value){}// 定义struct结构体
         // eos保存数据的方式:多个struct
         // 根据合约名、结构体名、key三个得到struct内数据
 
@@ -44,6 +45,16 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
 
             auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(coin, (id)(owner)(type)(code))
+        };
+
+        // 用户
+        TABLE user {
+            uint64_t id; // 序列
+            capi_name owner; // 拥有者
+            asset amount; // 余额
+
+            auto primary_key() const { return id; }
+            EOSLIB_SERIALIZE(user, (id)(owner)(amount))
         };
 
         // 挖矿，由后端(管理员)调用，传入随机数  (解决伪随机可能被预测)
@@ -84,16 +95,40 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
             eosio_assert(itr != coin.end(), "no frozen coin"); // 必須有找到，断言，不符合则报错，并且之前的修改全部回滚
             coin.erase(itr) ; // 删掉这个结构体
         }
-   
+
+        // add by Deaso
+        ACTION adduser(const name &owner, const asset amount){
+            require_auth(_self);    //创建者调用
+
+            // 增加一个新结构体                 加入者    加入函数，传入要加入的结构体
+            auto itr_newuser = _users.emplace(get_self(), [&](auto &c) {
+                c.id = _users.available_primary_key(); // 内部方法，id自增
+                c.owner = owner.value; // 设定各个属性
+                c.amount = amount;
+            });
+        }
+        ACTION deleteuser(const uint64_t id) { // 用来测试，不管，预留方法
+            require_auth(_self);
+
+            user_t user(_self, _self.value); //  获取结构体集合
+            auto itr = user.find(id); // 传入key，获得结构体、
+
+            eosio_assert(itr != user.end(), "no frozen user"); // 必須有找到，断言，不符合则报错，并且之前的修改全部回滚
+            user.erase(itr) ; // 删掉这个结构体
+        }
+
         // typedef :相当于define
         //          生成一个          结构体名            结构体         的结构集合
         // 集合，里面包含很多st_miningqueue
         typedef eosio::multi_index<"miningqueue"_n, st_miningqueue> miningqueue_t;
         typedef eosio::multi_index<"coin"_n, coin> coin_t;
         coin_t _coins; // 所有卡的集合
+        typedef eosio::multi_index<"user"_n, user> user_t;
+        user_t _users; // 所有用户的集合
 
     private:
         void setcoin(const name &owner, const uint64_t &type, const uint64_t &code);
+        void deleteuser(const uint64_t id);
         void onTransfer(name from, name to, asset quantity, string memo);
         void join_miningqueue(const name &miner, const uint64_t &type);
         inline vector<uint32_t> merge_seed(const capi_checksum256 &s);
@@ -157,6 +192,8 @@ void eoschaincode::apply(uint64_t receiver, uint64_t code, uint64_t action) {
         EOSIO_DISPATCH_HELPER(eoschaincode,
                   (mining)
                   (test)
+                  (adduser)
+                  (deleteuser)
                   (abc)
         )
     }

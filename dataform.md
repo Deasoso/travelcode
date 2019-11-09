@@ -5,23 +5,23 @@
 
 - 商家端
     - id
-    - 商家名字
-    - 景点列表
-    - 信誉度
-    - 总收入
+    - 商家名字 string
+    - 景点列表 string
+    - 信誉度 uint64_t
+    - 总收入 asset
 
 - 景点
     - id
-    - 名称
-    - 价格
-    - 商家总收入
-    - 分红总收入
-    - 信息
+    - 名称 string
+    - 价格 asset
+    - 商家总收入 asset
+    - 分红总收入 asset
+    - 信息 string
 
 - 订单
     - id
-    - 购买方 （用户id）
-    - 接收方 （景点id）
-    - 订单金额
+    - 购买方 （用户id） capi_name
+    - 接收方 （景点id） string
+    - 订单金额 asset
 
 O（1）解决分红问题
