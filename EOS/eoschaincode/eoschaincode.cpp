@@ -140,7 +140,7 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
                 c.amount = amount;
             });
         }
-        ACTION deletmerchant(const uint64_t id) { // 用来测试，不管，预留方法
+        ACTION deletemerchant(const uint64_t id) { // 用来测试，不管，预留方法
             require_auth(_self);
 
             merchant_t merchant(_self, _self.value); //  获取结构体集合
