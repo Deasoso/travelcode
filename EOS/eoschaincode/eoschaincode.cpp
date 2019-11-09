@@ -19,7 +19,8 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
         eoschaincode( name receiver, name code, datastream<const char*> ds ) :// 构造函数，不用管
         contract( receiver, code, ds ),// eosio构造函数，不用管
         _coins(receiver, receiver.value),
-        _users(receiver, receiver.value){}// 定义struct结构体
+        _users(receiver, receiver.value),
+        _merchants(receiver, receiver.value){}// 定义struct结构体
         // eos保存数据的方式:多个struct
         // 根据合约名、结构体名、key三个得到struct内数据
 
@@ -56,7 +57,17 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
             auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(user, (id)(owner)(amount))
         };
+        
+        TABLE merchant {
+            uint64_t id; // 序列
+            string merchantName; // 商家名字
+            string attractions;
+            uint64_t credibility;
+            asset amount; // 收入
 
+            auto primary_key() const { return id; }
+            EOSLIB_SERIALIZE(merchant, (id)(merchantName)(attractions)(credibility)(amount))
+        };
         // 挖矿，由后端(管理员)调用，传入随机数  (解决伪随机可能被预测)
         // 后端: 不停生成一个长随机字符串传入(不知道后端生成方法，无法预测) (10秒一次，且挖矿队列有人则传入)
         //    发卡函数             长随机字符串
@@ -116,7 +127,28 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
             eosio_assert(itr != user.end(), "no frozen user"); // 必須有找到，断言，不符合则报错，并且之前的修改全部回滚
             user.erase(itr) ; // 删掉这个结构体
         }
+        //add by cc
+        ACTION addmerchant(const string &merchantName, const string &attractions,const uint64_t &credibility, const asset amount){
+            require_auth(_self);    //创建者调用
 
+            // 增加一个新结构体                 加入者    加入函数，传入要加入的结构体
+            auto itr_newmerchant = _merchants.emplace(get_self(), [&](auto &c) {
+                c.id = _merchants.available_primary_key(); // 内部方法，id自增
+                c.merchantName = merchantName; // 设定各个属性
+                c.attractions = attractions;
+                c.credibilit = credibility;
+                c.amount = amount;
+            });
+        }
+        ACTION deletmerchant(const uint64_t id) { // 用来测试，不管，预留方法
+            require_auth(_self);
+
+            merchant_t merchant(_self, _self.value); //  获取结构体集合
+            auto itr = merchant.find(id); // 传入key，获得结构体、
+
+            eosio_assert(itr != merchant.end(), "no frozen merchant"); // 必須有找到，断言，不符合则报错，并且之前的修改全部回滚
+            merchant.erase(itr) ; // 删掉这个结构体
+        }
         // typedef :相当于define
         //          生成一个          结构体名            结构体         的结构集合
         // 集合，里面包含很多st_miningqueue
@@ -125,6 +157,8 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
         coin_t _coins; // 所有卡的集合
         typedef eosio::multi_index<"user"_n, user> user_t;
         user_t _users; // 所有用户的集合
+        typedef eosio::multi_index<"merchant"_n, merchant> merchant_t;
+        merchant_t _merchants; // 所有商家的集合
 
     private:
         void setcoin(const name &owner, const uint64_t &type, const uint64_t &code);
@@ -193,6 +227,8 @@ void eoschaincode::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (test)
                   (adduser)
                   (deleteuser)
+                  (addmerchant)
+                  (deletemerchant)
         )
     }
 }
