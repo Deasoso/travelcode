@@ -10,12 +10,18 @@ eos 命令
 ssh root@47.99.174.126
 #### 密码
 
-# 进入cleos钱包服务器
+# cd到cleos钱包目录
 cd eos/build/programs/cleos
 
 # 解锁钱包
 ./cleos wallet unlock
 #### # 这里输入wallet的解锁密码
+
+# cd到代码目录里
+cd /root/gitdoc/travelcode/EOS/eoschaincode
+
+# 拉取自己提交的代码
+git pull
 
 # 将cpp文件编译为二进制文件
 eosio-cpp /root/gitdoc/travelcode/EOS/eoschaincode/eoschaincode.cpp -o /root/gitdoc/travelcode/EOS/eoschaincode/eoschaincode.wasm
