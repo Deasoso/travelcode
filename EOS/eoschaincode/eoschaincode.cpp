@@ -14,6 +14,7 @@ using namespace config ;
 // 工作空间
 
 CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太了解
+    // aaa
     public: // 不用管，和private没区别 
         eoschaincode( name receiver, name code, datastream<const char*> ds ) :// 构造函数，不用管
         contract( receiver, code, ds ),// eosio构造函数，不用管
