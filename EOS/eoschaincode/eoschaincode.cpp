@@ -128,7 +128,6 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
 
     private:
         void setcoin(const name &owner, const uint64_t &type, const uint64_t &code);
-        void deleteuser(const uint64_t id);
         void onTransfer(name from, name to, asset quantity, string memo);
         void join_miningqueue(const name &miner, const uint64_t &type);
         inline vector<uint32_t> merge_seed(const capi_checksum256 &s);
@@ -194,7 +193,6 @@ void eoschaincode::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (test)
                   (adduser)
                   (deleteuser)
-                  (abc)
         )
     }
 }
