@@ -21,7 +21,7 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
         _coins(receiver, receiver.value),
         _users(receiver, receiver.value),
         _merchants(receiver, receiver.value),
-        _users(receiver, receiver.value){}// 定义struct结构体
+        _orders(receiver, receiver.value){}// 定义struct结构体
         // eos保存数据的方式:多个struct
         // 根据合约名、结构体名、key三个得到struct内数据
 
