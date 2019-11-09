@@ -136,11 +136,11 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
                 c.id = _merchants.available_primary_key(); // 内部方法，id自增
                 c.merchantName = merchantName; // 设定各个属性
                 c.attractions = attractions;
-                c.credibilit = credibility;
+                c.credibility = credibility;
                 c.amount = amount;
             });
         }
-        ACTION deletemerchant(const uint64_t id) { // 用来测试，不管，预留方法
+        ACTION delmerchant(const uint64_t id) { // 用来测试，不管，预留方法
             require_auth(_self);
 
             merchant_t merchant(_self, _self.value); //  获取结构体集合
@@ -228,7 +228,7 @@ void eoschaincode::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (adduser)
                   (deleteuser)
                   (addmerchant)
-                  (deletemerchant)
+                  (delmerchant)
         )
     }
 }
