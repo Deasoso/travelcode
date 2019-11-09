@@ -21,7 +21,7 @@
 - 订单
     - id
     - 购买方 （用户id） capi_name
-    - 接收方 （景点id） string
+    - 接收方 （景点id） uint64_t
     - 订单金额 asset
 
 O（1）解决分红问题
