@@ -40,8 +40,7 @@ eosio-abigen /root/gitdoc/travelcode/EOS/eoschaincode/eoschaincode.cpp -contract
 ./cleos -u https://api.eosnewyork.io:443 push action ceshiyongeos test '[]' -p ceshiyongeos@active
 
 # 执行合约方法（带参数）
-./cleos -u https://api.eosnewyork.io:443 push action ceshiyongeos burn '["ceshiyongeos", "2.0000 CCC", ""]' -p ceshiyongeos@active
-./cleos -u https://api.eosnewyork.io:443 push action ceshiyongeos add '["ceshiyongeos", "123","1.0000 EOS"]' -p ceshiyongeos@active
+./cleos -u https://api.eosnewyork.io:443 push action ceshiyongeos adduser '["ceshiyongeos", "1.0000 EOS"]' -p ceshiyongeos@active
 
 # 几个常识
 eos的用户名字为长度12的字符串，只有abcdefg..z 12345
