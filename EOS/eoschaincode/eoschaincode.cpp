@@ -199,7 +199,8 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
 
             eosio_assert(itr != order.end(), "no frozen order"); // 必須有找到，断言，不符合则报错，并且之前的修改全部回滚
             order.erase(itr) ; // 删掉这个结构体
-
+        }
+        
         // add by kuninup
         ACTION addscenery(const string &scenery_name, const asset scenery_price, const asset merall_income, const asset total_dividends, const string scenery_info){
             require_auth(_self);    //创建者调用
