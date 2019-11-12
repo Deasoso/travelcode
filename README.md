@@ -33,7 +33,7 @@ eosio-abigen /root/gitdoc/travelcode/EOS/eoschaincode/eoschaincode.cpp -contract
 ./cleos -u https://api.eosnewyork.io:443 set contract ceshiyongeos /root/gitdoc/travelcode/EOS/eoschaincode -p ceshiyongeos@active
 
 # 获取链上数据
-./cleos -u https://api.eosnewyork.io:443 get table -l 65536 ceshiyongeos ceshiyongeos coin
+./cleos -u https://api.eosnewyork.io:443 get table -l 65536 ceshiyongeos ceshiyongeos user
 
 # 执行合约方法
  钱包文件         定义节点                  执行方法      用户名   合约方法 参数       给权限

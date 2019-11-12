@@ -203,7 +203,7 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
 
         // add by kuninup
         ACTION addscenery(const string &scenery_name, const asset scenery_price, const asset merall_income, const asset total_dividends, const string scenery_info);
-        
+
         ACTION descenery(const uint64_t id) { // 用来测试，不管，预留方法
             require_auth(_self);
 
@@ -235,7 +235,33 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
         void join_miningqueue(const name &miner, const uint64_t &type);
         inline vector<uint32_t> merge_seed(const capi_checksum256 &s);
 };
+// 用于编译&监听，不用特别在意
+void eoschaincode::apply(uint64_t receiver, uint64_t code, uint64_t action) {
+    auto &thiscontract = *this;
+    if ( code == ( "eosio.token"_n ).value && action == ( "transfer"_n ).value ) {
+        // eosio.token 里面会将所有参数打包为一个结构体
+        auto transfer_data = unpack_action_data<st_transfer>(); // 解析结构体
+        onTransfer(transfer_data.from, transfer_data.to, transfer_data.quantity, transfer_data.memo);
+        return;
+    }
 
+    if (code != get_self().value) return;
+    switch (action) {
+        // 指定哪些函数写入abi
+        EOSIO_DISPATCH_HELPER(eoschaincode,
+                  (mining)
+                  (test)
+                  (adduser)
+                  (deleteuser)
+                  (addmerchant)
+                  (delmerchant)
+                  (addorder)
+                  (deleteorder)
+                  (addscenery)
+                  (descenery)
+        )
+    }
+}
 // 外部函数，不用管
 extern "C" {
     [[noreturn]] void apply(uint64_t receiver, uint64_t code, uint64_t action) {

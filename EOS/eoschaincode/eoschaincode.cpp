@@ -43,34 +43,6 @@ void eoschaincode::onTransfer(name from, name to, asset quantity, std::string me
     // 以上一段
 }
 
-// 用于编译&监听，不用特别在意
-void eoschaincode::apply(uint64_t receiver, uint64_t code, uint64_t action) {
-    auto &thiscontract = *this;
-    if ( code == ( "eosio.token"_n ).value && action == ( "transfer"_n ).value ) {
-        // eosio.token 里面会将所有参数打包为一个结构体
-        auto transfer_data = unpack_action_data<st_transfer>(); // 解析结构体
-        onTransfer(transfer_data.from, transfer_data.to, transfer_data.quantity, transfer_data.memo);
-        return;
-    }
-
-    if (code != get_self().value) return;
-    switch (action) {
-        // 指定哪些函数写入abi
-        EOSIO_DISPATCH_HELPER(eoschaincode,
-                  (mining)
-                  (test)
-                  (adduser)
-                  (deleteuser)
-                  (addmerchant)
-                  (delmerchant)
-                  (addorder)
-                  (deleteorder)
-                  (addscenery)
-                  (descenery)
-        )
-    }
-}
-
 // 加入挖矿队列 [矿工1，矿工2]..
 void eoschaincode::join_miningqueue(const name &miner, const uint64_t &type)
 {
