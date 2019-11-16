@@ -27,7 +27,7 @@ void eoschaincode:: addmoney(const uint64_t id,const asset money){
 
     eosio_assert(itr != merchant.end(), "no this merchant!!!");
 
-    merchant.modify(itr,get_self(),[&](auto &u)){
+    merchant.modify(itr,get_self(),[&](auto &u){
         u.amount = u->amount + money;
     });
 
@@ -39,7 +39,7 @@ void eoschaincode:: delmoney(const uint64_t id,const asset money){
 
     eosio_assert(itr != merchant.end(), "no this merchant!!!");
 
-    merchant.modify(itr,get_self(),[&](auto &u)){
+    merchant.modify(itr,get_self(),[&](auto &u){
         u.amount = u->amount - money;
     });
 
@@ -55,8 +55,8 @@ void eoschaincode:: delmoney(const uint64_t id,const asset money){
         //         u.value = globalcoincount;
         //     });
         // } else {
-            _usedcoins.modify(usedcoins, get_self(), [&](auto &u) {
-                u.value = globalcoincount += usedcoins->value ;
-            });
+            // _usedcoins.modify(usedcoins, get_self(), [&](auto &u) {
+            //     u.value = globalcoincount += usedcoins->value ;
+            // });
         // }
         // return globalcoincount;
