@@ -20,10 +20,10 @@ void eoschaincode:: delmerchant(const uint64_t id) { // 用来测试，不管，
     merchant.erase(itr) ; // 删掉这个结构体
 }
 
-void eoschaincode:: addmoney(const string name,const asset money){
+void eoschaincode:: addmoney(const uint64_t id,const asset money){
     require_auth(_self);
     merchant_t merchant(_self,_self.value);
-    auto itr = merchant.find(name);
+    auto itr = merchant.find(id);
 
     eosio_assert(itr != merchant.end(), "no this merchant!!!");
 
@@ -32,10 +32,10 @@ void eoschaincode:: addmoney(const string name,const asset money){
     }
 
 }
-void eoschaincode:: delmoney(const string name,const asset money){
+void eoschaincode:: delmoney(const uint64_t id,const asset money){
     require_auth(_self);
     merchant_t merchant(_self,_self.value);
-    auto itr = merchant.find(name);
+    auto itr = merchant.find(id);
 
     eosio_assert(itr != merchant.end(), "no this merchant!!!");
 

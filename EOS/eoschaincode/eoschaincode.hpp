@@ -161,9 +161,9 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
         //删除商家
         ACTION delmerchant(const uint64_t id);
         //减收入
-        ACTION addmoney(const string name,const asset money);
+        ACTION addmoney(uint64_t id,const asset money);
         //增收入
-        ACTION delmoney(const string name,const asset money);
+        ACTION delmoney(uint64_t id,const asset money);
 
 
 
