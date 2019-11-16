@@ -54,10 +54,9 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
         TABLE user {
             uint64_t id; // 序列
             capi_name owner; // 拥有者
-            asset amount; // 余额
 
             auto primary_key() const { return id; }
-            EOSLIB_SERIALIZE(user, (id)(owner)(amount))
+            EOSLIB_SERIALIZE(user, (id)(owner))
         };
         
         //商家
@@ -75,7 +74,7 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
             uint64_t id; // 序列
             capi_name buyer; // 购买方
             uint64_t receiver; //接收方
-            asset amount; // 余额
+            asset amount; // 订单金额
 
             auto primary_key() const { return id; }
             EOSLIB_SERIALIZE(order, (id)(buyer)(receiver)(amount))
@@ -86,12 +85,11 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
             uint64_t id; // 序列
             string scenery_name; //景点名称
             asset scenery_price; //景点价格
-            asset merall_income; // 商家总收入
-            asset total_dividends; //分红总收入
+            string scenery_merchantName;//景点属于的商家
             string scenery_info; //景点信息
 
             auto primary_key() const { return id; }
-            EOSLIB_SERIALIZE(scenery, (id)(scenery_name)(scenery_price)(merall_income)(total_dividends)(scenery_info))
+            EOSLIB_SERIALIZE(scenery, (id)(scenery_name)(scenery_price)(scenery_merchantName)(scenery_info))
         };
 
         // 挖矿，由后端(管理员)调用，传入随机数  (解决伪随机可能被预测)
@@ -134,25 +132,8 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
         }
 
         // add by Deaso
-        ACTION adduser(const name &owner, const asset amount){
-            require_auth(_self);    //创建者调用
-
-            // 增加一个新结构体                 加入者    加入函数，传入要加入的结构体
-            auto itr_newuser = _users.emplace(get_self(), [&](auto &c) {
-                c.id = _users.available_primary_key(); // 内部方法，id自增
-                c.owner = owner.value; // 设定各个属性
-                c.amount = amount;
-            });
-        }
-        ACTION deleteuser(const uint64_t id) { // 用来测试，不管，预留方法
-            require_auth(_self);
-
-            user_t user(_self, _self.value); //  获取结构体集合
-            auto itr = user.find(id); // 传入key，获得结构体、
-
-            eosio_assert(itr != user.end(), "no frozen user"); // 必須有找到，断言，不符合则报错，并且之前的修改全部回滚
-            user.erase(itr) ; // 删掉这个结构体
-        }
+        ACTION adduser(const name &owner);
+        ACTION deleteuser(const uint64_t id);
 
         
         //add by cc
@@ -168,39 +149,12 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
 
 
         // add by llbthxf
-        ACTION addorder(const name &buyer, const uint64_t receiver, const asset amount){
-            require_auth(_self);    //创建者调用
-
-            // 增加一个新结构体                 加入者    加入函数，传入要加入的结构体
-            auto itr_neworder = _orders.emplace(get_self(), [&](auto &c) {
-                c.id = _orders.available_primary_key(); // 内部方法，id自增
-                c.buyer = buyer.value; // 设定各个属性
-                c.receiver = receiver;
-                c.amount = amount;
-            });
-        }
-        ACTION deleteorder(const uint64_t id) { // 用来测试，不管，预留方法
-            require_auth(_self);
-
-            order_t order(_self, _self.value); //  获取结构体集合
-            auto itr = order.find(id); // 传入key，获得结构体、
-
-            eosio_assert(itr != order.end(), "no frozen order"); // 必須有找到，断言，不符合则报错，并且之前的修改全部回滚
-            order.erase(itr) ; // 删掉这个结构体
-        }
+        ACTION addorder(const name &buyer, const uint64_t receiver, const asset amount);
 
         // add by kuninup
-        ACTION addscenery(const string &scenery_name, const asset scenery_price, const asset merall_income, const asset total_dividends, const string scenery_info);
+        ACTION addscenery(const string scenery_name, const asset scenery_price, const string scenery_merchantName, const string scenery_info);
 
-        ACTION descenery(const uint64_t id) { // 用来测试，不管，预留方法
-            require_auth(_self);
-
-            scenery_t scenery(_self, _self.value); //  获取结构体集合
-            auto itr = scenery.find(id); // 传入key，获得结构体、
-
-            eosio_assert(itr != scenery.end(), "no frozen scenery"); // 必須有找到，断言，不符合则报错，并且之前的修改全部回滚
-            scenery.erase(itr) ; // 删掉这个结构体
-        }
+        ACTION delscenery(const uint64_t id);
 
         // typedef :相当于define
         //          生成一个          结构体名            结构体         的结构集合
@@ -244,9 +198,8 @@ void eoschaincode::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (addmerchant)
                   (delmerchant)
                   (addorder)
-                  (deleteorder)
                   (addscenery)
-                  (descenery)
+                  (delscenery)
         )
     }
 }
