@@ -28,7 +28,7 @@ void eoschaincode:: addmoney(const uint64_t id,const asset money){
     eosio_assert(itr != merchant.end(), "no this merchant!!!");
 
     merchant.modify(itr,get_self(),[&](auto &u){
-        u.amount = u->amount + money;
+        u.amount = itr->amount + money;
     });
 
 }
@@ -40,7 +40,7 @@ void eoschaincode:: delmoney(const uint64_t id,const asset money){
     eosio_assert(itr != merchant.end(), "no this merchant!!!");
 
     merchant.modify(itr,get_self(),[&](auto &u){
-        u.amount = u->amount - money;
+        u.amount = itr->amount - money;
     });
 
 }
