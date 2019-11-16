@@ -63,11 +63,12 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
         //商家
         TABLE merchant {
             uint64_t id; // 序列
-            string name; // 商家名字
-            asset withdrawal;//已提现
-            asset amount; // 总收入
+            string merchantName; // 商家名字
+            string attractions;
+            uint64_t credibility;
+            asset amount; // 收入
             auto primary_key() const { return id; }
-            EOSLIB_SERIALIZE(merchant, (id)(name)(withdrawal)(amount))
+            EOSLIB_SERIALIZE(merchant, (id)(merchantName)(attractions)(credibility)(amount))
         };
 
         // 订单
@@ -156,16 +157,27 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
 
         
         //add by cc
-        //新建商家
-        ACTION addmerchant(const string name, const asset withdrawal,const asset amount);
-        //删除商家
-        ACTION delmerchant(const uint64_t id);
-        //减收入
-        ACTION addmoney(const string name,const asset money);
-        //增收入
-        ACTION delmoney(const string name,const asset money);
+        ACTION addmerchant(const string &merchantName, const string &attractions,const uint64_t &credibility, const asset amount){
+            require_auth(_self);    //创建者调用
 
+            // 增加一个新结构体                 加入者    加入函数，传入要加入的结构体
+            auto itr_newmerchant = _merchants.emplace(get_self(), [&](auto &c) {
+                c.id = _merchants.available_primary_key(); // 内部方法，id自增
+                c.merchantName = merchantName; // 设定各个属性
+                c.attractions = attractions;
+                c.credibility = credibility;
+                c.amount = amount;
+            });
+        }
+        ACTION delmerchant(const uint64_t id) { // 用来测试，不管，预留方法
+            require_auth(_self);
 
+            merchant_t merchant(_self, _self.value); //  获取结构体集合
+            auto itr = merchant.find(id); // 传入key，获得结构体、
+
+            eosio_assert(itr != merchant.end(), "no frozen merchant"); // 必須有找到，断言，不符合则报错，并且之前的修改全部回滚
+            merchant.erase(itr) ; // 删掉这个结构体
+        }
 
         // add by llbthxf
         ACTION addorder(const name &buyer, const uint64_t receiver, const asset amount){

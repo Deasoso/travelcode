@@ -13,7 +13,6 @@
     - 名称 string
     - 价格 asset
     - 属于的商家 string
-    - 分数 uint64_t
     - 信息 string
 
 - 订单 llbthxf
