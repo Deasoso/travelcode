@@ -197,6 +197,8 @@ void eoschaincode::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (deleteuser)
                   (addmerchant)
                   (delmerchant)
+                  (addmoney)
+                  (delmoney)
                   (addorder)
                   (addscenery)
                   (delscenery)
