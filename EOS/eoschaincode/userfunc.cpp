@@ -1,7 +1,7 @@
 #include "eoschaincode.hpp"
 
 //新建用户
-void eoschaincode::adduser(const name &owner, const asset amount){
+void eoschaincode::adduser(const name owner){
     require_auth(_self);    //创建者调用
     // 增加一个新结构体                 加入者    加入函数，传入要加入的结构体
     auto itr_newuser = _users.emplace(get_self(), [&](auto &c) {

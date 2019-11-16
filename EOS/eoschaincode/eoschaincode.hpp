@@ -132,7 +132,7 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
         }
 
         // add by Deaso
-        ACTION adduser(const name &owner);
+        ACTION adduser(const name owner);
         ACTION deleteuser(const uint64_t id);
 
         
