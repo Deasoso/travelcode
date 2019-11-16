@@ -1,6 +1,9 @@
 #include "eoschaincode.hpp"
 #include "sceneryfunc.cpp"
 #include "merchantfunc.cpp"
+#include "userfunc.cpp"
+#include "orderfunc.cpp"
+
 //  两个引号:新加方法  类名::方法名    可以放到别的文件
 //  一般在类里会写上接口
 //  内部调用，发卡函数，只有写入abi的函数可以在外部调用，此函数不写入，无法调用
