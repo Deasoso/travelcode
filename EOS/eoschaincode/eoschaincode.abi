@@ -1,9 +1,220 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed May 29 15:53:26 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Nov 12 17:33:51 2020",
     "version": "eosio::abi/1.1",
     "structs": [
         {
-            "name": "coin",
+            "name": "addmerchant",
+            "base": "",
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "withdrawal",
+                    "type": "asset"
+                },
+                {
+                    "name": "amount",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "addmoney",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "money",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "addorder",
+            "base": "",
+            "fields": [
+                {
+                    "name": "buyer",
+                    "type": "name"
+                },
+                {
+                    "name": "receiver",
+                    "type": "uint64"
+                },
+                {
+                    "name": "amount",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "addscenery",
+            "base": "",
+            "fields": [
+                {
+                    "name": "scenery_name",
+                    "type": "string"
+                },
+                {
+                    "name": "scenery_price",
+                    "type": "asset"
+                },
+                {
+                    "name": "scenery_merchantName",
+                    "type": "string"
+                },
+                {
+                    "name": "scenery_info",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "adduser",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "deleteuser",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "delmerchant",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "delmoney",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "money",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "delorder",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "delscenery",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "merchant",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "withdrawal",
+                    "type": "asset"
+                },
+                {
+                    "name": "amount",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "order",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "buyer",
+                    "type": "name"
+                },
+                {
+                    "name": "receiver",
+                    "type": "uint64"
+                },
+                {
+                    "name": "amount",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "scenery",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "scenery_name",
+                    "type": "string"
+                },
+                {
+                    "name": "scenery_price",
+                    "type": "asset"
+                },
+                {
+                    "name": "scenery_merchantName",
+                    "type": "string"
+                },
+                {
+                    "name": "scenery_info",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "test",
+            "base": "",
+            "fields": []
+        },
+        {
+            "name": "user",
             "base": "",
             "fields": [
                 {
@@ -13,56 +224,60 @@
                 {
                     "name": "owner",
                     "type": "name"
-                },
-                {
-                    "name": "type",
-                    "type": "uint64"
-                },
-                {
-                    "name": "code",
-                    "type": "uint64"
                 }
             ]
-        },
-        {
-            "name": "mining",
-            "base": "",
-            "fields": [
-                {
-                    "name": "seed",
-                    "type": "checksum256"
-                }
-            ]
-        },
-        {
-            "name": "st_miningqueue",
-            "base": "",
-            "fields": [
-                {
-                    "name": "id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "type",
-                    "type": "uint64"
-                },
-                {
-                    "name": "miner",
-                    "type": "name"
-                }
-            ]
-        },
-        {
-            "name": "test",
-            "base": "",
-            "fields": []
         }
     ],
     "types": [],
     "actions": [
         {
-            "name": "mining",
-            "type": "mining",
+            "name": "addmerchant",
+            "type": "addmerchant",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "addmoney",
+            "type": "addmoney",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "addorder",
+            "type": "addorder",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "addscenery",
+            "type": "addscenery",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "adduser",
+            "type": "adduser",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "deleteuser",
+            "type": "deleteuser",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "delmerchant",
+            "type": "delmerchant",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "delmoney",
+            "type": "delmoney",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "delorder",
+            "type": "delorder",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "delscenery",
+            "type": "delscenery",
             "ricardian_contract": ""
         },
         {
@@ -73,15 +288,29 @@
     ],
     "tables": [
         {
-            "name": "coin",
-            "type": "coin",
+            "name": "merchant",
+            "type": "merchant",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
         },
         {
-            "name": "miningqueue",
-            "type": "st_miningqueue",
+            "name": "order",
+            "type": "order",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "scenery",
+            "type": "scenery",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "user",
+            "type": "user",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

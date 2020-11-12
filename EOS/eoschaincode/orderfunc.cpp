@@ -12,3 +12,14 @@ void eoschaincode::addorder(const name &buyer, const uint64_t receiver, const as
     });
     addmoney(receiver , amount);
 }
+
+//删除订单
+void eoschaincode::delorder(const uint64_t id) { // 用来测试，不管，预留方法
+  require_auth(_self);
+
+  order_t order(_self, _self.value); //  获取结构体集合
+  auto itr = order.find(id); // 传入key，获得结构体、
+
+  eosio_assert(itr != order.end(), "no frozen order"); // 必須有找到，断言，不符合则报错，并且之前的修改全部回滚
+  order.erase(itr) ; // 删掉这个结构体
+}

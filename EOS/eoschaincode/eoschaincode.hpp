@@ -93,6 +93,8 @@ CONTRACT eoschaincode : public eosio::contract {   // 定义类名，不用太�
         // add by llbthxf
         ACTION addorder(const name &buyer, const uint64_t receiver, const asset amount);
 
+        ACTION delorder(const uint64_t id);
+
         // add by kuninup
         ACTION addscenery(const string scenery_name, const asset scenery_price, const string scenery_merchantName, const string scenery_info);
 
@@ -135,6 +137,7 @@ void eoschaincode::apply(uint64_t receiver, uint64_t code, uint64_t action) {
                   (addmoney)
                   (delmoney)
                   (addorder)
+                  (delorder)
                   (addscenery)
                   (delscenery)
         )
